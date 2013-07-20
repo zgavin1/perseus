@@ -2,6 +2,7 @@
 
 var Util = Perseus.Util = {
     rWidgetParts: /^\[\[\u2603 (([a-z-]+) ([0-9]+))\]\]$/,
+    rWidgetParts_new: /^\[\[\u2603 [a-z-]+:([0-9]+)\]\]$/,
 
     seededRNG: function(seed) {
         var randomSeed = seed;

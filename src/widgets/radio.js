@@ -5,6 +5,8 @@ var BaseRadio = React.createClass({
     render: function() {
         var radioGroupName = _.uniqueId("perseus_radio_");
         var inputType = this.props.multipleSelect ? "checkbox" : "radio";
+        console.log("render base radio");
+        console.log(this.props.choices);
 
         return <ul className="perseus-widget-radio">
             {this.props.multipleSelect &&
@@ -16,7 +18,7 @@ var BaseRadio = React.createClass({
                             ref={"radio" + i}
                             type={inputType}
                             name={radioGroupName}
-                            defaultChecked={choice.checked}
+                            checked={choice.checked}
                             onChange={this.onChange.bind(this, i)} />
                         {choice.content}
                     </div>;
@@ -59,7 +61,7 @@ var Radio = React.createClass({
             return {
                 // We need to make a copy, which _.pick does
                 content: Perseus.Renderer(_.pick(choice, "content")),
-                checked: false,
+                checked: choice.checked || false,
                 originalIndex: i
             };
         });
@@ -80,7 +82,9 @@ var Radio = React.createClass({
     },
 
     onCheckedChange: function(checked) {
-        this.props.onChange({values: this.derandomize(checked)});
+        var values = this.derandomize(checked);
+        var choices = this.guessToProps(values).choices;
+        this.props.onChange({values: values, choices: choices});
     },
 
     toJSON: function(skipValidation) {
@@ -119,7 +123,20 @@ var Radio = React.createClass({
         } else {
             return array;
         }
-    }
+    },
+
+    guessToProps: function(guess) {
+        console.log("guessToProps");
+        console.log(guess);
+        var props = _.clone(this.props);
+        props.choices = _.map(props.choices, function (choice, i) {
+            return {
+                content: choice.content,
+                checked: guess[i]
+            };
+        });
+        return props;
+    },
 });
 
 _.extend(Radio, {

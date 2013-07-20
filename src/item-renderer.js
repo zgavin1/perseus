@@ -4,36 +4,8 @@
 // TODO(alpert): Thread problemNum to question-area widgets too
 
 var AnswerAreaRenderer = React.createClass({
-    getInitialState: function() {
-        // TODO(alpert): Move up to parent props?
-        return {
-            widget: {},
-            cls: this.getClass()
-        };
-    },
-
-    componentWillReceiveProps: function(nextProps) {
-        this.setState({cls: this.getClass(nextProps.type)});
-    },
-
-    getClass: function(type) {
-        type = type || this.props.type;
-        if (type === "multiple") {
-            return Perseus.Renderer;
-        } else {
-            return Perseus.Widgets._widgetTypes[type];
-        }
-    },
-
     render: function(rootNode) {
-        return this.state.cls(_.extend({
-            ref: "widget",
-            problemNum: this.props.problemNum,
-            onChange: function(newProps, cb) {
-                var widget = _.extend({}, this.state.widget, newProps);
-                this.setState({widget: widget}, cb);
-            }.bind(this)
-        }, this.props.options, this.state.widget));
+        return Perseus.WidgetsRenderer(_.extend({ref: "widget"}, this.props));
     },
 
     componentDidMount: function() {
@@ -93,7 +65,7 @@ var AnswerAreaRenderer = React.createClass({
         if (this.props.calculator) {
             $("#calculator").hide();
         }
-        if (this.state.cls.examples && $("#examples-show").length) {
+        if ($("#examples-show").length) {
             $("#examples-show").hide();
             React.unmountAndReleaseReactRootNode(
                     document.getElementById("examples"));
@@ -105,18 +77,7 @@ var AnswerAreaRenderer = React.createClass({
     },
 
     getWidgets: function() {
-        var widget = this.refs.widget;
-        if (this.props.type === "multiple") {
-            return _.map(widget.getWidgets(), function (widget) {
-                widget.id = "answer-" + widget.id;
-                return widget;
-            });
-        }
-        return [{
-            type: this.props.type,
-            component: widget,
-            id: "answer"
-        }];
+        return this.refs.widget.getWidgets();
     },
 });
 
@@ -139,6 +100,7 @@ var HintsRenderer = React.createClass({
 });
 
 var ItemRenderer = Perseus.ItemRenderer = React.createClass({
+    version: "0.1",
     getDefaultProps: function() {
         return {
             initialHintsVisible: 0
@@ -146,64 +108,166 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     },
 
     getInitialState: function() {
+        window.renderer = this;
         return {
-            correctAnswer: [],
             hintsVisible: this.props.initialHintsVisible
         };
     },
 
-    componentDidMount: function() {
-        this.update();
+    setItem: function(item) {
+        var self = this;
+        if (! item.version) {
+            item = self.getItemFromOld(item);
+        }
+        item.widgets = _.map(item.widgets, function (widget) {
+            widget.constructor = Perseus.Widgets._widgetTypes[widget.type];
+            widget.props = widget.json;     // XXX: transformation?
+            return widget;
+        });
+        self.item = item;
+        self.update();
     },
 
-    componentDidUpdate: function() {
-        this.update();
+    getItemFromOld: function (old) {
+        var item = {};
+        item.version = self.version;
+
+        var idCounter = 0;
+        var idMap = [];
+        var widgets = [];
+        var getWidgets = function (oldWidgets, location) {
+            var newWidgets = _.map(oldWidgets, function (widget, oldId) {
+                var id = idCounter;
+                idCounter += 1;
+                idMap.push({
+                    location: location,
+                    id: id,
+                    oldId: oldId,
+                    type: widget.type
+                });
+                return {
+                    id: id,
+                    location: location,
+                    json: widget.options,
+                    type: widget.type
+                };
+            });
+            widgets = widgets.concat(newWidgets);
+        };
+        getWidgets(old.question.widgets, "question");
+        if (old.answerArea.type === "multiple") {
+            var answer = old.answerArea.options.content;
+            var answerWidgets = old.answerArea.options.widgets;
+        } else {
+            var id = old.answerArea.type+" 1";
+            var answer = "[[\u2603 "+id+"]]";
+            var answerWidgets = {};
+            answerWidgets[id] = _.pick(old.answerArea, "options", "type");
+        }
+        getWidgets(answerWidgets, "answer");
+        var content = {
+            question: old.question.content,
+            answer: answer
+        };
+        _.each(content, function (content, location) {
+            _.each(idMap, function (map) {
+                if (map.location === location) {
+                    content = content.replace(map.oldId, map.type+":"+map.id);
+                }
+            });
+            item[location] = content;
+        });
+        item.calculator = old.answerArea.calculator || false;
+        item.widgets = widgets;
+        item.hints = old.hints || [];
+
+        // XXX: not really old, should be done in new
+        item.correctAnswer = old.correctAnswer;
+        return item;
     },
 
-    update: function() {
+    cloneItem: function (item) {
+        item = _.clone(item);
+        item.widgets = _.map(item.widgets, function (widget) {
+            widget = _.clone(widget);
+            widget.props = _.clone(widget.props);
+            return widget;
+        });
+        return item;
+    },
+
+    update: function(cb) {
         // Since the item renderer works by rendering things into three divs
         // that have completely different places in the DOM, we have to do this
         // strangeness instead of relying on React's normal render() method.
         // TODO(alpert): Figure out how to clean this up somehow
 
+        var item = this.cloneItem(this.item);
+        var question = {
+            content: item.question,
+            updateWidget: this.updateWidget
+        };
+        question.widgets = _.filter(item.widgets, function (widget) {
+            return widget.location === "question";
+        });
         this.questionRenderer = React.renderComponent(
-                Perseus.Renderer(this.props.item.question),
+                Perseus.WidgetsRenderer(question),
                 document.getElementById("workarea"));
 
+        var answer = {
+            content: item.answer,
+            calculator: item.calculator,
+            problemNum: this.props.problemNum,
+            updateWidget: this.updateWidget
+        };
+        answer.widgets = _.filter(item.widgets, function (widget) {
+            return widget.location === "answer";
+        });
         this.answerAreaRenderer = React.renderComponent(
-                AnswerAreaRenderer({
-                    type: this.props.item.answerArea.type,
-                    options: this.props.item.answerArea.options,
-                    calculator: this.props.item.answerArea.calculator || false,
-                    problemNum: this.props.problemNum,
-                    onCorrectAnswerChange: this.props.onCorrectAnswerChange
-                }),
+                AnswerAreaRenderer(answer),
                 document.getElementById("solutionarea"));
 
         this.hintsRenderer = React.renderComponent(
                 HintsRenderer({
-                    hints: this.props.item.hints,
+                    hints: item.hints,
                     hintsVisible: this.state.hintsVisible
                 }),
                 document.getElementById("hintsarea"));
 
+        if (cb) {
+            cb();
+        }
         this.postUpdate();
     },
 
+    updateWidget: function(widgetId, newProps, cb) {
+        var widgets = this.item.widgets;
+        var widget = _.find(widgets, function (widget) {
+            return widget.id === widgetId;
+        });
+        _.extend(widget.props, newProps);
+        this.update(cb);
+    },
+
     postUpdate: function() {
+        var self = this;
+        window.renderer = self;
         console.log("Post update");
         var widgets = [];
-        widgets = widgets.concat(this.questionRenderer.getWidgets());
-        widgets = widgets.concat(this.answerAreaRenderer.getWidgets());
-        this.widgets = _.map(widgets, function (widget) {
-            widget.constructor = Perseus.Widgets._widgetTypes[widget.type];
-            return widget;
+        widgets = widgets.concat(self.questionRenderer.getWidgets());
+        widgets = widgets.concat(self.answerAreaRenderer.getWidgets());
+        var widgetsMap = {};
+        _.each(widgets, function (widget) {
+            widgetsMap[widget.id] = widget.component;
+        });
+        _.each(self.item.widgets, function (widget) {
+            widget.component = widgetsMap[widget.id];
         });
     },
 
     getGuess: function() {
         var self = this;
-        return _.map(self.widgets, function (widget) {
+        return _.map(self.item.widgets, function (widget) {
             var json = widget.component.toJSON();
             return widget.constructor.jsonToGuess(json);
         });
@@ -211,28 +275,76 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
 
     isGuessEquivalent: function (guessA, guessB) {
         var self = this;
-        return _.every(self.widgets, function (widget, i) {
+        return _.every(self.item.widgets, function (widget, i) {
             return widget.constructor.isGuessEquivalent(guessA[i], guessB[i]);
         });
     },
 
     isGuessCompleted: function (guess) {
         var self = this;
-        return _.every(self.widgets, function (widget, i) {
+        return _.every(self.item.widgets, function (widget, i) {
             return widget.constructor.isGuessCompleted(guess[i]);
         });
+    },
+
+    showGuess: function (guess) {
+        var self = this;
+        _.each(self.item.widgets, function (widget, i) {
+            widget.props = widget.component.guessToProps(guess[i]);
+        });
+        self.update();
+    },
+
+    // XXX: old showGuess, not sure if committed
+    //showGuess: function (guess) {
+    //    var self = this;
+    //    var item = _.pick(self.state, "question", "answerArea");
+    //    var info = _.map(self.item.widgets, function (widget, i) {
+    //        return {
+    //            id: widget.id,
+    //            location: widget.location,
+    //            type: widget.type,
+    //            options: widget.component.guessToProps(guess[i])
+    //        };
+    //    });
+    //    var grouped = _.groupBy(info, function (info) {
+    //        return info.location;
+    //    });
+    //    var objectGroup = {};
+    //    _.each(grouped, function (group, key) {
+    //        var object = {};
+    //        _.each(group, function (info) {
+    //            object[info.id] = _.pick(info, "type", "options");
+    //        });
+    //        objectGroup[key] = object;
+    //    });
+    //    var answers = grouped.answer;
+    //    if (answers) {
+    //        if (answers[0].id === "answer") {
+    //            item.answerArea = _.pick(answers[0], "type", "options");
+    //        } else {
+    //            item.answerArea = _.extend(item.answerArea, {
+    //                widgets: objectGroup.answer
+    //            });
+    //        }
+    //    }
+    //    if (objectGroup.question) {
+    //        item.question = _.extend(item.question, {
+    //            widgets: objectGroup.question
+    //        });
+    //    }
+    //    self.setState(item);
+    //},
+
+    showCorrect: function() {
+        this.showGuess(this.item.correctAnswer);
     },
 
     scoreInput: function() {
         console.log("scoreInput");
         var self = this;
         var guess = self.getGuess();
-        console.log(guess);
-        self.postUpdate();
-        var updatedGuess = self.getGuess();
-        console.log(updatedGuess);
         var completed = self.isGuessCompleted(guess);
-        console.log(completed);
         if (!completed) {
             return {
                 empty: true,
@@ -241,7 +353,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
                 guess: guess
             }
         };
-        var correctAnswer = self.props.item.correctAnswer;
+        var correctAnswer = self.item.correctAnswer;
         console.log(correctAnswer);
         var correct = self.isGuessEquivalent(guess, correctAnswer);
         console.log(correct);
@@ -280,7 +392,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     },
 
     getNumHints: function() {
-        return this.props.item.hints.length;
+        return this.item.hints.length;
     },
 
 });

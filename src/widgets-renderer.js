@@ -1,147 +1,53 @@
 /** @jsx React.DOM */
 (function(Perseus) {
 
-/**
- * For math rendered using MathJax. Use me like <MJ>2x + 3</MJ>.
- */
-var MJ = Perseus.MJ = (function() {
-    var pendingScripts = [];
-    var needsProcess = false;
-    var timeout = null;
-
-    function process(script) {
-        pendingScripts.push(script);
-        if (!needsProcess) {
-            needsProcess = true;
-            timeout = setTimeout(doProcess, 0);
-        }
-    }
-
-    function doProcess() {
-        MathJax.Hub.Queue(function() {
-            var oldElementScripts = MathJax.Hub.elementScripts;
-            MathJax.Hub.elementScripts = function(element) {
-                var scripts = pendingScripts;
-                pendingScripts = [];
-                needsProcess = false;
-                return scripts;
-            };
-
-            try {
-                return MathJax.Hub.Process();
-            } catch (e) {
-                // (IE8 needs this catch)
-                throw e;
-            } finally {
-                MathJax.Hub.elementScripts = oldElementScripts;
-            }
-        });
-    }
-
-    return React.createClass({
-        render: function() {
-            return <span />;
-        },
-
-        componentDidMount: function(span) {
-            var text = this.props.children;
-
-            this.script = document.createElement("script");
-            this.script.type = "math/tex";
-            if ("text" in this.script) {
-                // IE8, etc
-                this.script.text = text;
-            } else {
-                this.script.appendChild(document.createTextNode(text));
-            }
-            span.appendChild(this.script);
-
-            process(this.script);
-        },
-
-        componentDidUpdate: function(prevProps, prevState, span) {
-            var oldText = prevProps.children;
-            var newText = this.props.children;
-            var script = this.script;
-
-            if (oldText !== newText && script) {
-                MathJax.Hub.Queue(function() {
-                    var jax = MathJax.Hub.getJaxFor(script);
-                    return jax.Text(newText);
-                });
-            }
-        },
-
-        componentWillUnmount: function() {
-            var jax = MathJax.Hub.getJaxFor(this.script);
-            if (jax) {
-                jax.Remove();
-            }
-        }
-    });
-})();
-
-
-var Renderer = Perseus.Renderer = React.createClass({
-
-    componentWillReceiveProps: function(nextProps) {
-        if (!_.isEqual(this.props, nextProps)) {
-            this.setState({widgets: {}});
-        }
-    },
+var WidgetsRenderer = Perseus.WidgetsRenderer = React.createClass({
 
     getDefaultProps: function() {
         return {
+            ignoreMissingWidgets: false,
             content: "",
-            ignoreMissingWidgets: false
+            widgets: []
         };
-    },
-
-    getInitialState: function() {
-        // TODO(alpert): Move up to parent props?
-        return {
-            widgets: {}
-        };
-    },
-
-    shouldComponentUpdate: function(nextProps, nextState) {
-        var stateChanged = !_.isEqual(this.state, nextState);
-        var propsChanged = !_.isEqual(this.props, nextProps);
-        return propsChanged || stateChanged;
     },
 
     getPiece: function(saved, widgetIds) {
+        console.log("getPiece");
         if (saved.charAt(0) === "@") {
             // Just text
             return saved;
         } else if (saved.charAt(0) === "$") {
             // Math
             var tex = saved.slice(1, saved.length - 1);
-            return MJ(null, tex);
+            return Perseus.MJ(null, tex);
         } else if (saved.charAt(0) === "[") {
+            console.log("get Widget");
             // Widget
-            var match = Perseus.Util.rWidgetParts.exec(saved);
-            var id = match[1];
-            var type = match[2];
+            var match = Perseus.Util.rWidgetParts_new.exec(saved);
+            var id = +match[1];
 
-            var widgetInfo = (this.props.widgets || {})[id];
+            var widgetInfo = _.find(this.props.widgets, function (widget) {
+                return widget.id === id;
+            });
+            console.log("widgetInfo");
+            console.log(widgetInfo);
             if (widgetInfo || this.props.ignoreMissingWidgets) {
                 widgetIds.push(id);
-                var cls = Perseus.Widgets._widgetTypes[type];
 
-                return cls(_.extend({
+                var widgetRendered = widgetInfo.constructor(_.extend({
                     ref: id,
                     onChange: function(newProps, cb) {
-                        var widgets = _.clone(this.state.widgets);
-                        widgets[id] = _.extend({}, widgets[id], newProps);
-                        this.setState({widgets: widgets}, cb);
+                        this.props.updateWidget(id, newProps, cb);
                     }.bind(this)
-                }, (widgetInfo || {}).options, this.state.widgets[id]));
+                }, widgetInfo, widgetInfo.props));
+                console.log(widgetRendered);
+                return widgetRendered;
             }
         }
     },
 
     render: function() {
+        console.log("render WidgetsRenderer");
         var self = this;
         var extracted = extractMathAndWidgets(this.props.content);
         var markdown = extracted[0];
@@ -188,7 +94,7 @@ var Renderer = Perseus.Renderer = React.createClass({
         }
     },
 
-    // XXX call getWidgets
+    // XXX unneeded?
     toJSON: function(skipValidation) {
         var state = {};
         _.each(this.props.widgets, function(props, id) {
@@ -226,9 +132,7 @@ var Renderer = Perseus.Renderer = React.createClass({
         var widgets = _.map(this.props.widgets, function(props, id) {
             return {
                 id: id,
-                component: self.refs[id],
-                type: props.type,
-                location: "question"
+                component: self.refs[id]
             };
         });
         return widgets;
@@ -236,7 +140,7 @@ var Renderer = Perseus.Renderer = React.createClass({
 });
 
 var rInteresting =
-        /(\$|[{}]|\\[\\${}]|\n{2,}|\[\[\u2603 [a-z-]+ [0-9]+\]\]|@@\d+@@)/g;
+        /(\$|[{}]|\\[\\${}]|\n{2,}|\[\[\u2603 [a-z-]+:[0-9]+\]\]|@@\d+@@)/g;
 
 function extractMathAndWidgets(text) {
     // "$x$ is a cool number, just like $6 * 7$!" gives
@@ -293,6 +197,6 @@ function extractMathAndWidgets(text) {
     }
 }
 
-Renderer.extractMathAndWidgets = extractMathAndWidgets;
+WidgetsRenderer.extractMathAndWidgets = extractMathAndWidgets;
 
 })(Perseus);

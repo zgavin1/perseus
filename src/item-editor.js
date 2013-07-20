@@ -129,6 +129,9 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     },
 
     componentDidMount: function() {
+        this.renderer = React.renderComponent(Perseus.ItemRenderer({
+            initialHintsVisible: -1  /* all */
+        }), this.rendererMountNode);
         this.updatePreview();
     },
 
@@ -191,11 +194,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     },
 
     updatePreview: function() {
-        console.log("updatePreview");
-        this.renderer = React.renderComponent(Perseus.ItemRenderer({
-            item: this.toJSON(true),
-            initialHintsVisible: -1,  /* all */
-        }), this.rendererMountNode);
+        this.renderer.setItem(this.toJSON(true));
     },
 
     scorePreview: function() {
