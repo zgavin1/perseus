@@ -19,6 +19,7 @@
 <div id="extras">
     <button id="toJSON">toJSON</button>
     <button id="scorePreview">Score</button>
+    <button id="storeAnswer">Update correct answer</button>
 </div>
 
 <!-- Begin Perseus HTML -->
@@ -131,6 +132,9 @@ $('#toJSON').on('click', function() {
 $('#scorePreview').on('click', function() {
     console.log(editor.scorePreview());
 });
+$('#storeAnswer').on('click', function() {
+    editor.changingCorrectAnswer();
+});
 
 Perseus.init({}).then(function() {
     editor = React.renderComponent(Perseus.ItemEditor(
@@ -161,6 +165,7 @@ Perseus.init({}).then(function() {
         }
     },"hints":[{"content":"Each branch can hold $\\dfrac{1}{10}$ of a monkey."},{"content":"Therefore, $10$ branc… oh shit they're attacking me"},{"content":"If you see this, please help."},{"content":"ooh ooh, ahh ahh, **too late.**"}]}
     , null), document.getElementById("perseus-editor"));
+    window.editor = editor;
 }).then(function() {
     console.log("all done.", +new Date/1000);
 }, function(err) {

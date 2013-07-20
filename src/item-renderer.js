@@ -116,6 +116,12 @@ var AnswerAreaRenderer = React.createClass({
 
             return [guess, score];
         }
+    },
+    
+    updateCorrectAnswer: function() {
+        var cls = this.getClass();
+        var correct = cls.jsonToGuess(this.refs.widget.toJSON());
+        this.props.onCorrectAnswerChange(correct);
     }
 });
 
@@ -173,7 +179,8 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
                     type: this.props.item.answerArea.type,
                     options: this.props.item.answerArea.options,
                     calculator: this.props.item.answerArea.calculator || false,
-                    problemNum: this.props.problemNum
+                    problemNum: this.props.problemNum,
+                    onCorrectAnswerChange: this.props.onCorrectAnswerChange
                 }),
                 document.getElementById("solutionarea"));
 
@@ -183,6 +190,10 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
                     hintsVisible: this.state.hintsVisible
                 }),
                 document.getElementById("hintsarea"));
+    },
+
+    updateCorrectAnswer: function() {
+        this.answerAreaRenderer.updateCorrectAnswer();
     },
 
     render: function() {

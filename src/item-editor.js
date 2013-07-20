@@ -105,7 +105,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     defaultState: {
         question: {},
         answerArea: {},
-        hints: []
+        hints: [],
+        correctAnswer: []
     },
 
     getInitialState: function() {
@@ -192,7 +193,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     updatePreview: function() {
         this.renderer = React.renderComponent(Perseus.ItemRenderer({
             item: this.toJSON(true),
-            initialHintsVisible: -1  /* all */
+            initialHintsVisible: -1,  /* all */
+            onCorrectAnswerChange: this.onCorrectAnswerChange
         }), this.rendererMountNode);
     },
 
@@ -203,6 +205,14 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             return null;
         }
     },
+    
+    onCorrectAnswerChange: function(correctAnswer) {
+        this.setState({correctAnswer: correctAnswer});
+    },
+    
+    changingCorrectAnswer: function() {
+        this.renderer.updateCorrectAnswer();
+    },
 
     toJSON: function(skipValidation) {
         return {
@@ -210,7 +220,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             answerArea: this.refs.answerAreaEditor.toJSON(skipValidation),
             hints: this.state.hints.map(function(hint, i) {
                 return this.refs["hintEditor" + i].toJSON(skipValidation)
-            }, this)
+            }, this),
+            correctAnswer: this.state.correctAnswer
         };
     },
 
