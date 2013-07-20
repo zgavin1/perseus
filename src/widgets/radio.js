@@ -126,24 +126,11 @@ _.extend(Radio, {
     jsonToGuess: function (json) {
         return json.values;
     },
-    validate: function(guess, rubric) {
-        if (!_.any(guess)) {
-            return {
-                type: "invalid",
-                message: null
-            };
-        } else {
-            var correct = _.all(guess, function(selected, i) {
-                return !!rubric.choices[i].correct === selected;
-            });
-
-            return {
-                type: "points",
-                earned: correct ? 1 : 0,
-                total: 1,
-                message: null
-            };
-        }
+    isGuessEquivalent: function (guessA, guessB) {
+        return _.isEqual(guessA, guessB);
+    },
+    isGuessCompleted: function (guess) {
+        return _.some(guess);
     }
 });
 

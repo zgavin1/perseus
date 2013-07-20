@@ -118,6 +118,8 @@ var Editor = Perseus.Editor = React.createClass({
                                     Drop down</option>
                             <option value="orderer">
                                     Orderer</option>
+                            <option value="radio">
+                                    Multiple Choice</option>
                         </select>
                     </div>
                     {widgets}

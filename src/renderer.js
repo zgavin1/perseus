@@ -188,6 +188,7 @@ var Renderer = Perseus.Renderer = React.createClass({
         }
     },
 
+    // XXX call getWidgets
     toJSON: function(skipValidation) {
         var state = {};
         _.each(this.props.widgets, function(props, id) {
@@ -198,30 +199,6 @@ var Renderer = Perseus.Renderer = React.createClass({
             }
         }, this);
         return state;
-    },
-
-    guessAndScore: function() {
-        var totalGuess = [];
-        var totalScore = {
-            type: "points",
-            earned: 0,
-            total: 0,
-            message: null
-        };
-
-        // TODO(alpert): Check if order is consistent here
-        var widgetProps = this.props.widgets;
-        totalScore = _.chain(widgetProps)
-                .map(function(props, id) {
-                    var widget = this.refs[id];
-                    var guess = widget.toJSON();
-                    totalGuess.push(guess);
-                    return widget.simpleValidate(props.options);
-                }, this)
-                .reduce(Perseus.Util.combineScores, totalScore)
-                .value();
-
-        return [totalGuess, totalScore];
     },
 
     examples: function() {
@@ -242,7 +219,19 @@ var Renderer = Perseus.Renderer = React.createClass({
         if (!allEqual) return null;
 
         return examples[0];
-    }
+    },
+
+    getWidgets: function() {
+        var self = this;
+        var widgets = _.map(this.props.widgets, function(props, id) {
+            return {
+                id: id,
+                component: self.refs[id],
+                type: props.type
+            };
+        });
+        return widgets;
+    },
 });
 
 var rInteresting =

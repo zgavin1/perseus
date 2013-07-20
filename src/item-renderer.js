@@ -104,25 +104,20 @@ var AnswerAreaRenderer = React.createClass({
         this.refs.widget.focus();
     },
 
-    guessAndScore: function() {
-        // TODO(alpert): These should probably have the same signature...
+    getWidgets: function() {
+        var widget = this.refs.widget;
         if (this.props.type === "multiple") {
-            return this.refs.widget.guessAndScore();
-        } else {
-            // TODO(alpert): Separate out the rubric
-            var cls = this.getClass();
-            var guess = cls.jsonToGuess(this.refs.widget.toJSON());
-            var score = cls.validate(guess, this.props.options);
-
-            return [guess, score];
+            return _.map(widget.getWidgets(), function (widget) {
+                widget.id = "answer-" + widget.id;
+                return widget;
+            });
         }
+        return [{
+            type: this.props.type,
+            component: widget,
+            id: "answer"
+        }];
     },
-    
-    updateCorrectAnswer: function() {
-        var cls = this.getClass();
-        var correct = cls.jsonToGuess(this.refs.widget.toJSON());
-        this.props.onCorrectAnswerChange(correct);
-    }
 });
 
 var HintsRenderer = React.createClass({
@@ -152,6 +147,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
 
     getInitialState: function() {
         return {
+            correctAnswer: [],
             hintsVisible: this.props.initialHintsVisible
         };
     },
@@ -195,13 +191,67 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     },
 
     postUpdate: function() {
+        console.log("Post update");
         var widgets = [];
-        wigets = widgets.concat(this.questionRenderer.getWidgets());
-        wigets = widgets.concat(this.AnswerAreaRenderer.getWidgets());
+        widgets = widgets.concat(this.questionRenderer.getWidgets());
+        widgets = widgets.concat(this.answerAreaRenderer.getWidgets());
+        this.widgets = _.map(widgets, function (widget) {
+            widget.constructor = Perseus.Widgets._widgetTypes[widget.type];
+            return widget;
+        });
     },
 
-    updateCorrectAnswer: function() {
-        this.answerAreaRenderer.updateCorrectAnswer();
+    getGuess: function() {
+        var self = this;
+        return _.map(self.widgets, function (widget) {
+            var json = widget.component.toJSON();
+            return widget.constructor.jsonToGuess(json);
+        });
+    },
+
+    isGuessEquivalent: function (guessA, guessB) {
+        var self = this;
+        return _.every(self.widgets, function (widget, i) {
+            return widget.constructor.isGuessEquivalent(guessA[i], guessB[i]);
+        });
+    },
+
+    isGuessCompleted: function (guess) {
+        var self = this;
+        return _.every(self.widgets, function (widget, i) {
+            return widget.constructor.isGuessCompleted(guess[i]);
+        });
+    },
+
+    scoreInput: function() {
+        console.log("scoreInput");
+        var self = this;
+        var guess = self.getGuess();
+        console.log(guess);
+        self.postUpdate();
+        var updatedGuess = self.getGuess();
+        console.log(updatedGuess);
+        var completed = self.isGuessCompleted(guess);
+        console.log(completed);
+        if (!completed) {
+            return {
+                empty: true,
+                correct: false,
+                message: null,  // TODO: do we use?: score.message,
+                guess: guess
+            }
+        };
+        var correctAnswer = self.props.item.correctAnswer;
+        console.log(correctAnswer);
+        var correct = self.isGuessEquivalent(guess, correctAnswer);
+        console.log(correct);
+
+        return {
+            empty: false,
+            correct: correct,
+            message: null,   // TODO: score.message,
+            guess: guess
+        };
     },
 
     render: function() {
@@ -233,40 +283,6 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         return this.props.item.hints.length;
     },
 
-    scoreInput: function() {
-        var qGuessAndScore = this.questionRenderer.guessAndScore();
-        var aGuessAndScore = this.answerAreaRenderer.guessAndScore();
-
-        var qGuess = qGuessAndScore[0], qScore = qGuessAndScore[1];
-        var aGuess = aGuessAndScore[0], aScore = aGuessAndScore[1];
-
-        var guess, score;
-        if (qGuess.length === 0) {
-            // No widgets in question. For compatability with old guess format,
-            // leave it out here completely.
-            guess = aGuess;
-            score = aScore;
-        } else {
-            guess = [qGuess, aGuess];
-            score = Perseus.Util.combineScores(qScore, aScore);
-        }
-
-        if (score.type === "points") {
-            return {
-                empty: false,
-                correct: score.earned >= score.total,
-                message: score.message,
-                guess: guess
-            };
-        } else if (score.type === "invalid") {
-            return {
-                empty: true,
-                correct: false,
-                message: score.message,
-                guess: guess
-            };
-        }
-    }
 });
 
 })(Perseus);

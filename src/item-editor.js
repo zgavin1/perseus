@@ -191,10 +191,10 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     },
 
     updatePreview: function() {
+        console.log("updatePreview");
         this.renderer = React.renderComponent(Perseus.ItemRenderer({
             item: this.toJSON(true),
             initialHintsVisible: -1,  /* all */
-            onCorrectAnswerChange: this.onCorrectAnswerChange
         }), this.rendererMountNode);
     },
 
@@ -205,13 +205,12 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             return null;
         }
     },
-    
-    onCorrectAnswerChange: function(correctAnswer) {
-        this.setState({correctAnswer: correctAnswer});
-    },
-    
+
     changingCorrectAnswer: function() {
-        this.renderer.updateCorrectAnswer();
+        console.log("changingCorrectAnswer");
+        var guess = this.renderer.getGuess();
+        console.log(guess);
+        this.setState({correctAnswer: guess});
     },
 
     toJSON: function(skipValidation) {
