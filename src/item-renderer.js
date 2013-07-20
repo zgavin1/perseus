@@ -8,7 +8,7 @@ var AnswerAreaRenderer = React.createClass({
         // TODO(alpert): Move up to parent props?
         return {
             widget: {},
-            cls: this.getClass(this.props.type)
+            cls: this.getClass()
         };
     },
 
@@ -17,6 +17,7 @@ var AnswerAreaRenderer = React.createClass({
     },
 
     getClass: function(type) {
+        type = type || this.props.type;
         if (type === "multiple") {
             return Perseus.Renderer;
         } else {
@@ -109,8 +110,9 @@ var AnswerAreaRenderer = React.createClass({
             return this.refs.widget.guessAndScore();
         } else {
             // TODO(alpert): Separate out the rubric
-            var guess = this.refs.widget.toJSON();
-            var score = this.refs.widget.simpleValidate(this.props.options);
+            var cls = this.getClass();
+            var guess = cls.jsonToGuess(this.refs.widget.toJSON());
+            var score = cls.validate(guess, this.props.options);
 
             return [guess, score];
         }

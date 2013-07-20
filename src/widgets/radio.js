@@ -99,10 +99,6 @@ var Radio = React.createClass({
         }
     },
 
-    simpleValidate: function(rubric) {
-        return Radio.validate(this.toJSON(), rubric);
-    },
-
     randomize: function(array) {
         if (this.props.randomize && this.props.problemNum) {
             return Perseus.Util.shuffle(array, this.props.problemNum);
@@ -127,14 +123,17 @@ var Radio = React.createClass({
 });
 
 _.extend(Radio, {
-    validate: function(state, rubric) {
-        if (!_.any(state.values)) {
+    jsonToGuess: function (json) {
+        return json.values;
+    },
+    validate: function(guess, rubric) {
+        if (!_.any(guess)) {
             return {
                 type: "invalid",
                 message: null
             };
         } else {
-            var correct = _.all(state.values, function(selected, i) {
+            var correct = _.all(guess, function(selected, i) {
                 return !!rubric.choices[i].correct === selected;
             });
 
