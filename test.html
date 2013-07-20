@@ -136,70 +136,28 @@ Perseus.init({}).then(function() {
     editor = React.renderComponent(Perseus.ItemEditor(
 {"question":
     {
-        "content": "How many monkeys swing from $10$ branches of **trees**? [[☃ orderer 1]]",
+        "content": "How many monkeys swing from $10$ branches of **trees**?",
         "widgets": {
-            "orderer 1": {
-                "options": {
-                    "options": {
-                        "number": [
-                            {
-                            "content": "$3$"
-                        }
-                        ],
-                        "symbol": [
-                            {
-                            "content": "$<$"
-                        }
-                        ],
-                        "variable": [
-                            {
-                            "content": "$x$"
-                        },
-                        {
-                            "content": "$y$"
-                        },
-                        {
-                            "content": "$z$"
-                        }
-                        ]
-                    },
-                    "correctOptions": [
-                        {
-                        "content": "$x$"
-                        },
-                        {
-                            "content": "$<$"
-                        },
-                        {
-                            "content": "$3$"
-                        }
-                    ],
-                    "otherOptions": [
-                        {
-                            "content": "$y$"
-                        },
-                        {
-                            "content": "$z$"
-                        },
-                        {
-                            "content": "$5$"
-                        },
-                        {
-                            "content": "$\\leq$"
-                        }
-                    ]
-                },
-                "type": "orderer"
-            }
         }
     },"answerArea":{
-        "type": "expression",
+        "type": "radio",
         "options": {
-            "value": "2*5",
-            "eval": true,
-            "form": false,
-            "simplify": true,
-            "times": false
+            "choices": [
+                {
+                    "content": "a",
+                    "correct": true
+                },
+                {
+                    "content": "b",
+                    "correct": false
+                },
+                {
+                    "content": "c",
+                    "correct": false
+                }
+            ],
+            "randomize": false,
+            "multipleSelect": false
         }
     },"hints":[{"content":"Each branch can hold $\\dfrac{1}{10}$ of a monkey."},{"content":"Therefore, $10$ branc… oh shit they're attacking me"},{"content":"If you see this, please help."},{"content":"ooh ooh, ahh ahh, **too late.**"}]}
     , null), document.getElementById("perseus-editor"));
