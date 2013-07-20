@@ -183,6 +183,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
 
         // XXX: not really old, should be done in new
         item.correctAnswer = old.correctAnswer;
+        item.smartHints = old.smartHints;
         return item;
     },
 
@@ -295,6 +296,28 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         self.update();
     },
 
+    showGuessFromJson: function (json) {
+        var self = this;
+        var widgets = self.item.widgets;
+        if (json.version) {
+            var guess = json.guess;
+        } else {
+            if (! _.isArray(json)) {
+                // old guess format had json of the single
+                // answer widget
+                json = [[], [json]];
+            }
+
+            // TODO(jakesandlund):
+            // assuming that the flattened array has the same
+            // order of widgets?
+            guess = _.map(_.flatten(json, true), function (json, i) {
+                return widgets[i].constructor.jsonToGuess(json);
+            });
+        }
+        self.showGuess(guess.guess);
+    },
+
     // XXX: old showGuess, not sure if committed
     //showGuess: function (guess) {
     //    var self = this;
@@ -340,6 +363,10 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         this.showGuess(this.item.correctAnswer);
     },
 
+    showSmartHint: function (index) {
+        this.showGuess(this.item.smartHints[index].guess);
+    },
+
     scoreInput: function() {
         console.log("scoreInput");
         var self = this;
@@ -362,7 +389,10 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
             empty: false,
             correct: correct,
             message: null,   // TODO: score.message,
-            guess: guess
+            guess: {
+                guess: guess,
+                version: self.version
+            }
         };
     },
 

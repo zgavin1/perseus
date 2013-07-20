@@ -147,6 +147,15 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
                 }.bind(this)
             }, this.state.question))}
 
+            {Perseus.SmartHintEditor({
+                correctAnswer: this.state.correctAnswer,
+                smartHints: this.state.smartHints,
+                changeCorrectAnswer: this.changeCorrectAnswer,
+                addSmartHint: this.addSmartHint,
+                showCorrect: this.showCorrect,
+                showSmartHint: this.showSmartHint
+            })}
+
             {AnswerAreaEditor(_.extend({
                 ref: "answerAreaEditor",
                 onChange: function(newProps, cb) {
@@ -198,6 +207,14 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         this.renderer.setItem(this.toJSON(true));
     },
 
+    showCorrect: function () {
+        this.renderer.showCorrect();
+    },
+
+    showSmartHint: function(index) {
+        this.renderer.showSmartHint(index);
+    },
+
     scorePreview: function() {
         if (this.renderer) {
             return this.renderer.scoreInput();
@@ -206,13 +223,13 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         }
     },
 
-    changingCorrectAnswer: function() {
+    changeCorrectAnswer: function() {
         console.log("changingCorrectAnswer");
         var guess = this.renderer.getGuess();
         console.log(guess);
         this.setState({correctAnswer: guess});
     },
-    
+
     addSmartHint: function(hint) {
         var guess = this.renderer.getGuess();
         //TODO(annie): gracefully prevent overwriting correct answers with hints
@@ -220,7 +237,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             window.alert("You cannot overwrite the correct answer with your hint!")
         }
         else {
-            this.setState({smartHints: this.state.smartHints.concat([{answer: guess, hint: hint}])});    
+            this.setState({smartHints: this.state.smartHints.concat([{guess: guess, hint: hint}])});
         }
     },
 
@@ -231,7 +248,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             hints: this.state.hints.map(function(hint, i) {
                 return this.refs["hintEditor" + i].toJSON(skipValidation)
             }, this),
-            correctAnswer: this.state.correctAnswer
+            correctAnswer: this.state.correctAnswer,
+            smartHints: this.state.smartHints
         };
     },
 

@@ -19,8 +19,6 @@
 <div id="extras">
     <button id="toJSON">toJSON</button>
     <button id="scorePreview">Score</button>
-    <button id="storeAnswer">Update correct answer</button>
-    <button id="addSmartHint">Add a smart hint for this answer</button>
 </div>
 
 <!-- Begin Perseus HTML -->
@@ -109,6 +107,7 @@
 <script src="/src/expressiontools/parser.js"></script>
 <script src="/src/expressiontools/nodes.js"></script>
 <script src="/src/expressiontools/compare.js"></script>
+<script src="/src/smart-hints.js" type="text/jsx"></script>
 <script src="/src/widgets.js"></script>
 <script src="/src/widgets/input-number.js" type="text/jsx"></script>
 <script src="/src/widgets/interactive-graph.js" type="text/jsx"></script>
@@ -133,12 +132,6 @@ $('#toJSON').on('click', function() {
 });
 $('#scorePreview').on('click', function() {
     console.log(editor.scorePreview());
-});
-$('#storeAnswer').on('click', function() {
-    editor.changingCorrectAnswer();
-});
-$('#addSmartHint').on('click', function() {
-    editor.addSmartHint("This is the hint");
 });
 
 Perseus.init({}).then(function() {
