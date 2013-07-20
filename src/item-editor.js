@@ -106,7 +106,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         question: {},
         answerArea: {},
         hints: [],
-        correctAnswer: []
+        correctAnswer: [], 
+        smartHints: []
     },
 
     getInitialState: function() {
@@ -210,6 +211,17 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         var guess = this.renderer.getGuess();
         console.log(guess);
         this.setState({correctAnswer: guess});
+    },
+    
+    addSmartHint: function(hint) {
+        var guess = this.renderer.getGuess();
+        //TODO(annie): gracefully prevent overwriting correct answers with hints
+        if (this.renderer.isGuessEquivalent(guess, this.state.correctAnswer)) {
+            window.alert("You cannot overwrite the correct answer with your hint!")
+        }
+        else {
+            this.setState({smartHints: this.state.smartHints.concat([{answer: guess, hint: hint}])});    
+        }
     },
 
     toJSON: function(skipValidation) {

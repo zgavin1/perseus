@@ -187,8 +187,8 @@ var RadioEditor = React.createClass({
                         content: <div className="choice-editor">
                             {editor}
                             {this.props.choices.length >= 2 && deleteLink}
-                        </div>,
-                        checked: choice.correct
+                        </div>//,
+                        //checked: choice.correct
                     };
                 }, this)}
                 onCheckedChange={this.onCheckedChange} />

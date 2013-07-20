@@ -20,6 +20,7 @@
     <button id="toJSON">toJSON</button>
     <button id="scorePreview">Score</button>
     <button id="storeAnswer">Update correct answer</button>
+    <button id="addSmartHint">Add a smart hint for this answer</button>
 </div>
 
 <!-- Begin Perseus HTML -->
@@ -136,6 +137,9 @@ $('#scorePreview').on('click', function() {
 $('#storeAnswer').on('click', function() {
     editor.changingCorrectAnswer();
 });
+$('#addSmartHint').on('click', function() {
+    editor.addSmartHint("This is the hint");
+});
 
 Perseus.init({}).then(function() {
     editor = React.renderComponent(Perseus.ItemEditor(
@@ -144,7 +148,7 @@ Perseus.init({}).then(function() {
         "content": "How many monkeys swing from $10$ branches of **trees**?",
         "widgets": {
         }
-    },"answerArea":{
+    },"answerArea": {
         "type": "radio",
         "options": {
             "choices": [
