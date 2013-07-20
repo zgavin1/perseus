@@ -190,6 +190,14 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
                     hintsVisible: this.state.hintsVisible
                 }),
                 document.getElementById("hintsarea"));
+
+        this.postUpdate();
+    },
+
+    postUpdate: function() {
+        var widgets = [];
+        wigets = widgets.concat(this.questionRenderer.getWidgets());
+        wigets = widgets.concat(this.AnswerAreaRenderer.getWidgets());
     },
 
     updateCorrectAnswer: function() {
