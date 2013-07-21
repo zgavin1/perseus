@@ -2,6 +2,17 @@
 (function(Perseus) {
 
 var SmartHintEditor = Perseus.SmartHintEditor = React.createClass({
+    getInitialState: function() {
+        var self = this;
+        this.item = this.props.item;
+        this.item.onChange(function () {
+            self.setState({count: self.state.count + 1});
+        });
+        return {
+            count: 0
+        };
+    },
+    
     render: function () {
         var self = this;
         return <div>
@@ -20,7 +31,7 @@ var SmartHintEditor = Perseus.SmartHintEditor = React.createClass({
             </div>
             <ul>
                 
-                {_.map(self.orderSmartHint(self.props.smartHints), function (hint) {
+                {_.map(self.orderSmartHint(self.item.smartHints), function (hint) {
                     return <li>
                         <button onClick={_.partial(
                                 self.props.showSmartHint, hint.id)}>Show</button>

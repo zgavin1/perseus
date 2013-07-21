@@ -15,7 +15,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         var self = this;
         self.item = self.props.item || new Perseus.ItemData(self.props);
         // self.item.onChange(_.bind(self.update, self));
-
+        
         d3.json("times.json/", function (data) {
             self.setState({timeline: data});
         });
@@ -60,8 +60,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             }, this.state.question))}
 
             {Perseus.SmartHintEditor({
-                correctAnswer: this.item.correctAnswer,
-                smartHints: this.item.smartHints,
+                item: this.item,
                 changeCorrectAnswer: this.changeCorrectAnswer,
                 addSmartHint: this.addSmartHint,
                 showCorrect: this.showCorrect,
@@ -144,16 +143,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
 
     addSmartHint: function(hint) {
         var guess = this.renderer.getGuess();
-        //TODO(annie): gracefully prevent overwriting correct answers with hints
-        var correct = this.state.correctAnswer;
-        if (correct && this.item.isGuessEqualTo(guess, correct)) {
-            window.alert("You cannot overwrite the correct answer with your hint!")
-        }
-        else {
-            this.setState({smartHints: this.state.smartHints.concat([{guess: guess, hint: hint}])});
-        }
+        this.item.addSmartHint(guess, hint);
     },
-    
     
     toJSON: function(skipValidation) {
         return {

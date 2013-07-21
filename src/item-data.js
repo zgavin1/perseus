@@ -147,11 +147,11 @@ _.extend(ItemData.prototype, {
 
     findSmartHint: function (guess) {
         var self = this;
-        var hint = _.find(self.smartHints, function (hint) {
-            return self.isGuessEqualTo(guess, hint.guesses[0].guess);
+        var id = _.find(Object.keys(self.smartHints), function (id) {
+            return self.isGuessEqualTo(guess, self.smartHints[id].guesses[0].guess);
         })
-        if(hint) {
-            return hint.guesses[0].guess;
+        if(id != null) {
+            return self.smartHints[id];
         }
         else {
             return null;
@@ -245,6 +245,24 @@ _.extend(ItemData.prototype, {
         return score;
     }, 
     
+    addSmartHint: function(guess, hint) {
+        //TODO(annie): gracefully prevent overwriting correct answers with hints
+        var correct = this.correctAnswer;
+        if (correct && this.isGuessEqualTo(guess, correct)) {
+            window.alert("You cannot overwrite the correct answer with your hint!")
+        }
+        else {
+            var matchHint = this.findSmartHint(guess);
+            if (matchHint) {
+                matchHint.hint = hint;
+            }
+            else {
+                this.lastSmartHintId++;
+                this.smartHints[this.lastSmartHintId] = {guesses: [{guess: guess, percent: 0}], hint: hint};
+            }
+        }
+        this.change();
+    },
     squashHints: function(oldHints) {
         newHints = {};
         _.each(oldHints, function(hint, id){
