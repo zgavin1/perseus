@@ -11,7 +11,7 @@ _.extend(ItemData.prototype, {
     version: "0.1",
 
     properties: ["question", "answer", "calculator",
-                 "hints", "smartHints", "widgets"],
+                 "hints", "smartHints", "widgets", "lastSmartHintId"],
 
     onChange: function (cb) {
         this.callbacks.push(cb);
@@ -34,6 +34,7 @@ _.extend(ItemData.prototype, {
             widget.props = widget.json;     // XXX: transformation?
             return widget;
         });
+        data.smartHints = self.squashHints(data.smartHints);
         _.extend(self, data);
         self.change();
     },
@@ -90,10 +91,10 @@ _.extend(ItemData.prototype, {
         data.calculator = old.answerArea.calculator || false;
         data.widgets = widgets;
         data.hints = old.hints || [];
-
+        
         // XXX: not really old, should be done in new
         data.correctAnswer = old.correctAnswer;
-        data.smartHints = old.smartHints || [];
+        data.smartHints = old.smartHints || {};
         return data;
     },
 
@@ -146,9 +147,15 @@ _.extend(ItemData.prototype, {
 
     findSmartHint: function (guess) {
         var self = this;
-        return _.find(self.smartHints, function (hint) {
-            return self.isGuessEqualTo(guess, hint.guess);
-        });
+        var hint = _.find(self.smartHints, function (hint) {
+            return self.isGuessEqualTo(guess, hint.guesses[0].guess);
+        })
+        if(hint) {
+            return hint.guesses[0].guess;
+        }
+        else {
+            return null;
+        }
     },
 
     updatePropsWithGuess: function (guess) {
@@ -166,8 +173,9 @@ _.extend(ItemData.prototype, {
         this.updatePropsWithGuess(this.correctAnswer);
     },
 
-    updatePropsWithSmartHint: function (index) {
-        this.updatePropsWithGuess(this.smartHints[index].guess);
+    updatePropsWithSmartHint: function (id) {
+        debugger;
+        this.updatePropsWithGuess(this.smartHints[id].guesses[0].guess);
     },
 
     normalizeGuess: function (guess) {
@@ -235,8 +243,62 @@ _.extend(ItemData.prototype, {
             score.hint = hint.hint;
 
         return score;
+    }, 
+    
+    squashHints: function(oldHints) {
+        newHints = {};
+        _.each(oldHints, function(hint, id){
+           if (hint.guesses.length > 1 || hint.hint) {
+               newHints[id] = hint;
+               delete oldHints[id];
+           } 
+        });
+        var topHintId = this.getTopHint(oldHints);
+        while (topHintId != -1) {
+            thisHint = oldHints[topHintId];
+            delete oldHints[topHintId];
+            match = _.find(Object.keys(newHints), _.bind(function(id) {
+                return this.isGuessEqualTo(newHints[id].guesses[0].guess, thisHint.guesses[0].guess);
+            }, this));
+            if (match) {
+                newHints[match].guesses = newHints[match].guesses.concat(thisHint.guesses);
+            }
+            else {
+                newHints[topHintId] = thisHint;
+            }
+            
+            topHintId = this.getTopHint(oldHints);
+        }
+       return newHints;
+    },
+    
+    getTopHint: function(hintDict) {
+        keys = Object.keys(hintDict);
+        maxPercent = -1;
+        maxPercentId = -1;
+        percentTotals = this.percentTotals(hintDict);
+        _.each(percentTotals, function(hint) {
+            if (hint.percent > maxPercent) {
+                maxPercent = hint.percent;
+                maxPercentId = hint.id;
+            }
+        });
+        return maxPercentId;
+    },
+    
+    percentTotals: function(hintDict) {
+        return Object.keys(hintDict).map(_.bind(function(id) {
+                    return {id: id, percent: this.percentTotal(hintDict[id])};
+                }, this));
+    },
+    
+    percentTotal : function(hint) {
+        return hint.guesses.map(function(val) {
+                                return val.percent;
+                            }).reduce( function(previousValue, currentValue) {
+                                return previousValue + currentValue;
+                            });
     }
-
 });
 
 })(Perseus);

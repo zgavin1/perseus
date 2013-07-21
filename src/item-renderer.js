@@ -105,9 +105,8 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         this.item.updatePropsWithCorrect();
     },
 
-    showSmartHint: function (index) {
-        this.item.updatePropsWithSmartHint(index);
-        //this.showGuess(this.item.smartHints[id].guesses[0].guess);
+    showSmartHint: function (id) {
+        this.item.updatePropsWithSmartHint(id);
     },
 
     scoreInput: function() {
