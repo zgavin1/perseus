@@ -247,7 +247,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             window.alert("You cannot overwrite the correct answer with your hint!")
         }
         else {
-            this.setState({smartHints: this.state.smartHints.concat([{guess: guess, text: hint}])});
+            this.setState({smartHints: this.state.smartHints.concat([{guess: guess, hint: hint}])});
         }
     },
 

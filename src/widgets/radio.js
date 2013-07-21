@@ -83,24 +83,8 @@ var Radio = React.createClass({
 
     onCheckedChange: function(checked) {
         var values = this.derandomize(checked);
-        var choices = this.guessToProps(values).choices;
-        this.props.onChange({values: values, choices: choices});
-    },
-
-    toJSON: function(skipValidation) {
-        // Return checked inputs in the form {values: [bool]}. (Dear future
-        // timeline implementers: this used to be {value: i} before multiple
-        // select was added)
-        if (this.props.values) {
-            return _.pick(this.props, "values");
-        } else {
-            // Nothing checked
-            return {
-                values: _.map(this.props.choices, function() {
-                    return false;
-                })
-            }
-        }
+        var choices = Radio.choicesFromGuess(this.props.choices, values);
+        this.props.onChange({choices: choices});
     },
 
     randomize: function(array) {
@@ -125,27 +109,43 @@ var Radio = React.createClass({
         }
     },
 
-    guessToProps: function(guess) {
-        console.log("guessToProps");
-        console.log(guess);
-        var props = _.clone(this.props);
-        props.choices = _.map(props.choices, function (choice, i) {
+    getGuess: function() {
+        return _.pluck(this.props.choices, "checked");
+    }
+});
+
+_.extend(Radio, {
+    version: 1,
+
+    // Only called if version !== Radio.version.
+    normalizeGuessJson: function (guess, version, props) {
+        if (guess.values) {
+            return guess.values;
+        }
+        return _.map(props.choices, function (choice, i) {
+            return guess.value === i;
+        });
+    },
+
+    choicesFromGuess: function (choices, guess) {
+        return _.map(choices, function (choice, i) {
             return {
                 content: choice.content,
                 checked: guess[i]
             };
         });
-        return props;
-    }
-});
-
-_.extend(Radio, {
-    jsonToGuess: function (json) {
-        return json.values;
     },
+
+    guessToProps: function (guess, props) {
+        props.choices = this.choicesFromGuess(props.choices, guess);
+        return props;
+    },
+
     isGuessEquivalent: function (guessA, guessB) {
         return _.isEqual(guessA, guessB);
     },
+
+    // TODO: messages for guess. could make isGuessCompleted part of it
     isGuessCompleted: function (guess) {
         return _.some(guess);
     }

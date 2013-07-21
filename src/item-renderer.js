@@ -269,53 +269,83 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     getGuess: function() {
         var self = this;
         return _.map(self.item.widgets, function (widget) {
-            var json = widget.component.toJSON();
-            return widget.constructor.jsonToGuess(json);
+            var guess = widget.component.getGuess();
+            return {
+                guess: guess,
+                version: widget.constructor.version
+            };
         });
     },
 
     isGuessEquivalent: function (guessA, guessB) {
         var self = this;
+        var normA = self.normalizeGuess(guessA);
+        var normB = self.normalizeGuess(guessB);
         return _.every(self.item.widgets, function (widget, i) {
-            return widget.constructor.isGuessEquivalent(guessA[i], guessB[i]);
+            return widget.constructor.isGuessEquivalent(normA[i], normB[i]);
         });
     },
 
     isGuessCompleted: function (guess) {
         var self = this;
+        var norm = self.normalizeGuess(guess);
         return _.every(self.item.widgets, function (widget, i) {
-            return widget.constructor.isGuessCompleted(guess[i]);
+            return widget.constructor.isGuessCompleted(norm[i]);
         });
     },
 
     showGuess: function (guess) {
         var self = this;
+        var normalized = self.normalizeGuess(guess);
         _.each(self.item.widgets, function (widget, i) {
-            widget.props = widget.component.guessToProps(guess[i]);
+            var props = _.clone(widget.props);
+            widget.props = widget.constructor.guessToProps(
+                    normalized[i], props);
         });
         self.update();
+    },
+
+    normalizeGuess: function (guess) {
+        var self = this;
+        return _.map(self.item.widgets, function (widget, i) {
+            var constructor = widget.constructor;
+            var guessPart = guess[i];
+            if (_.has(guessPart, "version") && _.has(guessPart, "guess")) {
+                var g = guessPart.guess;
+                var version = guessPart.version;
+            } else {
+                var g = guessPart;
+                var version = 0;
+            }
+            if (constructor.normalizeGuessJson) {
+                if (constructor.version !== version) {
+                    g = constructor.normalizeGuessJson(g, version, widget.props);
+                }
+            }
+            return g;
+        });
     },
 
     showGuessFromJson: function (json) {
         var self = this;
         var widgets = self.item.widgets;
-        if (json.version) {
-            var guess = json.guess;
-        } else {
-            if (! _.isArray(json)) {
-                // old guess format had json of the single
-                // answer widget
-                json = [[], [json]];
-            }
+        if (! _.isArray(json)) {
+            // old guess format had json of the single
+            // answer widget
+            json = [[], [json]];
+        }
 
+        var g = json[0];
+        var updatedFormat = g && _.isObject(g)
+                            && _.has(g, "guess") && _.has(g, "values");
+        if (updatedFormat) {
             // TODO(jakesandlund):
             // assuming that the flattened array has the same
             // order of widgets?
-            guess = _.map(_.flatten(json, true), function (json, i) {
-                return widgets[i].constructor.jsonToGuess(json);
-            });
+            json = _.flatten(json, true);
         }
-        self.showGuess(guess.guess);
+        var guess = json;
+        self.showGuess(guess);
     },
 
     showCorrect: function() {
