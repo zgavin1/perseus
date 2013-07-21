@@ -136,7 +136,7 @@ var Radio = React.createClass({
             };
         });
         return props;
-    },
+    }
 });
 
 _.extend(Radio, {

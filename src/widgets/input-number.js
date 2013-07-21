@@ -47,8 +47,13 @@ var formExamples = {
 
 var InputNumber = React.createClass({
     render: function() {
-        return <input ref="input" type="text" className=
-            {"perseus-input-size-" + (this.props.size || "normal")} />;
+        return <input ref="input" type="text" value={this.props.value} className=
+            {"perseus-input-size-" + (this.props.size || "normal")} 
+            onInput={this.onChangedValue} />;
+    },
+    
+    onChangedValue: function(input) {
+       this.props.onChange({value: input.target.value}); 
     },
 
     focus: function() {
@@ -75,10 +80,24 @@ var InputNumber = React.createClass({
         }, this);
 
         return examples;
+    },
+
+    guessToProps: function(guess) {
+        console.log("guessToProps input-number");
+        console.log(guess);
+        var props = _.clone(this.props);
+        props.value = guess;
+        return props;
     }
 });
 
 _.extend(InputNumber, {
+    jsonToGuess: function (json) {
+        return json.value;
+    },
+    isGuessEquivalent: function (guessA, guessB) {
+        return _.isEqual(guessA, guessB);
+    },
     validate: function(state, rubric) {
         if (rubric.answerType == null) {
             rubric.answerType = "number";
