@@ -174,7 +174,6 @@ _.extend(ItemData.prototype, {
     },
 
     updatePropsWithSmartHint: function (id) {
-        debugger;
         this.updatePropsWithGuess(this.smartHints[id].guesses[0].guess);
     },
 
