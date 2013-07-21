@@ -137,6 +137,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     },
 
     render: function() {
+        console.log("EDITOR PROPS:");
+        console.log(this.props);
         return <div className="perseus-item-editor">
             {Editor(_.extend({
                 ref: "questionEditor",
@@ -237,7 +239,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
             window.alert("You cannot overwrite the correct answer with your hint!")
         }
         else {
-            this.setState({smartHints: this.state.smartHints.concat([{guess: guess, hint: hint}])});
+            this.setState({smartHints: this.state.smartHints.concat([{guess: guess, text: hint}])});
         }
     },
 

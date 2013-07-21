@@ -182,8 +182,8 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         item.hints = old.hints || [];
 
         // XXX: not really old, should be done in new
-        item.correctAnswer = old.correctAnswer;
-        item.smartHints = old.smartHints;
+        item.correctAnswer = old.correctAnswer || [];
+        item.smartHints = old.smartHints || [];
         return item;
     },
 
@@ -318,47 +318,6 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         self.showGuess(guess.guess);
     },
 
-    // XXX: old showGuess, not sure if committed
-    //showGuess: function (guess) {
-    //    var self = this;
-    //    var item = _.pick(self.state, "question", "answerArea");
-    //    var info = _.map(self.item.widgets, function (widget, i) {
-    //        return {
-    //            id: widget.id,
-    //            location: widget.location,
-    //            type: widget.type,
-    //            options: widget.component.guessToProps(guess[i])
-    //        };
-    //    });
-    //    var grouped = _.groupBy(info, function (info) {
-    //        return info.location;
-    //    });
-    //    var objectGroup = {};
-    //    _.each(grouped, function (group, key) {
-    //        var object = {};
-    //        _.each(group, function (info) {
-    //            object[info.id] = _.pick(info, "type", "options");
-    //        });
-    //        objectGroup[key] = object;
-    //    });
-    //    var answers = grouped.answer;
-    //    if (answers) {
-    //        if (answers[0].id === "answer") {
-    //            item.answerArea = _.pick(answers[0], "type", "options");
-    //        } else {
-    //            item.answerArea = _.extend(item.answerArea, {
-    //                widgets: objectGroup.answer
-    //            });
-    //        }
-    //    }
-    //    if (objectGroup.question) {
-    //        item.question = _.extend(item.question, {
-    //            widgets: objectGroup.question
-    //        });
-    //    }
-    //    self.setState(item);
-    //},
-
     showCorrect: function() {
         this.showGuess(this.item.correctAnswer);
     },
@@ -373,17 +332,25 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         var guess = self.getGuess();
         var completed = self.isGuessCompleted(guess);
         if (!completed) {
+            // XXX
+            window.alert("Incomplete answer");
             return {
                 empty: true,
                 correct: false,
                 message: null,  // TODO: do we use?: score.message,
                 guess: guess
-            }
+            };
         };
         var correctAnswer = self.item.correctAnswer;
-        console.log(correctAnswer);
         var correct = self.isGuessEquivalent(guess, correctAnswer);
-        console.log(correct);
+
+        if (!correct) {
+            var hint = _.find(self.item.smartHints, function (hint) {
+                return self.isGuessEquivalent(guess, hint.guess);
+            });
+            if (hint)
+                window.alert(hint.text);
+        }
 
         return {
             empty: false,

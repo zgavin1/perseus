@@ -23,7 +23,7 @@ var SmartHintEditor = Perseus.SmartHintEditor = React.createClass({
                     return <li>
                         <button onClick={_.partial(
                                 self.props.showSmartHint, i)}>Show</button>
-                        {hint.hint}
+                        {hint.hint} - {hint.percent}
                     </li>;
                 })}
             </ul>

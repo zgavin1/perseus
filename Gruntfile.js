@@ -5,6 +5,8 @@ var srcFiles = [
     "build/src/util.js",
     "build/src/renderer.js",
     "build/src/editor.js",
+    "build/src/widgets-renderer.js",
+    "build/src/smart-hints.js",
     "build/src/expressiontools/parser.js",
     "build/src/expressiontools/nodes.js",
     "build/src/expressiontools/compare.js",
