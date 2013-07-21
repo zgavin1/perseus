@@ -84,7 +84,7 @@ _.extend(InputNumber, {
         return guess.value;
     },
 
-    guessToProps: function(guess, props) {
+    updatePropsWithGuess: function(guess, props) {
         props.value = guess;
     },
 

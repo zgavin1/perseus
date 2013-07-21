@@ -134,7 +134,7 @@ _.extend(Radio, {
         });
     },
 
-    guessToProps: function (guess, props) {
+    updatePropsWithGuess: function (guess, props) {
         props.choices = this.choicesFromGuess(props.choices, guess);
     },
 

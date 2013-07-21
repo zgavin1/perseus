@@ -4,6 +4,7 @@ var srcFiles = [
     "build/src/core.js",
     "build/src/util.js",
     "build/src/renderer.js",
+    "build/src/item-data.js",
     "build/src/editor.js",
     "build/src/widgets-renderer.js",
     "build/src/smart-hints.js",
