@@ -3,6 +3,12 @@
 
 var Editor = Perseus.Editor;
 
+var Timeline = React.createClass({
+    render: function() {
+        return <div className="timeline"></div>;
+    }
+})
+
 var HintEditor = React.createClass({
     getDefaultProps: function() {
         return {
