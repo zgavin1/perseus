@@ -243,8 +243,13 @@ _.extend(ItemData.prototype, {
             score.hint = hint.hint;
 
         return score;
-    }, 
-    
+    },
+
+    changeCorrectAnswer: function (guess) {
+        this.correctAnswer = guess;
+        this.change();
+    },
+
     addSmartHint: function(guess, hint) {
         //TODO(annie): gracefully prevent overwriting correct answers with hints
         var correct = this.correctAnswer;

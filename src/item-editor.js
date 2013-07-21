@@ -138,7 +138,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
 
     changeCorrectAnswer: function() {
         var guess = this.renderer.getGuess();
-        this.setState({correctAnswer: guess});
+        this.item.changeCorrectAnswer(guess);
     },
 
     addSmartHint: function(hint) {
