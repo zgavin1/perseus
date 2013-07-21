@@ -38,7 +38,8 @@ var renderTimeline = function (root, data) {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")" +
+                            "scale(0.6,0.6)");
 
     data = data.map(function(d) { return d.map(function(p, i) { return {x:i, y:p, y0:0}; }); });
 
@@ -52,7 +53,7 @@ var renderTimeline = function (root, data) {
 
     var y = d3.scale.linear()
         .range([height, 0])
-        .domain([0,6000]);
+        .domain([0,200000]);
 
     var z = d3.scale.category20c();
 
