@@ -348,8 +348,8 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
             var hint = _.find(self.item.smartHints, function (hint) {
                 return self.isGuessEquivalent(guess, hint.guess);
             });
-            if (hint)
-                window.alert(hint.text);
+            if (hint.hint)
+                window.alert(hint.hint);
         }
 
         return {
