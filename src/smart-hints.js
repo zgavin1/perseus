@@ -19,10 +19,11 @@ var SmartHintEditor = Perseus.SmartHintEditor = React.createClass({
                 <button onClick={self.props.showCorrect}>Show Correct</button>
             </div>
             <ul>
-                {_.map(self.props.smartHints, function (hint, i) {
+                
+                {_.map(self.orderSmartHint(self.props.smartHints), function (hint) {
                     return <li>
                         <button onClick={_.partial(
-                                self.props.showSmartHint, i)}>Show</button>
+                                self.props.showSmartHint, hint.id)}>Show</button>
                         {hint.hint} - {hint.percent}
                     </li>;
                 })}
@@ -30,6 +31,18 @@ var SmartHintEditor = Perseus.SmartHintEditor = React.createClass({
         </div>;
     },
 
+    orderSmartHint: function(hints) {
+        var percents = Object.keys(hints).map(function(id) {
+                        return {id: id, hint: hints[id].hint, percent: hints[id].guesses.map(function(val) {
+                            return val.percent;}).reduce( function(previousValue, currentValue) {
+                        return previousValue + currentValue;})
+                    };
+                });
+        return orderedPercents= percents.sort(function(a,b) {
+            return b.percent - a.percent;
+        });
+    },
+    
     addSmartHint: function () {
         var value = this.refs["smart-hint-text"].getDOMNode().value;
 

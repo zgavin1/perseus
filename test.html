@@ -164,8 +164,14 @@ Perseus.init({}).then(function() {
             "randomize": false,
             "multipleSelect": false
         }
-    },"hints":[{"content":"Each branch can hold $\\dfrac{1}{10}$ of a monkey."},{"content":"Therefore, $10$ branc… oh shit they're attacking me"},{"content":"If you see this, please help."},{"content":"ooh ooh, ahh ahh, **too late.**"}]}
-    , null), document.getElementById("perseus-editor"));
+    },"hints":[{"content":"Each branch can hold $\\dfrac{1}{10}$ of a monkey."},{"content":"Therefore, $10$ branc… oh shit they're attacking me"},{"content":"If you see this, please help."},{"content":"ooh ooh, ahh ahh, **too late.**"}],
+    "smartHints": {
+        1: {guesses: [{guess: [[true, false, false]], percent:8}], hint: "This first one has a hint"},
+        2: {guesses: [{guess: [[false, true, false]], percent:5}], hint: ""},
+        3: {guesses: [{guess: [[false, true, false]], percent:9}, {guess: [[false, true, false]], percent:6}], hint: ""},
+        4: {guesses: [{guess: [[false, false, true]], percent:5}], hint: "this fourth one has a hint"},
+        5: {guesses: [{guess: [[false, false, true]], percent:10}], hint: ""}
+        }}, null), document.getElementById("perseus-editor"));
     window.editor = editor;
 }).then(function() {
     console.log("all done.", +new Date/1000);

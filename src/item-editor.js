@@ -8,9 +8,10 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         question: {},
         answerArea: {},
         hints: [],
-        correctAnswer: [],
         timeline: null,
-        smartHints: []
+        correctAnswer: [], 
+        smartHints: {},
+        maxSmartHintId: 0
     },
 
     getInitialState: function() {
@@ -36,6 +37,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     },
 
     componentWillMount: function() {
+        //this.squashHints(this.state.smartHints);
+        //this.orderSmartHints(this.state.smartHints);
         this.rendererMountNode = document.createElement("div");
     },
 
@@ -125,8 +128,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         this.renderer.showCorrect();
     },
 
-    showSmartHint: function(index) {
-        this.renderer.showSmartHint(index);
+    showSmartHint: function(id) {
+        this.renderer.showSmartHint(id);
     },
 
     scorePreview: function() {
@@ -152,6 +155,69 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         else {
             this.setState({smartHints: this.state.smartHints.concat([{guess: guess, hint: hint}])});
         }
+    },
+    
+    squashHints: function(oldHints) {
+        oldHints = this.state.smartHints;
+        newHints = {};
+        _.each(oldHints, function(hint, id){
+            if (id > this.maxSmartHintId) {
+                this.maxSmartHintId = id;
+            }
+           if (hint.guesses.length > 1 || hint.hint) {
+               newHints[id] = hint;
+               delete oldHints[id];
+           } 
+        });
+        var topHintId = this.getTopHint(oldHints);
+        while (topHintId != -1) {
+            if (topHintId > this.maxSmartHintId) {
+                this.maxSmartHintId = topHintId;
+            }
+            thisHint = oldHints[topHintId];
+            delete oldHints[topHintId];
+            match = _.find(Object.keys(newHints), _.bind(function(id) {
+                debugger;
+                return this.renderer.isGuessEquivalent(newHints.id.guesses[0].guess, thisHint.guesses[0].guess);
+            }, this));
+            if (match) {
+                newHints[topHintId].guesses = newHints[topHintId].guesses.concat(hint.guesses);
+            }
+            else {
+                newHints[topHintId] = thisHint;
+            }
+            
+            topHintId = getTopHint(oldHints);
+        }
+        this.setState({smartHints:(newHints)});
+    },
+    
+    getTopHint: function(hintDict) {
+        keys = Object.keys(hintDict);
+        maxPercent = -1;
+        maxPercentId = -1;
+        percentTotals = this.percentTotals(hintDict);
+        _.each(percentTotals, function(hint) {
+            if (hint.percent > maxPercent) {
+                maxPercent = hint.percent;
+                maxPercentId = hint.id;
+            }
+        });
+        return maxPercentId;
+    },
+    
+    percentTotals: function(hintDict) {
+        return Object.keys(hintDict).map(_.bind(function(id) {
+                    return {id: id, percent: this.percentTotal(hintDict[id])};
+                }, this));
+    },
+    
+    percentTotal : function(hint) {
+        return hint.guesses.map(function(val) {
+                                return val.percent;
+                            }).reduce( function(previousValue, currentValue) {
+                                return previousValue + currentValue;
+                            });
     },
 
     toJSON: function(skipValidation) {
