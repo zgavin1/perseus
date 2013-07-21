@@ -243,7 +243,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     addSmartHint: function(hint) {
         var guess = this.renderer.getGuess();
         //TODO(annie): gracefully prevent overwriting correct answers with hints
-        if (this.renderer.isGuessEquivalent(guess, this.state.correctAnswer)) {
+        var correct = this.state.correctAnswer;
+        if (correct && this.renderer.isGuessEqualTo(guess, correct)) {
             window.alert("You cannot overwrite the correct answer with your hint!")
         }
         else {

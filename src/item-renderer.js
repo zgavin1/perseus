@@ -182,7 +182,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         item.hints = old.hints || [];
 
         // XXX: not really old, should be done in new
-        item.correctAnswer = old.correctAnswer || [];
+        item.correctAnswer = old.correctAnswer;
         item.smartHints = old.smartHints || [];
         return item;
     },
@@ -253,7 +253,6 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     postUpdate: function() {
         var self = this;
         window.renderer = self;
-        console.log("Post update");
         var widgets = [];
         widgets = widgets.concat(self.questionRenderer.getWidgets());
         widgets = widgets.concat(self.answerAreaRenderer.getWidgets());
@@ -277,12 +276,13 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         });
     },
 
-    isGuessEquivalent: function (guessA, guessB) {
+    isGuessEqualTo: function (guess, compareToGuess) {
         var self = this;
-        var normA = self.normalizeGuess(guessA);
-        var normB = self.normalizeGuess(guessB);
+        var norm = self.normalizeGuess(guess);
+        var normCompare = self.normalizeGuess(compareToGuess);
         return _.every(self.item.widgets, function (widget, i) {
-            return widget.constructor.isGuessEquivalent(normA[i], normB[i]);
+            return widget.constructor.isGuessEqualTo(
+                    norm[i], normCompare[i], widget.props);
         });
     },
 
@@ -290,7 +290,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         var self = this;
         var norm = self.normalizeGuess(guess);
         return _.every(self.item.widgets, function (widget, i) {
-            return widget.constructor.isGuessCompleted(norm[i]);
+            return widget.constructor.isGuessCompleted(norm[i], widget.props);
         });
     },
 
@@ -300,7 +300,7 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
         _.each(self.item.widgets, function (widget, i) {
             var props = _.clone(widget.props);
             widget.props = widget.constructor.guessToProps(
-                    normalized[i], props);
+                    normalized[i], props) || props;
         });
         self.update();
     },
@@ -317,9 +317,9 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
                 var g = guessPart;
                 var version = 0;
             }
-            if (constructor.normalizeGuessJson) {
+            if (constructor.normalizeGuess) {
                 if (constructor.version !== version) {
-                    g = constructor.normalizeGuessJson(g, version, widget.props);
+                    g = constructor.normalizeGuess(g, version, widget.props);
                 }
             }
             return g;
@@ -357,7 +357,6 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     },
 
     scoreInput: function() {
-        console.log("scoreInput");
         var self = this;
         var guess = self.getGuess();
         var completed = self.isGuessCompleted(guess);
@@ -372,13 +371,13 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
             };
         };
         var correctAnswer = self.item.correctAnswer;
-        var correct = self.isGuessEquivalent(guess, correctAnswer);
+        var correct = self.isGuessEqualTo(guess, correctAnswer);
 
         if (!correct) {
             var hint = _.find(self.item.smartHints, function (hint) {
-                return self.isGuessEquivalent(guess, hint.guess);
+                return self.isGuessEqualTo(guess, hint.guess);
             });
-            if (hint.hint)
+            if (hint && hint.hint)
                 window.alert(hint.hint);
         }
 

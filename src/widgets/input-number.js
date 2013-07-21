@@ -51,7 +51,7 @@ var InputNumber = React.createClass({
             {"perseus-input-size-" + (this.props.size || "normal")} 
             onInput={this.onChangedValue} />;
     },
-    
+
     onChangedValue: function(input) {
        this.props.onChange({value: input.target.value}); 
     },
@@ -61,14 +61,8 @@ var InputNumber = React.createClass({
         return true;
     },
 
-    toJSON: function(skipValidation) {
-        return {
-            value: this.refs.input.getDOMNode().value
-        };
-    },
-
-    simpleValidate: function(rubric) {
-        return InputNumber.validate(this.toJSON(), rubric);
+    getGuess: function () {
+        return this.props.value;
     },
 
     examples: function() {
@@ -80,58 +74,50 @@ var InputNumber = React.createClass({
         }, this);
 
         return examples;
-    },
-
-    guessToProps: function(guess) {
-        console.log("guessToProps input-number");
-        console.log(guess);
-        var props = _.clone(this.props);
-        props.value = guess;
-        return props;
     }
 });
 
 _.extend(InputNumber, {
-    jsonToGuess: function (json) {
-        return json.value;
+    version: 1,
+
+    normalizeGuess: function (guess, version) {
+        return guess.value;
     },
-    isGuessEquivalent: function (guessA, guessB) {
-        return _.isEqual(guessA, guessB);
+
+    guessToProps: function(guess, props) {
+        props.value = guess;
     },
-    validate: function(state, rubric) {
-        if (rubric.answerType == null) {
-            rubric.answerType = "number";
+
+    guessResult: function (guess, compareToGuess, props) {
+        var answerType = props.answerType;
+        if (answerType == null) {
+            answerType = "number";
         }
         var val = Khan.answerTypes.number.createValidatorFunctional(
-            rubric.value, {
-                simplify: rubric.simplify,
-                inexact: rubric.inexact || undefined,
-                maxError: rubric.maxError,
-                forms: answerTypes[rubric.answerType].forms
+            compareToGuess, {
+                simplify: props.simplify,
+                inexact: props.inexact || undefined,
+                maxError: props.maxError,
+                forms: answerTypes[answerType].forms
             });
 
-        var result = val(state.value);
+        return val(guess);
+    },
 
-        if (state.value === "" || result === "") {
-            return {
-                type: "invalid",
-                message: null
-            };
-        } else if (typeof result === "string") {
-            return {
-                type: "points",
-                earned: 0,
-                total: 1,
-                message: result
-            };
+    // TODO: figure out why 1/2 is not equal to 1/2 or 0.5!!!
+    isGuessEqualTo: function(guess, compareToGuess, props) {
+        var result = this.guessResult(guess, compareToGuess, props);
+
+        if (typeof result === "string") {
+            return false;
         } else {
-            return {
-                type: "points",
-                earned: result === true ? 1 : 0,
-                total: 1,
-                message: null
-            };
+            return result === true;
         }
+    },
+
+    isGuessCompleted: function (guess, props) {
+        var result = this.guessResult(guess, guess, props);
+        return guess !== "" && result !== "";
     }
 });
 

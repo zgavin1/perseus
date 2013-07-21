@@ -5,8 +5,6 @@ var BaseRadio = React.createClass({
     render: function() {
         var radioGroupName = _.uniqueId("perseus_radio_");
         var inputType = this.props.multipleSelect ? "checkbox" : "radio";
-        console.log("render base radio");
-        console.log(this.props.choices);
 
         return <ul className="perseus-widget-radio">
             {this.props.multipleSelect &&
@@ -118,7 +116,7 @@ _.extend(Radio, {
     version: 1,
 
     // Only called if version !== Radio.version.
-    normalizeGuessJson: function (guess, version, props) {
+    normalizeGuess: function (guess, version, props) {
         if (guess.values) {
             return guess.values;
         }
@@ -138,11 +136,10 @@ _.extend(Radio, {
 
     guessToProps: function (guess, props) {
         props.choices = this.choicesFromGuess(props.choices, guess);
-        return props;
     },
 
-    isGuessEquivalent: function (guessA, guessB) {
-        return _.isEqual(guessA, guessB);
+    isGuessEqualTo: function (guess, compareToGuess) {
+        return _.isEqual(guess, compareToGuess);
     },
 
     // TODO: messages for guess. could make isGuessCompleted part of it
