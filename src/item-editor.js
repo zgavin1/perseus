@@ -3,12 +3,6 @@
 
 var Editor = Perseus.Editor;
 
-var Timeline = React.createClass({
-    render: function() {
-        return <div className="timeline"></div>;
-    }
-})
-
 var HintEditor = React.createClass({
     getDefaultProps: function() {
         return {
@@ -112,13 +106,18 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         question: {},
         answerArea: {},
         hints: [],
-        correctAnswer: [], 
+        correctAnswer: [],
+        timeline: null,
         smartHints: []
     },
 
     getInitialState: function() {
-        var props = _.pick(this.props, _.keys(this.defaultState));
-        return _.defaults(props, this.defaultState);
+        var self = this;
+        d3.json("times.json/", function (data) {
+            self.setState({timeline: data});
+        });
+        var props = _.pick(self.props, _.keys(self.defaultState));
+        return _.defaults(props, self.defaultState);
     },
 
     componentWillReceiveProps: function(nextProps) {
@@ -145,6 +144,7 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     render: function() {
         console.log("EDITOR PROPS:");
         console.log(this.props);
+        var timeline = this.state.timeline;
         return <div className="perseus-item-editor">
             {Editor(_.extend({
                 ref: "questionEditor",
@@ -163,6 +163,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
                 showCorrect: this.showCorrect,
                 showSmartHint: this.showSmartHint
             })}
+
+            {timeline && Perseus.Timeline({data: timeline})}
 
             {AnswerAreaEditor(_.extend({
                 ref: "answerAreaEditor",
