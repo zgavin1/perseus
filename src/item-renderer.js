@@ -154,15 +154,11 @@ var ItemRenderer = Perseus.ItemRenderer = React.createClass({
     },
 
     showHint: function() {
-        if (this.state.hintsVisible < this.getNumHints()) {
+        if (this.state.hintsVisible < this.item.hints.length) {
             this.setState({
                 hintsVisible: this.state.hintsVisible + 1
             });
         }
-    },
-
-    getNumHints: function() {
-        return this.item.hints.length;
     },
 
 });

@@ -41,9 +41,8 @@ Perseus.create = function (type, rootEl, options) {
 
 var PerseusItem = function (type, rootEl, options) {
     var self = this;
-    var json = options.json || Perseus.ItemData.defaultEditorJson();
-    self.item = new Perseus.ItemData(json);
-    self.type = type;
+    self.item = new Perseus.ItemData();
+    self.rootEl = rootEl;
     self.isRenderer = type === "renderer";
     var isEditor = self.isEditor = type === "editor";
     var rendererEl = isEditor ? document.createElement("div") : rootEl;
@@ -52,24 +51,42 @@ var PerseusItem = function (type, rootEl, options) {
         problemNum: options.problemNum,
         initialHintsVisible: isEditor ? -1 : options.initialHintsVisible
     }), rendererEl);
-    if (isEditor) {
-        var editorProps = _.extend({
-            item: self.item,
-            renderer: self.renderer,
-        }, json);
-        self.editor = React.renderComponent(
-                Perseus.ItemEditor(editorProps), rootEl);
-    }
+
+    var json = options.json || Perseus.ItemData.defaultEditorJson();
+    self.setItemData(json);
 };
 
 _.extend(PerseusItem.prototype, {
     scoreInput: function () {
         return this.renderer.scoreInput();
     },
+    setItemData: function (json) {
+        var self = this;
+        self.item.setItemData(json);
+
+        // XXX
+        if (self.isEditor) {
+            var editorProps = _.extend({
+                item: self.item,
+                renderer: self.renderer,
+            }, json);
+            self.editor = React.renderComponent(
+                    Perseus.ItemEditor(editorProps), self.rootEl);
+        }
+    },
     getItemData: function () {
 
         // XXX
         return this.editor.toJSON(true);
+    },
+    focus: function () {
+        this.renderer.focus();
+    },
+    getNumHints: function () {
+        return this.item.hints.length;
+    },
+    showHint: function () {
+        this.renderer.showHint();
     }
 });
 

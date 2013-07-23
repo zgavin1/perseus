@@ -1,11 +1,11 @@
-/** @jsx React.DOM */
 (function(Perseus) {
 
 var ItemData = Perseus.ItemData = function (item) {
     this.callbacks = [];
-    if (item)
-        this.setItemData(item);
+    this.setItemData(item || this.defaultItemData());
 };
+
+ItemData.version = "0.1";
 
 // XXX: need to get editor on new format
 ItemData.defaultEditorJson = function () {
@@ -21,10 +21,22 @@ ItemData.defaultEditorJson = function () {
 };
 
 _.extend(ItemData.prototype, {
-    version: "0.1",
 
-    properties: ["question", "answer", "calculator",
+    properties: ["version", "question", "answer", "calculator",
                  "hints", "smartHints", "widgets", "lastSmartHintId"],
+
+    defaultItemData: function () {
+        return {
+            version: ItemData.version,
+            question: "",
+            answer: "",
+            calculator: false,
+            hints: [],
+            smartHints: {},
+            widgets: [],
+            lastSmartHintId: 0
+        };
+    },
 
     onChange: function (cb) {
         this.callbacks.push(cb);
@@ -37,6 +49,8 @@ _.extend(ItemData.prototype, {
         });
     },
 
+    // XXX similar to normalize guess, need to normalize item data.
+    // XXX need a per widget to transform item data to and from stored from.
     setItemData: function(data) {
         var self = this;
         if (! data.version) {
@@ -54,7 +68,7 @@ _.extend(ItemData.prototype, {
 
     getDataFromOld: function (old) {
         var data = {};
-        data.version = self.version;
+        data.version = ItemData.version;
 
         var idCounter = 0;
         var idMap = [];
