@@ -13,7 +13,8 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
 
     getInitialState: function() {
         var self = this;
-        self.item = self.props.item || new Perseus.ItemData(self.props);
+        self.item = self.props.item;
+        self.renderer = self.props.renderer;
         // self.item.onChange(_.bind(self.update, self));
         
         d3.json("times.json/", function (data) {
@@ -34,16 +35,10 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
     },
 
     componentWillMount: function() {
-        //this.squashHints(this.state.smartHints);
-        //this.orderSmartHints(this.state.smartHints);
         this.rendererMountNode = document.createElement("div");
     },
 
     componentDidMount: function() {
-        this.renderer = React.renderComponent(Perseus.ItemRenderer({
-            item: this.item,
-            initialHintsVisible: -1  /* all */
-        }), this.rendererMountNode);
         this.updatePreview();
     },
 
@@ -126,14 +121,6 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
 
     showSmartHint: function(id) {
         this.renderer.showSmartHint(id);
-    },
-
-    scorePreview: function() {
-        if (this.renderer) {
-            return this.renderer.scoreInput();
-        } else {
-            return null;
-        }
     },
 
     changeCorrectAnswer: function() {

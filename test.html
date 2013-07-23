@@ -131,14 +131,15 @@
 var editor;
 
 $('#toJSON').on('click', function() {
-    console.log(JSON.stringify(editor, null, 4));
+    console.log(JSON.stringify(editor.getItemData(), null, 4));
 });
 $('#scorePreview').on('click', function() {
-    console.log(editor.scorePreview());
+    console.log(editor.scoreInput());
 });
 
 Perseus.init({}).then(function() {
-    editor = React.renderComponent(Perseus.ItemEditor(
+    editor = Perseus.create(
+            "editor", document.getElementById("perseus-editor"), {json:
 {"question":
     {
         "content": "How many monkeys swing from $10$ branches of **trees**?",
@@ -172,7 +173,8 @@ Perseus.init({}).then(function() {
         4: {guesses: [{guess: [{guess: [false, false, true], version: 1}], percent:5}], hint: "this fourth one has a hint"},
         5: {guesses: [{guess: [{guess: [false, false, true], version: 1}], percent:10}], hint: ""}
         },
-        "lastSmartHintId": 5}, null), document.getElementById("perseus-editor"));
+        "lastSmartHintId": 5}
+    });
     window.editor = editor;
 }).then(function() {
     console.log("all done.", +new Date/1000);

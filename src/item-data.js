@@ -7,6 +7,19 @@ var ItemData = Perseus.ItemData = function (item) {
         this.setItemData(item);
 };
 
+// XXX: need to get editor on new format
+ItemData.defaultEditorJson = function () {
+    return {
+        question: {},
+        answerArea: {},
+        hints: [],
+        timeline: null,
+        correctAnswer: null,
+        smartHints: {},
+        lastSmartHintId: 0
+    };
+};
+
 _.extend(ItemData.prototype, {
     version: "0.1",
 
@@ -20,7 +33,7 @@ _.extend(ItemData.prototype, {
     change: function(cb) {
         var self = this;
         _.each(self.callbacks, function (callback) {
-            callback(self.cloneItemData(), cb);
+            callback(self.getItemData(), cb);
         });
     },
 
@@ -98,7 +111,7 @@ _.extend(ItemData.prototype, {
         return data;
     },
 
-    cloneItemData: function () {
+    getItemData: function () {
         var data = _.pick(this, this.properties);
         data.widgets = _.map(data.widgets, function (widget) {
             widget = _.clone(widget);
