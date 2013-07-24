@@ -52,17 +52,20 @@ var PerseusItem = function (type, rootEl, options) {
         initialHintsVisible: isEditor ? -1 : options.initialHintsVisible
     }), rendererEl);
 
-    var json = options.json || Perseus.ItemData.defaultEditorJson();
-    self.setItemData(json);
+    var json = options.json;
+    if (!json || _.isEmpty(json)) {
+        json = Perseus.ItemData.defaultEditorJson();
+    }
+    self.setStoredData(json);
 };
 
 _.extend(PerseusItem.prototype, {
     scoreInput: function () {
         return this.renderer.scoreInput();
     },
-    setItemData: function (json) {
+    setStoredData: function (json) {
         var self = this;
-        self.item.setItemData(json);
+        self.item.setStoredData(json);
 
         // XXX
         if (self.isEditor) {
@@ -74,7 +77,7 @@ _.extend(PerseusItem.prototype, {
                     Perseus.ItemEditor(editorProps), self.rootEl);
         }
     },
-    getItemData: function () {
+    getStoredData: function () {
 
         // XXX
         return this.editor.toJSON(true);

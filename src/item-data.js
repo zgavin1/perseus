@@ -2,7 +2,7 @@
 
 var ItemData = Perseus.ItemData = function (item) {
     this.callbacks = [];
-    this.setItemData(item || this.defaultItemData());
+    this.setStoredData(item || this.defaultStoredData());
 };
 
 ItemData.version = "0.1";
@@ -10,8 +10,11 @@ ItemData.version = "0.1";
 // XXX: need to get editor on new format
 ItemData.defaultEditorJson = function () {
     return {
-        question: {},
-        answerArea: {},
+        question: {content: "", widgets: ""},
+        answerArea: {type: "multiple", options: {
+            content: "",
+            widgets: {}
+        }, calculator: false},
         hints: [],
         timeline: null,
         correctAnswer: null,
@@ -25,7 +28,7 @@ _.extend(ItemData.prototype, {
     properties: ["version", "question", "answer", "calculator",
                  "hints", "smartHints", "widgets", "lastSmartHintId"],
 
-    defaultItemData: function () {
+    defaultStoredData: function () {
         return {
             version: ItemData.version,
             question: "",
@@ -51,7 +54,7 @@ _.extend(ItemData.prototype, {
 
     // XXX similar to normalize guess, need to normalize item data.
     // XXX need a per widget to transform item data to and from stored from.
-    setItemData: function(data) {
+    setStoredData: function(data) {
         var self = this;
         if (! data.version) {
             data = self.getDataFromOld(data);

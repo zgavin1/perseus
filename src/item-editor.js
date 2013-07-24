@@ -16,10 +16,12 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         self.item = self.props.item;
         self.renderer = self.props.renderer;
         // self.item.onChange(_.bind(self.update, self));
-        
-        d3.json("times.json/", function (data) {
-            self.setState({timeline: data});
-        });
+
+        if (window.testHtml) {
+            d3.json("times.json/", function (data) {
+                self.setState({timeline: data});
+            });
+        }
         var props = _.pick(self.props, _.keys(self.defaultState));
         return _.defaults(props, self.defaultState);
     },
@@ -111,8 +113,9 @@ var ItemEditor = Perseus.ItemEditor = React.createClass({
         return false;
     },
 
+    // XXX
     updatePreview: function() {
-        this.item.setItemData(this.toJSON(true));
+        this.item.setStoredData(this.toJSON(true));
     },
 
     showCorrect: function () {

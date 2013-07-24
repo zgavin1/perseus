@@ -128,10 +128,11 @@
 <script>
 (function() {
 
+window.testHtml = true;
 var editor;
 
 $('#toJSON').on('click', function() {
-    console.log(JSON.stringify(editor.getItemData(), null, 4));
+    console.log(JSON.stringify(editor.getStoredData(), null, 4));
 });
 $('#scorePreview').on('click', function() {
     console.log(editor.scoreInput());
