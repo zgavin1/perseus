@@ -23,13 +23,17 @@ var InputWithExamples = React.createClass({
         examples: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
         shouldShowExamples: React.PropTypes.bool,
         convertDotToTimes: React.PropTypes.bool,
-        interceptFocus: React.PropTypes.func
+        interceptFocus: React.PropTypes.func,
+        onFocus: React.PropTypes.func,
+        onBlur: React.PropTypes.func
     },
 
     getDefaultProps: function() {
         return {
             type: TEXT,
-            shouldShowExamples: true
+            shouldShowExamples: true,
+            onFocus: function() { },
+            onBlur: function() { }
         };
     },
 
@@ -111,6 +115,7 @@ var InputWithExamples = React.createClass({
                 showExamples = false;
             }
         }
+        this.props.onFocus();
         this.setState({
             focused: true,
             showExamples: showExamples
@@ -130,6 +135,7 @@ var InputWithExamples = React.createClass({
             focused: false,
             showExamples: false
         });
+        this.props.onBlur();
     },
 
     focus: function() {

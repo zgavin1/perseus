@@ -2,12 +2,14 @@ module.exports = {
     Options: {
         propTypes: React.PropTypes.shape({
             interceptInputFocus: React.PropTypes.func,
-            onInputError: React.PropTypes.func.isRequired
+            onInputError: React.PropTypes.func.isRequired,
+            onFocusChange: React.PropTypes.func.isRequired
         }).isRequired,
 
         defaults: {
             interceptInputFocus: null,
-            onInputError: function() { }
+            onInputError: function() { },
+            onFocusChange: function() { }
         }
     },
     ClassNames: {

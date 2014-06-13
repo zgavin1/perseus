@@ -35,6 +35,8 @@ var Expression = React.createClass({
             value: "",
             times: false,
             functions: [],
+            onFocus: function() { },
+            onBlur: function() { },
             enabledFeatures: EnabledFeatures.defaults,
             apiOptions: ApiOptions.defaults
         };
@@ -98,15 +100,25 @@ var Expression = React.createClass({
 
         return <span className={className}>
             <InputWithExamples
+                ref="input"
                 type="math"
                 value={this.props.value}
                 onChange={(value) => this.change("value", value)}
                 examples={this.examples()}
                 shouldShowExamples={shouldShowExamples}
                 convertDotToTimes={this.props.times}
-                ref="input" />
+                onFocus={this._onFocus}
+                onBlur={this._onBlur} />
             {this.state.showErrorTooltip && errorTooltip}
         </span>;
+    },
+
+    _onFocus: function() {
+        this.props.onFocus(this.refs.input.getInputDOMNode());
+    },
+
+    _onBlur: function() {
+        this.props.onBlur(this.refs.input.getInputDOMNode());
     },
 
     errorTimeout: null,
@@ -228,6 +240,8 @@ var OldExpression = React.createClass({
             value: "",
             times: false,
             functions: [],
+            onFocus: function() { },
+            onBlur: function() { },
             enabledFeatures: EnabledFeatures.defaults,
             apiOptions: ApiOptions.defaults
         };
@@ -270,7 +284,9 @@ var OldExpression = React.createClass({
                     onChange={this.handleChange}
                     examples={this.examples()}
                     shouldShowExamples={shouldShowExamples}
-                    interceptFocus={this._getInterceptFocus()} />
+                    interceptFocus={this._getInterceptFocus()}
+                    onFocus={this._onFocus}
+                    onBlur={this._onBlur} />
             <span className="output">
                 <span className="tex"
                         style={{opacity: result.parsed ? 1.0 : 0.5}}>
@@ -287,6 +303,14 @@ var OldExpression = React.createClass({
                 </span>
             </span>
         </span>;
+    },
+
+    _onFocus: function() {
+        this.props.onFocus(this.refs.input.getInputDOMNode());
+    },
+
+    _onBlur: function() {
+        this.props.onBlur(this.refs.input.getInputDOMNode());
     },
 
     _getInterceptFocus: function() {

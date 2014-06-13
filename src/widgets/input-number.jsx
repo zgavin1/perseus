@@ -104,7 +104,17 @@ var InputNumber = React.createClass({
                 className={"perseus-input-size-" + this.props.size}
                 examples={this.examples()}
                 shouldShowExamples={this.shouldShowExamples()}
-                interceptFocus={this._getInterceptFocus()} />;
+                interceptFocus={this._getInterceptFocus()}
+                onFocus={this._onFocus}
+                onBlur={this._onBlur} />;
+    },
+
+    _onFocus: function() {
+        this.props.onFocus(this.refs.input.getInputDOMNode());
+    },
+
+    _onBlur: function() {
+        this.props.onBlur(this.refs.input.getInputDOMNode());
     },
 
     _getInterceptFocus: function() {
@@ -113,6 +123,7 @@ var InputNumber = React.createClass({
     },
 
     _interceptFocus: function() {
+        this.props.onFocus();
         var interceptProp = this.props.apiOptions.interceptInputFocus;
         if (interceptProp) {
             return interceptProp(
