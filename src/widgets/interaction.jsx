@@ -51,7 +51,7 @@ var Interaction = React.createClass({
         var expr = KAS.parse(expression).expr;
         if (!expr) {
             return 0;
-        };
+        }
         val = expr.eval(variables);
         return val || 0;
     },

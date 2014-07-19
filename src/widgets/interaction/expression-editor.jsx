@@ -22,7 +22,7 @@ var ExpressionEditor = React.createClass({
             value: this.props.value,
             times: false,
             functions: ["f"],
-            onChange: (newProps) => {this.props.onChange(newProps.value)},
+            onChange: (newProps) => {this.props.onChange(newProps.value);},
             buttonsVisible: "never"
         });
     }
