@@ -29,7 +29,7 @@ var FUNCTION_ARRAY_OPTIONS = [
 // Things that the user might want to change should be on "props",
 // while things used to render the point should be on "state".
 var DEFAULT_PROPS = {
-    points: [[0, 0], [4, 4]],
+    points: null,
     updatePoints: false,
     static: false,
     cursor: "move",
@@ -204,8 +204,10 @@ _.extend(MovableLine.prototype, {
         }));
 
         // Update the line with the points' movement
-        _.invoke(state.points, "listen", "onMove", state.id,
-                self.draw.bind(self));
+        if (this.points) {
+            _.invoke(state.points, "listen", "onMove", state.id,
+                    self.draw.bind(self));
+        }
 
         // Trigger an add event if this hasn't been added before
         if (!state.added) {
@@ -223,15 +225,20 @@ _.extend(MovableLine.prototype, {
     },
 
     coords: function() {
-        return _.invoke(this.state.points, "coord");
+        if (this.state.points) {
+            return _.invoke(this.state.points, "coord");
+        }
+        return this.state.coords;
     },
 
     point: function(index) {
-        return this.state.points[index];
+        if (this.state.points) {
+            return this.state.points[index];
+        }
     },
 
     coord: function(index) {
-        return this.point(index).coord();
+        return this.coords()[index];
     },
 
     remove: function() {
