@@ -266,6 +266,27 @@ var InteractionEditor = React.createClass({
         });
     },
 
+    _deleteElement: function(key) {
+        var element = _.findWhere(this.props.elements, {key: key})
+        this.change({elements: _.without(this.props.elements, element)});
+    },
+
+    _moveElementUp: function(key) {
+        var element = _.findWhere(this.props.elements, {key: key})
+        var insertionPoint = _.indexOf(this.props.elements, element) - 1;
+        var newElements = _.without(this.props.elements, element);
+        newElements.splice(insertionPoint, 0, element);
+        this.change({elements: newElements});
+    },
+
+    _moveElementDown: function(key) {
+        var element = _.findWhere(this.props.elements, {key: key})
+        var insertionPoint = _.indexOf(this.props.elements, element) + 1;
+        var newElements = _.without(this.props.elements, element);
+        newElements.splice(insertionPoint, 0, element);
+        this.change({elements: newElements});
+    },
+
     render: function() {
         return <div className="perseus-widget-interaction-editor">
             <ElementContainer title="Grid settings">
@@ -290,6 +311,10 @@ var InteractionEditor = React.createClass({
                                     ", " + element.options.coordY +
                                     ")"}</TeX>
                                 </span>}
+                            onUp={n === 0 ? null : this._moveElementUp}
+                            onDown={n === this.props.elements.length - 1 ?
+                                null : this._moveElementDown}
+                            onDelete={this._deleteElement}
                             key={element.key}>
                         <PointEditor
                             coordX={element.options.coordX}
@@ -312,6 +337,10 @@ var InteractionEditor = React.createClass({
                                     ", " + element.options.endY +
                                     ")"}</TeX>
                                 </span>}
+                            onUp={n === 0 ? null : this._moveElementUp}
+                            onDown={n === this.props.elements.length - 1 ?
+                                null : this._moveElementDown}
+                            onDelete={this._deleteElement}
                             key={element.key}>
                         <LineEditor
                             startX={element.options.startX}
