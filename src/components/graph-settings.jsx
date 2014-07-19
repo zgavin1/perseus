@@ -8,9 +8,10 @@ var InfoTip     = require("react-components/info-tip");
 var NumberInput = require("../components/number-input.jsx");
 var PropCheckBox = require("../components/prop-check-box.jsx");
 var RangeInput = require("../components/range-input.jsx");
+var TeX = require("../tex.jsx");
 var Util = require("../util.js");
 
-var defaultBoxSize = 400;
+var defaultBoxSize = 340;
 var defaultBackgroundImage = {
     url: null,
     scale: 1,
@@ -38,7 +39,9 @@ var GraphSettings = React.createClass({
 
     getDefaultProps: function() {
         return {
-            box: [340, 340],
+            editableSettings:
+                [/*"canvas",*/ "graph", "snap", "image", "measure"],
+            box: [defaultBoxSize, defaultBoxSize],
             labels: ["x", "y"],
             range: [[-10, 10], [-10, 10]],
             step: [1, 1],
@@ -56,6 +59,24 @@ var GraphSettings = React.createClass({
 
     render: function() {
         return <div>
+            {_.contains(this.props.editableSettings, "canvas") &&
+            <div className="graph-settings">
+                <div className="perseus-widget-row">
+                    Canvas size (x,y pixels)
+                    <RangeInput
+                        value={this.props.box}
+                        onChange={(box) => { this.change({box: box}); }} />
+                </div>
+                <div className="perseus-widget-row">
+                    Scale (px per div): <TeX>{"(" + KhanUtil.roundTo(2,
+                        Util.scaleFromExtent(this.props.range[0],
+                        this.props.box[0])) + ", " + KhanUtil.roundTo(2,
+                        Util.scaleFromExtent(this.props.range[1],
+                        this.props.box[1])) + ")"}</TeX>
+                </div>
+            </div>}
+
+            {_.contains(this.props.editableSettings, "graph") &&
             <div className="graph-settings">
                 <div className="perseus-widget-row">
                     <div className="perseus-widget-left-col"> x Label
@@ -98,13 +119,14 @@ var GraphSettings = React.createClass({
                                     onChange = {this.changeGridStep} />
                     </div>
                 </div>
+                {_.contains(this.props.editableSettings, "snap") &&
                 <div className="perseus-widget-row">
                     <div className="perseus-widget-left-col">
                         Snap Step
                         <RangeInput value= {this.state.snapStepTextbox}
                                     onChange = {this.changeSnapStep} />
                     </div>
-                </div>
+                </div>}
                 <div className="perseus-widget-row">
                     <label>Markings:{' '} </label>
                     <ButtonGroup value={this.props.markings}
@@ -115,7 +137,9 @@ var GraphSettings = React.createClass({
                             {value: "none", text: "None"}]}
                         onChange={this.change("markings")} />
                 </div>
-            </div>
+            </div>}
+
+            {_.contains(this.props.editableSettings, "image") &&
             <div className="image-settings">
                 <div>Background image:</div>
                 <div>Url:{' '}
@@ -153,7 +177,9 @@ var GraphSettings = React.createClass({
                         _.partial(this.changeBackgroundSetting, "scale")} />
                     </div>
                 </div>}
-            </div>
+            </div>}
+
+            {_.contains(this.props.editableSettings, "measure") &&
             <div className="misc-settings">
                 <div className="perseus-widget-row">
                     <div className="perseus-widget-left-col">
@@ -207,7 +233,7 @@ var GraphSettings = React.createClass({
                         </label>
                     </div>
                 </div>}
-            </div>
+            </div>}
         </div>;
     },
 

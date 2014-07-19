@@ -65,6 +65,9 @@ var Graphie = React.createClass({
         if (!deepEq(this.props.options, prevProps.options)) {
             this._setupGraphie();
         }
+        if (!deepEq(this.props.box, prevProps.box)) {
+            this._setupGraphie();
+        }
         this._updateMovables();
     },
 
@@ -128,6 +131,9 @@ var Graphie = React.createClass({
             onMouseMove: this.props.onMouseMove
         });
         graphie.snap = this.props.options.snapStep || [1, 1];
+
+        this.props.options.range = this._range();
+        this.props.options.scale = this._scale();
         this.props.setup(graphie, this.props.options);
     },
 

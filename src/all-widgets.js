@@ -7,7 +7,9 @@ _.each([
     require("./widgets/example-graphie-widget.jsx"),
     require("./widgets/expression.jsx"),
     require("./widgets/iframe.jsx"),
+    require("./widgets/image.jsx"),
     require("./widgets/input-number.jsx"),
+    require("./widgets/interaction.jsx"),
     require("./widgets/interactive-graph.jsx"),
     require("./widgets/interactive-number-line.jsx"),
     require("./widgets/lights-puzzle.jsx"),
@@ -20,8 +22,7 @@ _.each([
     require("./widgets/radio.jsx"),
     require("./widgets/sorter.jsx"),
     require("./widgets/table.jsx"),
-    require("./widgets/transformer.jsx"),
-    require("./widgets/image.jsx")
+    require("./widgets/transformer.jsx")
 ], function(widget) {
     Widgets.register(widget.name, _.omit(widget, "name"));
 });
