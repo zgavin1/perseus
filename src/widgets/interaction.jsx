@@ -16,6 +16,8 @@ var TeX = require("../tex.jsx");
 var Line = Graphie.Line;
 var MovablePoint = Graphie.MovablePoint;
 var MovableLine = Graphie.MovableLine;
+var Plot = Graphie.Plot;
+var PlotParametric = Graphie.PlotParametric;
 var Point = Graphie.Point;
 
 
@@ -33,7 +35,8 @@ var Interaction = React.createClass({
 
     getInitialState: function() {
         return {
-            variables: this._getInitialVariables(this.props.elements)
+            variables: this._getInitialVariables(this.props.elements),
+            functions: this._getInitialFunctions(this.props.elements)
         };
     },
 
@@ -89,9 +92,15 @@ var Interaction = React.createClass({
         return variables;
     },
 
+    _getInitialFunctions: function(elements) {
+        return _.map(_.where(elements, {type: "function"}),
+            (element) => element.options.funcName);
+    },
+
     componentWillReceiveProps: function(nextProps) {
         this.setState({
-            variables: this._getInitialVariables(nextProps.elements)
+            variables: this._getInitialVariables(nextProps.elements),
+            functions: this._getInitialFunctions(nextProps.elements)
         });
     },
 
@@ -136,13 +145,33 @@ var Interaction = React.createClass({
     },
 
     _eval: function(expression, variables) {
-        var expr = KAS.parse(expression).expr;
+        var expr = KAS.parse(expression,
+            {functions: this.state.functions}).expr;
         if (!expr) {
             return 0;
         }
         val = expr.eval(_.extend(this.state.variables, variables));
         return val || 0;
     },
+
+    // Return an array of all the variables in an expression
+    _extractVars: function(expr) {
+        if (expr == null) {
+            return [];
+        }
+        var vars = [];
+        _.each(expr.args(), function(arg) {
+            if (arg && arg.constructor.name === "Expr") {
+                vars = vars.concat(this._extractVars(arg));
+            }
+        }, this);
+
+        if (expr.name() === "Var") {
+            vars.push(expr.prettyPrint());
+        }
+        return vars;
+    },
+
 
     render: function() {
         return <Graphie
@@ -243,6 +272,65 @@ var Interaction = React.createClass({
                         onMove={_.bind(this._updateLineLocation, this,
                             element.options)}
                         />;
+                } else if (element.type === "function") {
+                    var fn = (x) => {
+                        return this._eval(element.options.value, {x: x});
+                    };
+                    // find all the variables referenced by this function
+                    var vars = _.without(this._extractVars(
+                        KAS.parse(element.options.value).expr), "x");
+                    // and find their values, so we redraw if any change
+                    var varValues = _.object(vars,
+                        _.map(vars, (v) => this.state.variables[v]));
+
+                    var range=[this._eval(element.options.rangeMin,
+                        this.state.variables),
+                        this._eval(element.options.rangeMax,
+                        this.state.variables)];
+
+                    return <Plot
+                        fn={fn}
+                        foo_fn={element.options.value}
+                        foo_varvalues={varValues}
+                        range={range}
+                        style={{
+                            stroke: element.options.color,
+                            strokeWidth: element.options.strokeWidth,
+                            strokeDasharray: element.options.strokeDasharray,
+                            plotPoints: 100  // TODO(eater): why so slow?
+                        }} />;
+                } else if (element.type === "parametric") {
+                    var fn = (t) => {
+                        return [
+                            this._eval(element.options.x, {t: t}),
+                            this._eval(element.options.y, {t: t})];
+                    };
+                    // find all the variables referenced by this function
+                    var vars = _.without(this._extractVars(
+                        KAS.parse(element.options.x).expr).concat(
+                        this._extractVars(
+                        KAS.parse(element.options.y).expr)), "t");
+                    // and find their values, so we redraw if any change
+                    var varValues = _.object(vars,
+                        _.map(vars, (v) => this.state.variables[v]));
+
+                    var range = [this._eval(element.options.rangeMin,
+                        this.state.variables),
+                        this._eval(element.options.rangeMax,
+                        this.state.variables)];
+
+                    return <PlotParametric
+                        fn={fn}
+                        foo_fnx={element.options.x}
+                        foo_fny={element.options.y}
+                        foo_varvalues={varValues}
+                        range={range}
+                        style={{
+                            stroke: element.options.color,
+                            strokeWidth: element.options.strokeWidth,
+                            strokeDasharray: element.options.strokeDasharray,
+                            plotPoints: 100  // TODO(eater): why so slow?
+                        }} />;
                 }
             }, this)}
         </Graphie>;
@@ -548,6 +636,134 @@ var MovableLineEditor = React.createClass({
 });
 
 
+//
+// Editor for function plots
+//
+// TODO(eater): Factor this out maybe?
+//
+var FunctionEditor = React.createClass({
+    mixins: [JsonifyProps, Changeable],
+
+    propTypes: {
+    },
+
+    getDefaultProps: function() {
+        return {
+            value: "x",
+            rangeMin: "-10",
+            rangeMax: "10",
+            color: KhanUtil.BLUE,
+            strokeDasharray: "",
+            strokeWidth: 2
+        };
+    },
+
+    render: function() {
+        return <div className="graph-settings">
+            <div className="perseus-widget-row">
+                <TeX>{this.props.funcName + "(x)="}</TeX> <ExpressionEditor
+                    value={this.props.value}
+                    onChange={this.change("value")} />
+            </div>
+            <div className="perseus-widget-row">
+                Range: <TeX>\Large(</TeX><ExpressionEditor
+                    value={this.props.rangeMin}
+                    onChange={this.change("rangeMin")} />
+                <TeX>,</TeX> <ExpressionEditor
+                    value={this.props.rangeMax}
+                    onChange={this.change("rangeMax")} />
+                <TeX>\Large)</TeX>
+            </div>
+            <div className="perseus-widget-row">
+                <ColorPicker
+                    value={this.props.color}
+                    onChange={this.change("color")} />
+            </div>
+            <div className="perseus-widget-row">
+                <DashPicker
+                    value={this.props.strokeDasharray}
+                    onChange={this.change("strokeDasharray")} />
+            </div>
+            <div className="perseus-widget-row">
+                <div className="perseus-widget-left-col">
+                    Width: <NumberInput
+                        value={this.props.strokeWidth}
+                        placeholder={2}
+                        onChange={this.change("strokeWidth")}/>
+                </div>
+            </div>
+        </div>;
+    }
+});
+
+
+//
+// Editor for parametric plots
+//
+// TODO(eater): Factor this out maybe?
+//
+var ParametricEditor = React.createClass({
+    mixins: [JsonifyProps, Changeable],
+
+    propTypes: {
+    },
+
+    getDefaultProps: function() {
+        return {
+            x: "cos(t)",
+            y: "sin(t)",
+            rangeMin: "0",
+            rangeMax: "2\\pi",
+            color: KhanUtil.BLUE,
+            strokeDasharray: "",
+            strokeWidth: 2
+        };
+    },
+
+    render: function() {
+        return <div className="graph-settings">
+            <div className="perseus-widget-row">
+                <TeX>X(t) =</TeX> <ExpressionEditor
+                    value={this.props.x}
+                    onChange={this.change("x")} />
+            </div>
+            <div className="perseus-widget-row">
+                <TeX>Y(t) =</TeX> <ExpressionEditor
+                    value={this.props.y}
+                    onChange={this.change("y")} />
+            </div>
+            <div className="perseus-widget-row">
+                Range: <TeX>\Large(</TeX><ExpressionEditor
+                    value={this.props.rangeMin}
+                    onChange={this.change("rangeMin")} />
+                <TeX>,</TeX> <ExpressionEditor
+                    value={this.props.rangeMax}
+                    onChange={this.change("rangeMax")} />
+                <TeX>\Large)</TeX>
+            </div>
+            <div className="perseus-widget-row">
+                <ColorPicker
+                    value={this.props.color}
+                    onChange={this.change("color")} />
+            </div>
+            <div className="perseus-widget-row">
+                <DashPicker
+                    value={this.props.strokeDasharray}
+                    onChange={this.change("strokeDasharray")} />
+            </div>
+            <div className="perseus-widget-row">
+                <div className="perseus-widget-left-col">
+                    Width: <NumberInput
+                        value={this.props.strokeWidth}
+                        placeholder={2}
+                        onChange={this.change("strokeWidth")}/>
+                </div>
+            </div>
+        </div>;
+    }
+});
+
+
 var InteractionEditor = React.createClass({
     mixins: [JsonifyProps, Changeable],
 
@@ -572,13 +788,15 @@ var InteractionEditor = React.createClass({
 
     getInitialState: function() {
         return {
-            usedVarSubscripts: this._getAllVarSubscripts(this.props.elements)
+            usedVarSubscripts: this._getAllVarSubscripts(this.props.elements),
+            usedFunctionNames: this._getAllFunctionNames(this.props.elements)
         };
     },
 
     componentWillReceiveProps: function(nextProps) {
         this.setState({
-            usedVarSubscripts: this._getAllVarSubscripts(nextProps.elements)
+            usedVarSubscripts: this._getAllVarSubscripts(nextProps.elements),
+            usedFunctionNames: this._getAllFunctionNames(nextProps.elements)
         });
     },
 
@@ -589,6 +807,11 @@ var InteractionEditor = React.createClass({
             (element) => element.options.startSubscript)).concat(
             _.map(_.where(elements, {type: "movable-line"}),
             (element) => element.options.endSubscript));
+    },
+
+    _getAllFunctionNames: function(elements) {
+        return _.map(_.where(elements, {type: "function"}),
+            (element) => element.options.funcName);
     },
 
     _updateGraphProps: function(newProps) {
@@ -617,7 +840,11 @@ var InteractionEditor = React.createClass({
                         elementType === "movable-point" ?
                         MovablePointEditor.originalSpec.getDefaultProps() :
                         elementType === "movable-line" ?
-                        MovableLineEditor.originalSpec.getDefaultProps() : {}
+                        MovableLineEditor.originalSpec.getDefaultProps() :
+                        elementType === "function" ?
+                        FunctionEditor.originalSpec.getDefaultProps() :
+                        elementType === "parametric" ?
+                        ParametricEditor.originalSpec.getDefaultProps() : {}
         };
         if (elementType === "movable-point") {
             var nextSubscript =
@@ -628,6 +855,14 @@ var InteractionEditor = React.createClass({
                 _.max([_.max(this.state.usedVarSubscripts), -1]) + 1;
             newElement.options.startSubscript = nextSubscript;
             newElement.options.endSubscript = nextSubscript + 1;
+        } else if (elementType === "function") {
+            // TODO(eater): The 22nd function added will be {(x) since '{'
+            // comes after 'z'
+            var nextLetter = String.fromCharCode(_.max([_.max(_.map(
+                this.state.usedFunctionNames, function(c) {
+                return c.charCodeAt(0); })),
+                "e".charCodeAt(0)]) + 1);
+            newElement.options.funcName = nextLetter;
         }
         this.change({
             elements: this.props.elements.concat(newElement)
@@ -783,6 +1018,55 @@ var InteractionEditor = React.createClass({
                                 this.change({elements: elements});
                             }} />
                     </ElementContainer>;
+                } else if (element.type === "function") {
+                    return <ElementContainer
+                            title={<span>Function <TeX>{
+                                element.options.funcName + "(x) = " +
+                                element.options.value
+                            }</TeX></span>}
+                            onUp={n === 0 ? null : this._moveElementUp}
+                            onDown={n === this.props.elements.length - 1 ?
+                                null : this._moveElementDown}
+                            onDelete={this._deleteElement}
+                            key={element.key}>
+                        <FunctionEditor
+                            value={element.options.value}
+                            funcName={element.options.funcName}
+                            rangeMin={element.options.rangeMin}
+                            rangeMax={element.options.rangeMax}
+                            color={element.options.color}
+                            strokeDasharray={element.options.strokeDasharray}
+                            strokeWidth={element.options.strokeWidth}
+                            onChange={(newProps) => {
+                                var elements = JSON.parse(JSON.stringify(
+                                    this.props.elements));
+                                _.extend(elements[n].options, newProps);
+                                this.change({elements: elements});
+                            }} />
+                    </ElementContainer>;
+                } else if (element.type === "parametric") {
+                    return <ElementContainer
+                            title={<span>Parametric</span>}
+                            onUp={n === 0 ? null : this._moveElementUp}
+                            onDown={n === this.props.elements.length - 1 ?
+                                null : this._moveElementDown}
+                            onDelete={this._deleteElement}
+                            key={element.key}>
+                        <ParametricEditor
+                            x={element.options.x}
+                            y={element.options.y}
+                            rangeMin={element.options.rangeMin}
+                            rangeMax={element.options.rangeMax}
+                            color={element.options.color}
+                            strokeDasharray={element.options.strokeDasharray}
+                            strokeWidth={element.options.strokeWidth}
+                            onChange={(newProps) => {
+                                var elements = JSON.parse(JSON.stringify(
+                                    this.props.elements));
+                                _.extend(elements[n].options, newProps);
+                                this.change({elements: elements});
+                            }} />
+                    </ElementContainer>;
                 }
             }, this)}
             <div className="perseus-widget-interaction-editor-select-element">
@@ -791,6 +1075,8 @@ var InteractionEditor = React.createClass({
                     <option disabled>--</option>
                     <option value="point">Point</option>
                     <option value="line">Line segment</option>
+                    <option value="function">Function plot</option>
+                    <option value="parametric">Parametric plot</option>
                     <option value="movable-point">
                         &#x2605; Movable point</option>
                     <option value="movable-line">
