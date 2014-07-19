@@ -267,12 +267,12 @@ var InteractionEditor = React.createClass({
     },
 
     _deleteElement: function(key) {
-        var element = _.findWhere(this.props.elements, {key: key})
+        var element = _.findWhere(this.props.elements, {key: key});
         this.change({elements: _.without(this.props.elements, element)});
     },
 
     _moveElementUp: function(key) {
-        var element = _.findWhere(this.props.elements, {key: key})
+        var element = _.findWhere(this.props.elements, {key: key});
         var insertionPoint = _.indexOf(this.props.elements, element) - 1;
         var newElements = _.without(this.props.elements, element);
         newElements.splice(insertionPoint, 0, element);
@@ -280,7 +280,7 @@ var InteractionEditor = React.createClass({
     },
 
     _moveElementDown: function(key) {
-        var element = _.findWhere(this.props.elements, {key: key})
+        var element = _.findWhere(this.props.elements, {key: key});
         var insertionPoint = _.indexOf(this.props.elements, element) + 1;
         var newElements = _.without(this.props.elements, element);
         newElements.splice(insertionPoint, 0, element);

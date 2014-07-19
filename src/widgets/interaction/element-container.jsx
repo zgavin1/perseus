@@ -42,7 +42,8 @@ var ElementContainer = React.createClass({
                                 <i className={"icon-circle-arrow-down"} />
                             </button>}
                         {(this.props.onDelete != null) && <button
-                            onClick={() => this.props.onDelete(this.props.key)}>
+                            onClick={() => this.props.onDelete(
+                                    this.props.key)}>
                                 <i className={"icon-trash"} />
                             </button>}
                     </div>
