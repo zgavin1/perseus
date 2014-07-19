@@ -5,6 +5,7 @@ var JsonifyProps = require("../mixins/jsonify-props.jsx");
 
 var ButtonGroup = require("react-components/button-group");
 var ColorPicker = require("./interaction/color-picker.jsx");
+var ConstraintEditor = require("./interaction/constraint-editor.jsx");
 var DashPicker = require("./interaction/dash-picker.jsx");
 var ElementContainer = require("./interaction/element-container.jsx");
 var ExpressionEditor = require("./interaction/expression-editor.jsx");
@@ -502,37 +503,7 @@ var MovablePointEditor = React.createClass({
                     placeholder={0}
                     onChange={this.change("varSubscript")}/>
             </div>
-            <div className="perseus-widget-row">
-                Constraint: <ButtonGroup value={this.props.constraint}
-                    allowEmpty={false}
-                    buttons={[
-                        {value: "none", text: "None"},
-                        {value: "snap", text: "Snap"},
-                        {value: "x",    text: "x="},
-                        {value: "y",    text: "y="}]}
-                    onChange={this.change("constraint")} />
-            </div>
-            {this.props.constraint === "snap" &&
-                <div className="perseus-widget-row">
-                    Snap: <NumberInput
-                        value={this.props.snap}
-                        placeholder={0}
-                        onChange={this.change("snap")}/>
-            </div>}
-            {this.props.constraint === "x" && <div className="graph-settings">
-                <div className="perseus-widget-row">
-                    <TeX>x=</TeX> <ExpressionEditor
-                        value={this.props.constraintFn}
-                        onChange={this.change("constraintFn")} />
-                </div>
-            </div>}
-            {this.props.constraint === "y" && <div className="graph-settings">
-                <div className="perseus-widget-row">
-                    <TeX>y=</TeX> <ExpressionEditor
-                        value={this.props.constraintFn}
-                        onChange={this.change("constraintFn")} />
-                </div>
-            </div>}
+            {this.transferPropsTo(<ConstraintEditor />)}
         </div>;
     }
 });
@@ -597,40 +568,9 @@ var MovableLineEditor = React.createClass({
                         onChange={this.change("endSubscript")}/>
             </div>
             <div className="perseus-widget-row">
-                Constraint: <ButtonGroup value={this.props.constraint}
-                    allowEmpty={false}
-                    buttons={[
-                        {value: "none", text: "None"},
-                        {value: "snap", text: "Snap"},
-                        {value: "x",    text: "x="},
-                        {value: "y",    text: "y="}]}
-                    onChange={this.change("constraint")} />
+                Constraints are applied to the start point.
             </div>
-            {this.props.constraint !== "none" &&
-                <div className="perseus-widget-row">
-                    Constraints are applied to the start point.
-                </div>}
-            {this.props.constraint === "snap" &&
-                <div className="perseus-widget-row">
-                    Snap: <NumberInput
-                        value={this.props.snap}
-                        placeholder={0}
-                        onChange={this.change("snap")}/>
-                </div>}
-            {this.props.constraint === "x" && <div className="graph-settings">
-                <div className="perseus-widget-row">
-                    <TeX>x=</TeX> <ExpressionEditor
-                        value={this.props.constraintFn}
-                        onChange={this.change("constraintFn")} />
-                </div>
-            </div>}
-            {this.props.constraint === "y" && <div className="graph-settings">
-                <div className="perseus-widget-row">
-                    <TeX>y=</TeX> <ExpressionEditor
-                        value={this.props.constraintFn}
-                        onChange={this.change("constraintFn")} />
-                </div>
-            </div>}
+            {this.transferPropsTo(<ConstraintEditor />)}
         </div>;
     }
 });
