@@ -4,7 +4,7 @@ var ElementContainer = React.createClass({
     getDefaultProps: function() {
         return {
             show: false,
-            title: "More",
+            title: "More"
         };
     },
 
