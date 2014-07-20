@@ -832,7 +832,9 @@ var InteractionEditor = React.createClass({
         var newElement = {
             type: elementType,
             // TODO(eater): Is this the right time/place to apply key?
-            key: _.uniqueId(elementType + "-"),
+            // Is there a better way to generate the key? This uses a random
+            // hex string since _.uniqueId() is only unique per session.
+            key: elementType + "-" + (Math.random()*0xffffff<<0).toString(16),
             options: elementType === "point" ?
                         PointEditor.originalSpec.getDefaultProps() :
                         elementType === "line" ?
