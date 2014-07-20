@@ -1004,7 +1004,7 @@ var InteractionEditor = React.createClass({
                         elementType === "parametric" ?
                         ParametricEditor.originalSpec.getDefaultProps() :
                         elementType === "label" ?
-                        LabelEditor.originalSpec.getDefaultProps() : {}
+                        LabelEditor.originalSpec.getDefaultProps() :
                         elementType === "rectangle" ?
                         RectangleEditor.originalSpec.getDefaultProps() : {}
         };
