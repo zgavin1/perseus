@@ -203,25 +203,35 @@ var Interaction = React.createClass({
                             strokeDasharray: element.options.strokeDasharray
                         }} />;
                 } else if (element.type === "movable-point") {
-                    var constraints = null;
+                    var constraints = [(coord) => {
+                        var coordX =
+                            Math.max(this._eval(element.options.constraintXMin),
+                            Math.min(this._eval(element.options.constraintXMax),
+                            coord[0]));
+                        var coordY =
+                            Math.max(this._eval(element.options.constraintYMin),
+                            Math.min(this._eval(element.options.constraintYMax),
+                            coord[1]));
+                        return [coordX, coordY];
+                    }];
                     if (element.options.constraint === "snap") {
-                        constraints = MovablePoint.constraints.snap(
-                            element.options.snap);
+                        constraints.push(MovablePoint.constraints.snap(
+                            element.options.snap));
                     } else if (element.options.constraint === "x") {
-                        constraints = (coord) => {
+                        constraints.push((coord) => {
                             return [this._eval(
                                 element.options.constraintFn,
                                 {y: coord[1]}), coord[1]];
-                        };
+                        });
                     } else if (element.options.constraint === "y") {
-                        constraints = (coord) => {
+                        constraints.push((coord) => {
                             return [coord[0], this._eval(
                                 element.options.constraintFn, {x: coord[0]})];
-                        };
+                        });
                     }
+
                     // TODO(eater): foo_[xyz] are hacky non-props to get the
                     // component to update when constraints change
-                        //coord={element.options.startCoord}
                     return <MovablePoint
                         key={element.key}
                         coord={[
@@ -237,22 +247,32 @@ var Interaction = React.createClass({
                             element.options.varSubscript)}
                         />;
                 } else if (element.type === "movable-line") {
-                    var constraints = null;
+                    var constraints = [(coord) => {
+                        var coordX =
+                            Math.max(this._eval(element.options.constraintXMin),
+                            Math.min(this._eval(element.options.constraintXMax),
+                            coord[0]));
+                        var coordY =
+                            Math.max(this._eval(element.options.constraintYMin),
+                            Math.min(this._eval(element.options.constraintYMax),
+                            coord[1]));
+                        return [coordX, coordY];
+                    }];
                     if (element.options.constraint === "snap") {
-                        constraints = MovablePoint.constraints.snap(
-                            element.options.snap);
+                        constraints.push(MovablePoint.constraints.snap(
+                            element.options.snap));
                     } else if (element.options.constraint === "x") {
-                        constraints = (coord) => {
+                        constraints.push((coord) => {
                             return [this._eval(
                                 element.options.constraintFn,
                                 {y: coord[1]}), coord[1]];
-                        };
+                        });
                     } else if (element.options.constraint === "y") {
-                        constraints = (coord) => {
+                        constraints.push((coord) => {
                             return [coord[0], this._eval(
                                 element.options.constraintFn,
                                 {x: coord[0]})];
-                        };
+                        });
                     }
                     return <MovableLine
                         key={element.key}
@@ -483,6 +503,10 @@ var MovablePointEditor = React.createClass({
             constraint: "none",
             snap: 0.5,
             constraintFn: "0",
+            constraintXMin: "-10",
+            constraintXMax: "10",
+            constraintYMin: "-10",
+            constraintYMax: "10"
         };
     },
 
@@ -529,6 +553,10 @@ var MovableLineEditor = React.createClass({
             constraint: "none",
             snap: 0.5,
             constraintFn: "0",
+            constraintXMin: "-10",
+            constraintXMax: "10",
+            constraintYMin: "-10",
+            constraintYMax: "10"
         };
     },
 
@@ -568,7 +596,7 @@ var MovableLineEditor = React.createClass({
                         onChange={this.change("endSubscript")}/>
             </div>
             <div className="perseus-widget-row">
-                Constraints are applied to the start point.
+                All constraints are applied to the start point.
             </div>
             {this.transferPropsTo(<ConstraintEditor />)}
         </div>;
@@ -867,6 +895,10 @@ var InteractionEditor = React.createClass({
                             constraint={element.options.constraint}
                             snap={element.options.snap}
                             constraintFn={element.options.constraintFn}
+                            constraintXMin={element.options.constraintXMin}
+                            constraintXMax={element.options.constraintXMax}
+                            constraintYMin={element.options.constraintYMin}
+                            constraintYMax={element.options.constraintYMax}
                             varSubscript={element.options.varSubscript}
                             onChange={(newProps) => {
                                 var elements = JSON.parse(JSON.stringify(
@@ -898,6 +930,10 @@ var InteractionEditor = React.createClass({
                             constraint={element.options.constraint}
                             snap={element.options.snap}
                             constraintFn={element.options.constraintFn}
+                            constraintXMin={element.options.constraintXMin}
+                            constraintXMax={element.options.constraintXMax}
+                            constraintYMin={element.options.constraintYMin}
+                            constraintYMax={element.options.constraintYMax}
                             startSubscript={element.options.startSubscript}
                             endSubscript={element.options.endSubscript}
                             onChange={(newProps) => {
