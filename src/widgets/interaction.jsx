@@ -763,6 +763,7 @@ var InteractionEditor = React.createClass({
 
     getInitialState: function() {
         return {
+            gridConfigVisible: false,
             elementConfigVisible: _.map(this.props.elements, function() {
                     return false;
                 }),
@@ -890,7 +891,12 @@ var InteractionEditor = React.createClass({
 
     render: function() {
         return <div className="perseus-widget-interaction-editor">
-            <ElementContainer title="Grid settings">
+            <ElementContainer
+                    title="Grid settings"
+                    show={this.state.gridConfigVisible}
+                    onToggle={(show) => {
+                        this.setState({gridConfigVisible: show});
+                    }}>
                 <GraphSettings
                     editableSettings={["canvas", "graph"]}
                     box={this.props.graph.box}
