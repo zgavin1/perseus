@@ -4,6 +4,7 @@ var Changeable   = require("../mixins/changeable.jsx");
 var JsonifyProps = require("../mixins/jsonify-props.jsx");
 
 var ArrowPicker = require("./interaction/arrow-picker.jsx");
+var ButtonGroup = require("react-components/button-group");
 var ColorPicker = require("./interaction/color-picker.jsx");
 var ConstraintEditor = require("./interaction/constraint-editor.jsx");
 var DashPicker = require("./interaction/dash-picker.jsx");
@@ -185,7 +186,7 @@ var Interaction = React.createClass({
             {_.map(this.props.elements, function(element, n) {
                 if (element.type === "point") {
                     return <Point
-                        key={n}
+                        key={n + 1}
                         coord={[this._eval(element.options.coordX,
                             this.state.variables),
                             this._eval(element.options.coordY,
@@ -197,7 +198,7 @@ var Interaction = React.createClass({
                     var end = [this._eval(element.options.endX),
                                this._eval(element.options.endY)];
                     return <Line
-                        key={n}
+                        key={n + 1}
                         start={start}
                         end={end}
                         style={{
@@ -237,7 +238,7 @@ var Interaction = React.createClass({
                     // TODO(eater): foo_[xyz] are hacky non-props to get the
                     // component to update when constraints change
                     return <MovablePoint
-                        key={element.key}
+                        key={n + 1}
                         coord={[
                             this.state.variables["x_" +
                             element.options.varSubscript],
@@ -279,7 +280,7 @@ var Interaction = React.createClass({
                         });
                     }
                     return <MovableLine
-                        key={element.key}
+                        key={n + 1}
                         coords={[[
                             this.state.variables["x_" +
                                 element.options.startSubscript],
@@ -314,6 +315,7 @@ var Interaction = React.createClass({
                         this.state.variables)];
 
                     return <Plot
+                        key={n + 1}
                         fn={fn}
                         foo_fn={element.options.value}
                         foo_varvalues={varValues}
@@ -345,6 +347,7 @@ var Interaction = React.createClass({
                         this.state.variables)];
 
                     return <PlotParametric
+                        key={n + 1}
                         fn={fn}
                         foo_fnx={element.options.x}
                         foo_fny={element.options.y}
@@ -916,7 +919,7 @@ var InteractionEditor = React.createClass({
     },
 
     _deleteElement: function(key) {
-        var element = _.findWhere(this.props.elements, {key: key});
+        var element = this.props.elements[key];
         this.change({elements: _.without(this.props.elements, element)});
 
         var newVis = this.state.elementConfigVisible.slice();
@@ -925,10 +928,9 @@ var InteractionEditor = React.createClass({
     },
 
     _moveElementUp: function(key) {
-        var element = _.findWhere(this.props.elements, {key: key});
-        var insertionPoint = _.indexOf(this.props.elements, element) - 1;
+        var element = this.props.elements[key];
         var newElements = _.without(this.props.elements, element);
-        newElements.splice(insertionPoint, 0, element);
+        newElements.splice(key - 1, 0, element);
         this.change({elements: newElements});
 
         var newVis = this.state.elementConfigVisible.slice();
@@ -937,10 +939,9 @@ var InteractionEditor = React.createClass({
     },
 
     _moveElementDown: function(key) {
-        var element = _.findWhere(this.props.elements, {key: key});
-        var insertionPoint = _.indexOf(this.props.elements, element) + 1;
+        var element = this.props.elements[key];
         var newElements = _.without(this.props.elements, element);
-        newElements.splice(insertionPoint, 0, element);
+        newElements.splice(key + 1, 0, element);
         this.change({elements: newElements});
 
         var newVis = this.state.elementConfigVisible.slice();
@@ -987,7 +988,9 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
-                            key={element.key}>
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
+                            key={n}>
                         <MovablePointEditor
                             startX={element.options.startX}
                             startY={element.options.startY}
@@ -1020,7 +1023,9 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
-                            key={element.key}>
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
+                            key={n}>
                         <MovableLineEditor
                             startX={element.options.startX}
                             startY={element.options.startY}
@@ -1053,6 +1058,8 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
                             key={n}>
                         <PointEditor
                             coordX={element.options.coordX}
@@ -1079,6 +1086,8 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
                             key={n}>
                         <LineEditor
                             startX={element.options.startX}
@@ -1106,7 +1115,9 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
-                            key={element.key}>
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
+                            key={n}>
                         <FunctionEditor
                             value={element.options.value}
                             funcName={element.options.funcName}
@@ -1129,7 +1140,9 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
-                            key={element.key}>
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
+                            key={n}>
                         <ParametricEditor
                             x={element.options.x}
                             y={element.options.y}

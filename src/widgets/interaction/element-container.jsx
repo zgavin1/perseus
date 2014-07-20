@@ -11,23 +11,17 @@ var ElementContainer = React.createClass({
         };
     },
 
-    getInitialState: function() {
-        return {
-            show: this.props.show
-        };
-    },
-
     render: function() {
         return <div className="perseus-interaction-element">
             <a href="#" className={"perseus-interaction-element-title " +
-                (this.state.show ? "open" : "closed")}
+                (this.props.show ? "open" : "closed")}
                 onClick={this.toggle}>
                 <i className={"icon-chevron-" +
-                    (this.state.show ? "down" : "right")} />
+                    (this.props.show ? "down" : "right")} />
                 {this.props.title}
             </a>
             <div className={"perseus-interaction-element-content " +
-                    (this.state.show ? "enter" : "leave")}>
+                    (this.props.show ? "enter" : "leave")}>
                 {this.props.children}
                 {(this.props.onUp != null ||
                     this.props.onDown != null ||
@@ -54,7 +48,7 @@ var ElementContainer = React.createClass({
 
     toggle: function(e) {
         e.preventDefault();
-        this.setState({show: !this.state.show});
+        this.props.onToggle(!this.props.show);
     }
 });
 
