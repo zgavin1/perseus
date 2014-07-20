@@ -25,7 +25,6 @@ var PlotParametric = Graphie.PlotParametric;
 var Point = Graphie.Point;
 
 // Memoize KAS parsing
-var _parseCache = Object.create(null);
 var KAShashFunc = (expr, options) => {
     options = options || {};
     var result = expr + "||" + options.decimal_separatpr + "||";
@@ -36,6 +35,8 @@ var KAShashFunc = (expr, options) => {
     }
     return result;
 };
+
+var _parseCache = Object.create(null);
 var KASparse = (expr, options) => {
     var hash = KAShashFunc(expr, options);
     var cached = _parseCache[hash];
@@ -44,6 +45,19 @@ var KASparse = (expr, options) => {
     }
     cached = KAS.parse(expr, options);
     _parseCache[hash] = cached;
+    return cached;
+};
+
+_compileCache = Object.create(null);
+var KAScompile = (expr, options) => {
+    var hash = KAShashFunc(expr, options);
+    var cached = _compileCache[hash];
+    if (cached) {
+        return cached;
+    }
+    var parsed = KAS.parse(expr, options).expr;
+    cached = parsed ? parsed.compile() : function() { return 0; };
+    _compileCache[hash] = cached;
     return cached;
 };
 
@@ -171,13 +185,22 @@ var Interaction = React.createClass({
     },
 
     _eval: function(expression, variables) {
-        var expr = KASparse(expression,
-            {functions: this.state.functions}).expr;
-        if (!expr) {
-            return 0;
-        }
-        val = expr.eval(_.extend(this.state.variables, variables),
+        var func = KAScompile(expression,
             {functions: this.state.functions});
+        var compiledVars = _.extend({}, this.state.variables, variables);
+        _.each(_.keys(compiledVars), (name) => {
+            if (_.isString(compiledVars[name])) {
+                var func = KAScompile(compiledVars[name], {
+                    functions: this.state.functions
+                });
+                compiledVars[name] = function(x) {
+                    return func(_.extend({}, compiledVars, {
+                        x: x
+                    }));
+                };
+            }
+        });
+        val = func(compiledVars);
         return val || 0;
     },
 
