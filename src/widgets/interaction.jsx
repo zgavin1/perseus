@@ -3,7 +3,7 @@
 var Changeable   = require("../mixins/changeable.jsx");
 var JsonifyProps = require("../mixins/jsonify-props.jsx");
 
-var ButtonGroup = require("react-components/button-group");
+var ArrowPicker = require("./interaction/arrow-picker.jsx");
 var ColorPicker = require("./interaction/color-picker.jsx");
 var ConstraintEditor = require("./interaction/constraint-editor.jsx");
 var DashPicker = require("./interaction/dash-picker.jsx");
@@ -200,7 +200,8 @@ var Interaction = React.createClass({
                         style={{
                             stroke: element.options.color,
                             strokeWidth: element.options.strokeWidth,
-                            strokeDasharray: element.options.strokeDasharray
+                            strokeDasharray: element.options.strokeDasharray,
+                            arrows: element.options.arrows
                         }} />;
                 } else if (element.type === "movable-point") {
                     var constraints = [(coord) => {
@@ -438,6 +439,7 @@ var LineEditor = React.createClass({
             endY: "5",
             color: KhanUtil.BLACK,
             strokeDasharray: "",
+            arrows: "",
             strokeWidth: 2
         };
     },
@@ -471,6 +473,10 @@ var LineEditor = React.createClass({
                 <DashPicker
                     value={this.props.strokeDasharray}
                     onChange={this.change("strokeDasharray")} />
+                &nbsp; &nbsp;
+                <ArrowPicker
+                    value={this.props.arrows}
+                    onChange={this.change("arrows")} />
             </div>
             <div className="perseus-widget-row">
                 <div className="perseus-widget-left-col">
@@ -988,6 +994,7 @@ var InteractionEditor = React.createClass({
                             endY={element.options.endY}
                             color={element.options.color}
                             strokeDasharray={element.options.strokeDasharray}
+                            arrows={element.options.arrows}
                             strokeWidth={element.options.strokeWidth}
                             onChange={(newProps) => {
                                 var elements = JSON.parse(JSON.stringify(
