@@ -763,6 +763,9 @@ var InteractionEditor = React.createClass({
 
     getInitialState: function() {
         return {
+            elementConfigVisible: _.map(this.props.elements, function() {
+                    return false;
+                }),
             usedVarSubscripts: this._getAllVarSubscripts(this.props.elements),
             usedFunctionNames: this._getAllFunctionNames(this.props.elements)
         };
@@ -840,11 +843,19 @@ var InteractionEditor = React.createClass({
         this.change({
             elements: this.props.elements.concat(newElement)
         });
+        this.setState({
+            elementConfigVisible:
+                this.state.elementConfigVisible.concat([false])
+        });
     },
 
     _deleteElement: function(key) {
         var element = _.findWhere(this.props.elements, {key: key});
         this.change({elements: _.without(this.props.elements, element)});
+
+        var newVis = this.state.elementConfigVisible.slice();
+        newVis.splice(key, 1);
+        this.setState({elementConfigVisible: newVis});
     },
 
     _moveElementUp: function(key) {
@@ -853,6 +864,10 @@ var InteractionEditor = React.createClass({
         var newElements = _.without(this.props.elements, element);
         newElements.splice(insertionPoint, 0, element);
         this.change({elements: newElements});
+
+        var newVis = this.state.elementConfigVisible.slice();
+        newVis[key] = newVis.splice(key - 1, 1, newVis[key])[0];
+        this.setState({elementConfigVisible: newVis});
     },
 
     _moveElementDown: function(key) {
@@ -861,6 +876,16 @@ var InteractionEditor = React.createClass({
         var newElements = _.without(this.props.elements, element);
         newElements.splice(insertionPoint, 0, element);
         this.change({elements: newElements});
+
+        var newVis = this.state.elementConfigVisible.slice();
+        newVis[key] = newVis.splice(key + 1, 1, newVis[key])[0];
+        this.setState({elementConfigVisible: newVis});
+    },
+
+    _changeVisibility: function(key, show) {
+        var newVis = _.clone(this.state.elementConfigVisible);
+        newVis[key] = show;
+        this.setState({elementConfigVisible: newVis});
     },
 
     render: function() {
