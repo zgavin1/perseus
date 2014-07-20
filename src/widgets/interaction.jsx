@@ -183,7 +183,7 @@ var Interaction = React.createClass({
             {_.map(this.props.elements, function(element, n) {
                 if (element.type === "point") {
                     return <Point
-                        key={element.key}
+                        key={n}
                         coord={[this._eval(element.options.coordX,
                             this.state.variables),
                             this._eval(element.options.coordY,
@@ -195,6 +195,7 @@ var Interaction = React.createClass({
                     var end = [this._eval(element.options.endX),
                                this._eval(element.options.endY)];
                     return <Line
+                        key={n}
                         start={start}
                         end={end}
                         style={{
@@ -805,10 +806,6 @@ var InteractionEditor = React.createClass({
         e.target.value = "";
         var newElement = {
             type: elementType,
-            // TODO(eater): Is this the right time/place to apply key?
-            // Is there a better way to generate the key? This uses a random
-            // hex string since _.uniqueId() is only unique per session.
-            key: elementType + "-" + (Math.random()*0xffffff<<0).toString(16),
             options: elementType === "point" ?
                         PointEditor.originalSpec.getDefaultProps() :
                         elementType === "line" ?
@@ -960,7 +957,7 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
-                            key={element.key}>
+                            key={n}>
                         <PointEditor
                             coordX={element.options.coordX}
                             coordY={element.options.coordY}
@@ -986,7 +983,7 @@ var InteractionEditor = React.createClass({
                             onDown={n === this.props.elements.length - 1 ?
                                 null : this._moveElementDown}
                             onDelete={this._deleteElement}
-                            key={element.key}>
+                            key={n}>
                         <LineEditor
                             startX={element.options.startX}
                             startY={element.options.startY}
