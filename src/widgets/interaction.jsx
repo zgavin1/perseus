@@ -154,7 +154,8 @@ var Interaction = React.createClass({
         if (!expr) {
             return 0;
         }
-        val = expr.eval(_.extend(this.state.variables, variables));
+        val = expr.eval(_.extend(this.state.variables, variables),
+            {functions: this.state.functions});
         return val || 0;
     },
 
