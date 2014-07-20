@@ -82,6 +82,11 @@ var Point = GraphieClasses.createSimpleClass((graphie, props) => {
     });
 });
 
+var Rect = GraphieClasses.createSimpleClass((graphie, props) => {
+    return graphie.rect(
+        props.x, props.y, props.width, props.height, props.style);
+});
+
 module.exports = {
     Label: Label,
     Line: Line,
@@ -89,5 +94,6 @@ module.exports = {
     MovablePoint: MovablePoint,
     Plot: Plot,
     PlotParametric: PlotParametric,
-    Point: Point
+    Point: Point,
+    Rect: Rect
 };

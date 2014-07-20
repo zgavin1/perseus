@@ -23,6 +23,7 @@ var MovableLine = Graphie.MovableLine;
 var Plot = Graphie.Plot;
 var PlotParametric = Graphie.PlotParametric;
 var Point = Graphie.Point;
+var Rect = Graphie.Rect;
 
 // Memoize KAS parsing
 var KAShashFunc = (expr, options) => {
@@ -414,6 +415,17 @@ var Interaction = React.createClass({
                         text={element.options.label}
                         style={{
                             color: element.options.color
+                        }} />;
+                } else if (element.type === "rectangle") {
+                    return <Rect
+                        key={n + 1}
+                        x={this._eval(element.options.coordX)}
+                        y={this._eval(element.options.coordY)}
+                        width={this._eval(element.options.width)}
+                        height={this._eval(element.options.height)}
+                        style={{
+                            stroke: "none",
+                            fill: element.options.color
                         }} />;
                 }
             }, this)}
@@ -851,6 +863,63 @@ var LabelEditor = React.createClass({
 });
 
 
+//
+// Editor for rectangles
+//
+// TODO(eater): Factor this out maybe?
+//
+var RectangleEditor = React.createClass({
+    mixins: [JsonifyProps, Changeable],
+
+    propTypes: {
+    },
+
+    getDefaultProps: function() {
+        return {
+            coordX: "-5",
+            coordY: "5",
+            width: "2",
+            height: "3",
+            color: KhanUtil.LIGHT_BLUE
+        };
+    },
+
+    render: function() {
+        return <div className="graph-settings">
+            <div className="perseus-widget-row">
+                Top left: <TeX>\Large(</TeX><ExpressionEditor
+                    value={this.props.coordX}
+                    onChange={this.change("coordX")} />
+                <TeX>,</TeX> <ExpressionEditor
+                    value={this.props.coordY}
+                    onChange={this.change("coordY")} />
+                <TeX>\Large)</TeX>
+            </div>
+            <div className="perseus-widget-row">
+                Width: <ExpressionEditor
+                    value={this.props.width}
+                    onChange={this.change("width")} />
+            </div>
+            <div className="perseus-widget-row">
+                Hidth: <ExpressionEditor
+                    value={this.props.height}
+                    onChange={this.change("height")} />
+            </div>
+            <div className="perseus-widget-row">
+                <ColorPicker
+                    value={this.props.color}
+                    lightColors={true}
+                    onChange={this.change("color")} />
+            </div>
+            <div className="perseus-widget-row">
+                You want a border? Sorry, draw your own.
+            </div>
+        </div>;
+    }
+});
+
+
+
 var InteractionEditor = React.createClass({
     mixins: [JsonifyProps, Changeable],
 
@@ -936,6 +1005,8 @@ var InteractionEditor = React.createClass({
                         ParametricEditor.originalSpec.getDefaultProps() :
                         elementType === "label" ?
                         LabelEditor.originalSpec.getDefaultProps() : {}
+                        elementType === "rectangle" ?
+                        RectangleEditor.originalSpec.getDefaultProps() : {}
         };
         if (elementType === "movable-point") {
             var nextSubscript =
@@ -1227,6 +1298,35 @@ var InteractionEditor = React.createClass({
                                 this.change({elements: elements});
                             }} />
                     </ElementContainer>;
+                } else if (element.type === "rectangle") {
+                    return <ElementContainer
+                            title={<span>Rectangle <TeX>{"(" +
+                                element.options.coordX + ", " +
+                                element.options.coordY + ")"}</TeX>
+                                &nbsp;&mdash;&nbsp;
+                                <TeX>{element.options.width + " \\times " +
+                                element.options.height}</TeX>
+                                </span>}
+                            onUp={n === 0 ? null : this._moveElementUp}
+                            onDown={n === this.props.elements.length - 1 ?
+                                null : this._moveElementDown}
+                            onDelete={this._deleteElement}
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
+                            key={n}>
+                        <RectangleEditor
+                            coordX={element.options.coordX}
+                            coordY={element.options.coordY}
+                            width={element.options.width}
+                            height={element.options.height}
+                            color={element.options.color}
+                            onChange={(newProps) => {
+                                var elements = JSON.parse(JSON.stringify(
+                                    this.props.elements));
+                                _.extend(elements[n].options, newProps);
+                                this.change({elements: elements});
+                            }} />
+                    </ElementContainer>;
                 }
             }, this)}
             <div className="perseus-widget-interaction-editor-select-element">
@@ -1238,6 +1338,7 @@ var InteractionEditor = React.createClass({
                     <option value="function">Function plot</option>
                     <option value="parametric">Parametric plot</option>
                     <option value="label">Label</option>
+                    <option value="rectangle">Rectangle</option>
                     <option value="movable-point">
                         &#x2605; Movable point</option>
                     <option value="movable-line">
