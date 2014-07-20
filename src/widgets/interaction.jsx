@@ -13,7 +13,9 @@ var Graphie = require("../components/graphie.jsx");
 var GraphSettings = require("../components/graph-settings.jsx");
 var NumberInput = require("../components/number-input.jsx");
 var TeX = require("../tex.jsx");
+var TextInput = require("../components/text-input.jsx");
 
+var Label = Graphie.Label;
 var Line = Graphie.Line;
 var MovablePoint = Graphie.MovablePoint;
 var MovableLine = Graphie.MovableLine;
@@ -353,6 +355,16 @@ var Interaction = React.createClass({
                             strokeWidth: element.options.strokeWidth,
                             strokeDasharray: element.options.strokeDasharray,
                             plotPoints: 100  // TODO(eater): why so slow?
+                        }} />;
+                } else if (element.type === "label") {
+                    var coord = [this._eval(element.options.coordX),
+                                 this._eval(element.options.coordY)];
+                    return <Label
+                        key={n + 1}
+                        coord={coord}
+                        text={element.options.label}
+                        style={{
+                            color: element.options.color
                         }} />;
                 }
             }, this)}
@@ -739,6 +751,57 @@ var ParametricEditor = React.createClass({
 });
 
 
+//
+// Editor for labels
+//
+// TODO(eater): Factor this out maybe?
+// TODO(eater): Add text direction
+//
+var LabelEditor = React.createClass({
+    mixins: [JsonifyProps, Changeable],
+
+    propTypes: {
+    },
+
+    getDefaultProps: function() {
+        return {
+            coordX: "0",
+            coordY: "0",
+            color: KhanUtil.BLACK,
+            label: "\\phi"
+        };
+    },
+
+    render: function() {
+        return <div className="graph-settings">
+            <div className="perseus-widget-row">
+                <TextInput
+                    value={this.props.label}
+                    onChange={this.change("label")}
+                    style={{
+                        width: "100%"
+                    }}
+                    />
+            </div>
+            <div className="perseus-widget-row">
+                Location: <TeX>\Large(</TeX><ExpressionEditor
+                    value={this.props.coordX}
+                    onChange={this.change("coordX")} />
+                <TeX>,</TeX> <ExpressionEditor
+                    value={this.props.coordY}
+                    onChange={this.change("coordY")} />
+                <TeX>\Large)</TeX>
+            </div>
+            <div className="perseus-widget-row">
+                <ColorPicker
+                    value={this.props.color}
+                    onChange={this.change("color")} />
+            </div>
+        </div>;
+    }
+});
+
+
 var InteractionEditor = React.createClass({
     mixins: [JsonifyProps, Changeable],
 
@@ -821,7 +884,9 @@ var InteractionEditor = React.createClass({
                         elementType === "function" ?
                         FunctionEditor.originalSpec.getDefaultProps() :
                         elementType === "parametric" ?
-                        ParametricEditor.originalSpec.getDefaultProps() : {}
+                        ParametricEditor.originalSpec.getDefaultProps() :
+                        elementType === "label" ?
+                        LabelEditor.originalSpec.getDefaultProps() : {}
         };
         if (elementType === "movable-point") {
             var nextSubscript =
@@ -1080,6 +1145,29 @@ var InteractionEditor = React.createClass({
                                 this.change({elements: elements});
                             }} />
                     </ElementContainer>;
+                } else if (element.type === "label") {
+                    return <ElementContainer
+                            title={<span>Label <TeX>
+                                {element.options.label}</TeX> </span>}
+                            onUp={n === 0 ? null : this._moveElementUp}
+                            onDown={n === this.props.elements.length - 1 ?
+                                null : this._moveElementDown}
+                            onDelete={this._deleteElement}
+                            onToggle={_.bind(this._changeVisibility, this, n)}
+                            show={this.state.elementConfigVisible[n]}
+                            key={n}>
+                        <LabelEditor
+                            coordX={element.options.coordX}
+                            coordY={element.options.coordY}
+                            color={element.options.color}
+                            label={element.options.label}
+                            onChange={(newProps) => {
+                                var elements = JSON.parse(JSON.stringify(
+                                    this.props.elements));
+                                _.extend(elements[n].options, newProps);
+                                this.change({elements: elements});
+                            }} />
+                    </ElementContainer>;
                 }
             }, this)}
             <div className="perseus-widget-interaction-editor-select-element">
@@ -1090,6 +1178,7 @@ var InteractionEditor = React.createClass({
                     <option value="line">Line segment</option>
                     <option value="function">Function plot</option>
                     <option value="parametric">Parametric plot</option>
+                    <option value="label">Label</option>
                     <option value="movable-point">
                         &#x2605; Movable point</option>
                     <option value="movable-line">
