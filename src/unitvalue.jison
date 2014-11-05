@@ -15,24 +15,49 @@
 */
 
 %%
-\s+                        /* skip whitespace */
-"*"                        return 'MUL';
-x\b                        return 'MUL';
-"\u00d7"                   return 'MUL';
-"\u2a2f"                   return 'MUL';
-"\u22c5"                   return 'MUL';
-[0-9]+\b                   return 'NAT';
-[0-9]+("."[0-9]+)?\b       return 'FLOAT';
-[A-Za-z]+                  return 'ATOM';
-[\u00b5\u212b\u2103\u2109] return 'ATOM';
-("\00b0 "|"\00bo")[cCfF]   return 'ATOM';
-"/"                        return '/';
-"("                        return '(';
-")"                        return ')';
-"^"                        return '^';
-"10^"                      return 'POW';
-"10 ^"                     return 'POW';
-<<EOF>>                    return 'EOF';
+"/"                                               return 'DIV';
+"("                                               return '(';
+")"                                               return ')';
+
+/*
+The "x 10^" part of scientific notation. Accept this as one token to
+disambiguate "x", "10", and "^", rather than parse them as confusing tokens
+which could mean different things depending on context.
+
+To be safe we accept the following:
+  - *
+  - x
+  - interpunct (00b7)
+  - bullet (2219)
+  - dot (22c5)
+  - multiplication sign (00d7)
+ */
+("*"|"x"|"\u00d7"|"\u2219"|"\u22c5"|"\u00b7")\s*"10"\s*"^" return 'POW';
+
+/*
+At this point we can safely tokenize these things since they can no longer
+appear as part of "x 10^".
+ */
+"^"                                               return '^';
+"*"                                               return 'MUL';
+[0-9]+"."[0-9]+                                   return 'FLOAT';
+[0-9]+                                            return 'NAT';
+
+/*
+Atom, meaning a single unit without exponent.
+
+Symbols:
+  - 00b0 - degree sign
+  - 2103 - degree celcius
+  - 2109 - degree fahrenheit
+  - 212b - angstrom
+  - 00b5 - micro
+ */
+"\u00b0"(" "?)[cCfF]                               return 'ATOM';
+[\u00b5]?([A-Za-z]+|[\u2103\u2109\u212b])         return 'ATOM';
+
+\s+                                               /* skip whitespace */
+<<EOF>>                                           return 'EOF';
 
 /lex
 
@@ -51,9 +76,9 @@ unitvalue
     ;
 
 magnitude
-    : float MUL POW nat
+    : float POW nat
         %{ /* XXX keep track of the exact thing the user entered? */
-            $$ = $1 * 10^$4;
+            $$ = $1 * Math.pow(10, $3);
         }%
     | float
         { $$ = $1; }
@@ -79,6 +104,8 @@ unit
 multatoms
     : expatom MUL multatoms
         { $$ = [$1].concat($3); }
+    | expatom multatoms
+        { $$ = [$1].concat($2); }
     | expatom
         { $$ = [$1]; }
     ;
