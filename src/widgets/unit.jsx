@@ -5,6 +5,16 @@ var { Parser } = require("../unitvalue.jison");
 var Changeable = require("../mixins/changeable.jsx");
 var EditorJsonify = require("../mixins/editor-jsonify.jsx");
 
+/*
+function Unit(name) { this.name = name; }
+Unit.prototype = new KAS.Symbol();
+
+_.extend(Unit.prototype, {
+    collect: function(options) {
+    }
+});
+*/
+
 /* I just wrote this, but it's old by analogy to `OldExpression`, in that it's
  * the version that non-mathquill platforms get stuck with. Constructed with an
  * <input>, a parser, popsicle sticks, and glue.
