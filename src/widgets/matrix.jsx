@@ -16,12 +16,6 @@ var ApiOptions = require("../perseus-api.jsx").Options;
 var assert = require("../interactive2/interactive-util.js").assert;
 var stringArrayOfSize = require("../util.js").stringArrayOfSize;
 
-// Set the input sizes through JS so we can control the size of the brackets.
-// (If we set them in CSS we won't know values until the inputs are rendered.)
-var INPUT_MARGIN = 3;
-var INPUT_HEIGHT = 30;
-var INPUT_WIDTH = 40;
-
 // Really large matrices will cause issues with question formatting, so we
 // have to cap it at some point.
 var MAX_BOARD_SIZE = 6;
@@ -122,6 +116,18 @@ var Matrix = React.createClass({
     },
 
     render: function() {
+        // Set the input sizes through JS so we can control the size of the brackets.
+        // (If we set them in CSS we won't know values until the inputs are rendered.)
+        if (this.props.apiOptions.staticRender) {
+            var INPUT_MARGIN = 4;
+            var INPUT_HEIGHT = 38;
+            var INPUT_WIDTH = 82;
+        } else {
+            var INPUT_MARGIN = 3;
+            var INPUT_HEIGHT = 30;
+            var INPUT_WIDTH = 40;
+        }
+
         var matrixSize = getMatrixSize(this.props.answers);
         var maxRows = this.props.matrixBoardSize[0];
         var maxCols = this.props.matrixBoardSize[1];
