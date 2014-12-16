@@ -1,0 +1,614 @@
+/*
+ * The styles in this file override styles from the web.
+ * Those styles are found in exercises-webapp.css and are built by build_webapp_css.sh.
+ *
+ * TODO(marcos): embiggen everything, this was previously done with
+ * a zoom: 115%; on body
+ */
+
+body {
+	/* From shared-package/base-page-styles.less, which we are not compiling. */
+	color: #444;
+	font-family: AvenirNext-Regular, "Helvetica Neue", Arial, sans-serif;
+	font-size: 13px;
+	line-height: 22px;
+	min-width: 0;
+	padding: 64px 0 10px; // TODO(laura): Pass this 64px value from the native side; it represents the height of the status bar + navigation bar
+}
+
+* {
+    /* Avoid adding random highlight to taps. We haven't seen a situation where
+       the tap highlight is helpful as it tends to be mispositioned and appears
+       with an awkward delay. If a component wants the tap highlight, it can
+       enable it explicitly.
+
+       TODO(charlie): come up with a more targeted approach (see: rGI5789a). */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+    /* Avoid copy-paste selection. */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+#problem-and-answer {
+	font-size: 18pt;
+	line-height: 28pt;
+	width: 550px;
+    /* Leave margin on bottom for scratchpad space. */
+	margin: 0 30px 250px 30px;
+}
+
+/* Base Paragraph / Body Text styles*/
+
+#problem-and-answer p,
+#workarea > div > .question,
+#workarea > div > .problem {
+	font-size: 18pt;
+	line-height: inherit;
+	font-family: avenir, sans-serif;
+}
+
+/* Perseus base text styles */
+body.mobile .framework-perseus div.paragraph,
+body.mobile .framework-perseus table,
+body.mobile .framework-perseus .paragraph > ul:not(.perseus-widget-radio) {
+	font-size: 18pt;
+	font-family: avenir, sans-serif;
+}
+
+#workarea {
+	margin: 0;
+}
+
+#problemarea {
+	float: none;
+	margin: auto auto;
+	min-height: 0;
+	width: 100%;
+}
+
+#workarea {
+	margin-left: 0;
+}
+
+.info-box {
+	background: transparent;
+	border-width: 0;
+	padding: 0;
+	-webkit-box-shadow: none;
+}
+
+.info-box .info-box-header {
+	display: none !important;
+}
+
+#answer_area_wrap {
+	/* Don't be flush against the UIWebView edge. */
+	margin: 0;
+	float: none;
+	width: 100%;
+}
+#solutionarea {
+	/* Tighten up solution and "Answer" label. */
+	padding-top: 0;
+	border-width: 0;
+
+    /* Prevent unnecessary overflow so it doesn't scroll horizontally. */
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+#solutionarea input {
+	/* Make each input bigger and easier to type in. */
+	font-size: inherit;
+}
+
+#answer_area .answer-buttons {
+	border-width: 0;
+}
+
+#answer_area .simple-button,
+#answer_area input[type=text] {
+	/* styling the buttons in the answer area*/
+	border-radius: 16px;
+	border-width: 0;
+	font-size: 12px;
+	font-family: Avenir-Medium, HelveticaNeue;
+	letter-spacing: .1em;
+	line-height: 24px;
+	text-transform: uppercase;
+}
+
+#answer_area .answer-buttons input.simple-button,
+#answer_area input.simple-button.full-width,
+#answer_area input[type=text] {
+	width: 65%;
+}
+
+#problem-and-answer input[type=text] {
+	text-transform: none;
+	letter-spacing: 0;
+	border-width: 2px;
+	padding: 4px 12px;
+	font-size: 14px;
+
+	border-radius: 4px;
+	border-color: #ccc;
+	box-shadow: none !important;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+#problem-and-answer input[type=text] {
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid #CCC;
+  margin: 0 0.5em;
+  font-size: 45px;
+  font-family: katex_main;
+  color: rgb(68, 68, 68);
+  height: 55px;
+  line-height: normal;
+}
+
+.min-width-inputs #problem-and-answer input[type=text] {
+  min-width: 150px;
+}
+
+/* Styling for input, which is any generic input. These should be removed eventually. */
+.on-focus-border #problem-and-answer input {
+  -webkit-transition: border 0.17s linear, background 0.17s linear, color 0.17s linear;
+  -webkit-transition-delay: 0.05s;
+}
+
+.on-focus-border #problem-and-answer input {
+  outline: none;
+  border-width: 1px;
+}
+
+.on-focus-border #problem-and-answer input.perseus-focused {
+  outline: none;
+  border: 3px solid #9ecaed;
+}
+
+/* Styling for .perseus-input, which includes input-number and expression. */
+.on-focus-border #problem-and-answer .perseus-input {
+  -webkit-transition: all 0.17s ease-in-out;
+}
+
+.on-focus-border #problem-and-answer .perseus-input.perseus-focused {
+  border: 2px solid #77B429;  /* this is KALegacyTheme's brightGreenColor */
+}
+
+.activity-dots {
+    position: absolute;
+    font-size: 25px;
+    text-align: center;
+    z-index: 1000;
+    margin-top: 2px;
+}
+.on-focus-chalkboard2 .activity-dots {
+    color: white;
+}
+.dot {
+    opacity: 0;
+    -webkit-animation: dot 1.2s infinite;
+}
+.dot:not(:last-child) {
+    padding-right: 11px;
+}
+.dot-one {
+    -webkit-animation-delay: 0.0s;
+}
+.dot-two {
+    -webkit-animation-delay: 0.2s;
+}
+.dot-three {
+    -webkit-animation-delay: 0.3s;
+}
+@-webkit-keyframes dot {
+      0% { opacity: 0; }
+     50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+/* end hacky example activity indicator */
+
+#answer_area input.simple-button:disabled,
+#answer_area input.simple-button[disabled=disabled] {
+	background-color: white;
+	border-width: 2px;
+	border-style: solid;
+}
+
+#answer_area .simple-button.green:disabled,
+#answer_area .simple-button.green.disabled,
+#answer_area .simple-button.green.buttonDisabled,
+#answer_area input.green.simple-button[disabled=disabled] {
+	border-color: #80ac07;
+	color: #80ac07 !important;
+	margin-top: 2em;
+	opacity: 1 !important;
+}
+
+#answer_area .simple-button.orange,
+#answer_area .simple-button.orange:disabled,
+#answer_area .simple-button.orange.disabled,
+#answer_area .simple-button.orange.buttonDisabled,
+#answer_area input.orange.simple-button[disabled=disabled] {
+	background: white !important;
+	border-color: #d45704;
+	border-width: 2px;
+	color: #d45704 !important;
+}
+
+/* Disable user selection inside the UIWebView.
+ *
+ * We're not sure if we wanna keep this. Could cause accessibility issues and
+ * more. But we're gonna give it a shot because letting users accidentally
+ * select DOM nodes UIWebView-style is a usability loss.
+ */
+body {
+    -webkit-user-select: none;
+}
+
+/* FIXME(marcos): there is only one exercise right now that uses this
+   namely equivalent-fractions-3
+*/
+.ui-helper-clearfix:before,
+.ui-helper-clearfix:after {
+	content: "";
+	display: table;
+	border-collapse: collapse;
+}
+.ui-helper-clearfix:after {
+	clear: both;
+}
+.ui-helper-clearfix {
+	min-height: 0; /* support: IE7 */
+}
+
+/* Radio Widget Styles*/
+
+.framework-perseus div.instructions {
+	margin-bottom: 20px;
+}
+
+.perseus-widget-radio .interactive-component,
+#answer_area label {
+  display: block;
+}
+
+body.mobile .perseus-widget-radio input[type=checkbox]:checked {
+	background: none;
+}
+
+body.mobile .perseus-widget-radio input[type=checkbox] {
+	width: 25px;
+	height: 25px;
+}
+
+body.mobile .perseus-widget-radio input[type=checkbox]:before {
+    font-size: 14pt;
+    left: 1px;
+}
+
+body.mobile .framework-perseus #problemarea input[type=checkbox],
+body.mobile .framework-perseus #problemarea input[type=radio] {
+	border-width: 2px;
+}
+
+/* End of Radio Widget Styles */
+
+/* Text input styles */
+
+#problem-and-answer input[type=text] {
+    background-color: #f6f6f6;
+    border-radius: 9pt;
+    font: 18pt AvenirNext-DemiBold;
+    line-height: 28pt;
+    text-align: center;
+}
+
+#problem-and-answer .short40 input[type=text],
+#problem-and-answer .short40 input[type=number],
+.framework-perseus input[type=text].perseus-input-size-small,
+.framework-perseus input[type=number].perseus-input-size-small {
+    width: 3.33em;
+}
+
+#problem-and-answer .short80 input[type=text],
+#problem-and-answer .short80 input[type=number] {
+    width: 6.66em;
+}
+
+/* Allow overflow */
+
+#answercontent {
+    overflow: visible;
+}
+
+/* Hint Styles */
+div.info-box.hint-box {
+    display: none !important;
+}
+
+/* Dropdowns */
+
+.select-display {
+	border: 3px	solid #358fa4;
+	border-radius: 40px;
+	color: #358fa4;
+	font: 700 23pt avenir, sans-serif;
+	position: relative;
+	z-index: 3;
+	padding: 0 60px 0 35px;
+	top: 14px;
+	margin-top: -14px;
+	left: 0;
+	min-width: 40px;
+	min-height: 40px;
+	display: inline-block
+}
+
+.select-display.option-selected {
+	top: 0;
+}
+
+.options-display.option-selected {
+	margin-top: -4px;
+}
+
+.select-display:before {
+	color: #358fa4;
+	content: "\f0dd";
+	font: 24pt "FontAwesome";
+	position: absolute;
+	top: -5px;
+	right: 17px;
+}
+
+.active .select-display {
+	opacity: 0.4;
+}
+
+.active .options-display {
+	display: block;
+	z-index: 5;
+}
+
+.options-display .option-item.active:before {
+	background: #358fa4;
+}
+
+.options-display {
+	color: #358fa4;
+	display: none;
+	position: absolute;
+	overflow: hidden;
+	margin-top: -2px;
+    min-width: 40px;
+    min-height: 30px;
+}
+
+.options-display .option-item:before {
+	content: "";
+	width: 16px;
+	height: 16px;
+	position: absolute;
+	border: 3px solid #358fa4;
+	margin-top: 4px;
+	margin-left: -30px;
+	border-radius: 25px;
+}
+
+.options-display .option-item {
+	padding: 3px 20px 3px 38px !important; /* Being overwritten by khan-exercise.css:54. */
+	font-size: 17pt;
+	line-height: 22pt;
+	background: rgba(255, 255, 255, 0.95);
+	border: 3px solid #358fa4;
+	display: block;
+	border-radius: 20px;
+	margin-top: -70px;
+}
+
+.active .options-display .option-item {
+	margin-top: 6px;
+	-webkit-animation-name: slideout;
+	-webkit-animation-duration: 0.35s;
+	-webkit-animation-timing-function: ease-out;
+}
+
+@-webkit-keyframes slideout {
+	0% {
+		margin-top: -70px;
+	}
+	100% {
+		margin-top: 6px;
+	}
+}
+
+/* End of Dropdown Styles */
+
+/* Begin hint styles */
+
+@-webkit-keyframes highlight-fade {
+    0% {
+        background-color: #fef8f4;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@keyframes highlight-fade {
+    0% {
+        background-color: #fef8f4;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.hint-root {
+    -webkit-animation: highlight-fade 1.2s;
+    animation: highlight-fade 1.2s;
+}
+
+/* End hint styles */
+
+
+/* Begin math styles */
+
+.MathJax .math {
+  color: inherit;
+}
+
+/* End math styles */
+
+/* Begin matrix styles */
+
+body.mobile #answer_area .matrix-row .sol input[type=text].perseus-focused,
+body.mobile #answer_area .matrix-row .sol input[type=number].perseus-focused {
+    border: 3px solid #9ecaed;
+    padding: 0;
+}
+body.mobile #answer_area .matrix-row .sol input[type=text],
+body.mobile #answer_area .matrix-row .sol input[type=number] {
+    height: 38px;
+    padding: 3px;
+}
+
+/* End matrix styles */
+
+/* Begin khan-exercise math output styles */
+
+body.mobile .ke-input {
+    display: inline-block;
+    min-width: 80px;
+    min-height: 36px;
+    border-radius: 5px;
+    padding: 0;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    background: white;
+    border: 1px solid #a4a4a4
+}
+
+.on-focus-border #problem-and-answer .ke-input {
+  -webkit-transition: border 0.17s linear, background 0.17s linear, color 0.17s linear;
+}
+
+.on-focus-border #problem-and-answer .ke-input {
+  -webkit-transition: all 0.17s ease-in-out;
+}
+
+.on-focus-border #problem-and-answer .ke-input.ke-focused {
+  border: 2px solid #77B429;  /* this is KALegacyTheme's brightGreenColor */
+}
+
+/* End khan-exercise math output styles */
+
+/*
+ Fix for FastClick not selecting input elements within a label element.
+ For more details, see https://github.com/ftlabs/fastclick/issues/60.
+ */
+
+label > * { pointer-events: none; }
+
+/*
+ Styling of radio and checkmark inputs for khan-exercises.
+ The majority of these styles are derived from the corresponding input styles in Perseus.
+ */
+
+#problem-and-answer.framework-khan-exercises label {
+  background: none;
+  color: #aaaaaa;
+  margin-left: 0;
+
+  background: white;
+  position: relative;
+  border: 2px solid #aaaaaa;
+  border-radius: 28px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  font: 700 14pt/30px "Avenir", "Helvetica", "Arial", sans-serif;
+  margin-left: 0;
+  margin-bottom: -3px;
+  overflow: hidden;
+  padding: 8px 10px !important;
+  padding-left: 50px !important;
+}
+#problem-and-answer.framework-khan-exercises label:active {
+  background: #1c758a;
+  color: white;
+}
+#problem-and-answer.framework-khan-exercises label.ke-input-selected {
+  border-color: #1c758a;
+  color: #1c758a;
+  font-weight: bold;
+}
+#problem-and-answer.framework-khan-exercises label.ke-input-selected:active {
+  border-color: #1c758a;
+  background:  #1c758a;
+  color: white;
+  font-weight: bold;
+}
+
+#problem-and-answer.framework-khan-exercises input[type=radio],
+#problem-and-answer.framework-khan-exercises input[type=checkbox] {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid #aaaaaa;
+  border-radius: 25px;
+  outline: none;
+  height: 25px;
+  width: 25px;
+  position: absolute;
+  left: 10px;
+}
+#problem-and-answer.framework-khan-exercises input[type=radio]:checked,
+#problem-and-answer.framework-khan-exercises input[type=checkbox]:checked {
+  border-color: #1c758a;
+}
+#problem-and-answer.framework-khan-exercises input[type=radio]:checked:active,
+#problem-and-answer.framework-khan-exercises input[type=checkbox]:checked:active {
+  border-color: white;
+}
+#problem-and-answer.framework-khan-exercises #answer_area li .value {
+  /* Do not apply with 50px padding-left value of containing label. */
+  margin-left: 0 !important;
+}
+
+/* Radio styling */
+
+#problem-and-answer.framework-khan-exercises input[type=radio]:checked {
+  background: #1c758a;
+}
+#problem-and-answer.framework-khan-exercises input[type=radio]:active {
+  background: white;
+}
+
+/* Checkbox styling */
+
+#problem-and-answer.framework-khan-exercises input[type=checkbox]:before {
+  color: #aaaaaa;
+  font: 15pt "FontAwesome";
+  left: 1px;
+  position: relative;
+  top: 1px;
+}
+#problem-and-answer.framework-khan-exercises input[type=checkbox]:checked {
+  background: none;
+}
+#problem-and-answer.framework-khan-exercises input[type=checkbox]:checked:before {
+  color: #1c758a;
+  content: "\f00c";
+}
+#problem-and-answer.framework-khan-exercises input[type=checkbox]:checked:active:before {
+  border-color: white;
+}
+
+/* End styling of radio and checkmark inputs for khan-exercises. */
+
