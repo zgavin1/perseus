@@ -1,0 +1,141 @@
+// Image upload dialog styles
+// Unfortunately blatantly copy-pasta'd from webapp with
+// some modifications to make it work in perseus
+
+// NOTE: this file isn't actually ever subperseused into
+// webapp, since webapp already has one in the right place,
+// and we don't need to duplicate those styles.
+// This is ugly and should be fixed
+
+// TODO(aria): Unify image uploading code in webapp and
+// perseus
+
+@borderRadius: 3px;
+@colWidth: 245px;
+@imageUploadRowHeight: 100px;
+@marginSize: 10px;
+
+.corner-to-corner {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.computer-upload-container {
+    // background: @itemColor;
+    // border: 1px solid @gray;
+    // border-radius: @borderRadius;
+    box-sizing: border-box;
+    float: left;
+    margin-right: @marginSize;
+    padding: 0;
+
+    &, input {
+        height: @imageUploadRowHeight;
+        width: @colWidth;
+    }
+
+    // Is it clickjacking if we do it?
+    input {
+        cursor: pointer;
+        opacity: 0;
+        position: absolute;
+    }
+}
+
+.computer-upload-caption-outer {
+    position: absolute;
+    height: @imageUploadRowHeight;
+    width: @colWidth;
+
+    .icon-desktop {
+        font-size: 75px;
+        position: absolute;
+        top: 43px;
+        left: 83px;
+        opacity: 0.15;
+    }
+}
+
+.computer-upload-caption {
+    .corner-to-corner;
+    font-size: 18px;
+    height: 25px;
+    margin: auto;
+    position: absolute;
+    width: 180px;
+}
+
+.web-upload-container {
+    .icon-cloud-download {
+        font-size: 75px;
+        left: 330px;
+        position: absolute;
+        top: 20px;
+    }
+
+    input {
+        outline: none;
+    }
+}
+
+
+.url-upload-container {
+    border: 1px solid @gray;
+    border-radius: @borderRadius;
+    box-sizing: border-box;
+    float: left;
+    height: @imageUploadRowHeight;
+    margin-bottom: @marginSize;
+    opacity: 0.92;
+    width: @colWidth;
+
+    &::placeholder {
+        color: #666;
+        font-size: 16px;
+        padding-left: 8px;
+    }
+}
+
+
+.drag-upload-container {
+    background: @grayLighter;
+    border: 1px solid @gray;
+    border-radius: @borderRadius;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+    clear: both;
+    height: 1.5*@imageUploadRowHeight;
+
+    .icon-bullseye {
+        font-size: 125px;
+        opacity: 0.15;
+        position: absolute;
+        top: 120px;
+        left: 198px;
+    }
+}
+
+.drag-upload-message {
+    font-size: 42px;
+    margin-left: 76px;
+    margin-top: 45px;
+}
+
+.screen-filling-drag-target {
+    background-color: rgba(0, 0, 0, 0.75);
+    .corner-to-corner;
+    position: absolute;
+    z-index: 10000;
+}
+
+.drag-target-active-message {
+    color: @grayExtraLight;
+    .corner-to-corner;
+    font-size: 100px;
+    height: 30px;
+    margin: auto;
+    position: absolute;
+    text-shadow: 0 0 20px black;
+    width: 300px;
+}
