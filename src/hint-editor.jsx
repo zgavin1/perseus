@@ -5,6 +5,7 @@
 var React = require('react');
 var _ = require("underscore");
 
+var ApiOptions = require("./perseus-api.jsx").Options;
 var Editor = require("./editor.jsx");
 var HintRenderer = require("./hint-renderer.jsx");
 var InfoTip = require("react-components/info-tip.jsx");
@@ -19,7 +20,7 @@ var InfoTip = require("react-components/info-tip.jsx");
  */
 var HintEditor = React.createClass({
     propTypes: {
-        imageUploader: React.PropTypes.func
+        apiOptions: ApiOptions.propTypes,
     },
 
     getDefaultProps: function() {
@@ -36,7 +37,7 @@ var HintEditor = React.createClass({
                     content={this.props.content}
                     images={this.props.images}
                     placeholder="Type your hint here..."
-                    imageUploader={this.props.imageUploader}
+                    apiOptions={this.props.apiOptions}
                     onChange={this.props.onChange} />
             <div className="hint-controls-container clearfix">
                 <span className="reorder-hints">
@@ -83,7 +84,7 @@ var HintEditor = React.createClass({
 /* A single hint-row containing a hint editor and preview */
 var CombinedHintEditor = React.createClass({
     propTypes: {
-        imageUploader: React.PropTypes.func
+        apiOptions: ApiOptions.propTypes,
     },
 
     render: function() {
@@ -98,7 +99,7 @@ var CombinedHintEditor = React.createClass({
                 widgets={this.props.hint.widgets}
                 content={this.props.hint.content}
                 images={this.props.hint.images}
-                imageUploader={this.props.imageUploader}
+                apiOptions={this.props.apiOptions}
                 onChange={this.props.onChange}
                 onRemove={this.props.onRemove}
                 onMove={this.props.onMove} />
@@ -132,7 +133,7 @@ var CombinedHintEditor = React.createClass({
  */
 var CombinedHintsEditor = React.createClass({
     propTypes: {
-        imageUploader: React.PropTypes.func
+        apiOptions: ApiOptions.propTypes,
     },
 
     getDefaultProps: function() {
@@ -151,7 +152,7 @@ var CombinedHintsEditor = React.createClass({
                         isFirst={i === 0}
                         isLast={i + 1 === hints.length}
                         hint={hint}
-                        imageUploader={this.props.imageUploader}
+                        apiOptions={this.props.apiOptions}
                         onChange={this.handleHintChange.bind(this, i)}
                         onRemove={this.handleHintRemove.bind(this, i)}
                         onMove={this.handleHintMove.bind(this, i)} />;

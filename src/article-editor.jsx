@@ -118,7 +118,10 @@ var ArticleEditor = React.createClass({
 
     _renderSections: function() {
         var apiOptions = _.extend(
-            {},
+            // Move deprecated props.imageUploader to apiOptions,
+            // but override this with the one on apiOptions if
+            // that is specified
+            {uploadImage: this.props.imageUploader},
             ApiOptions.defaults,
             this.props.apiOptions
         );
@@ -171,7 +174,6 @@ var ArticleEditor = React.createClass({
                                 {...section}
                                 ref={"editor" + i}
                                 placeholder="Type your section text here..."
-                                imageUploader={this.props.imageUploader}
                                 onChange={
                                     _.partial(this._handleEditorChange, i)
                                 }

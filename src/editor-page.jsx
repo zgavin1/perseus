@@ -48,6 +48,7 @@ var EditorPage = React.createClass({
     },
 
     render: function() {
+        var apiOptions = this._apiOptions();
 
         return <div id="perseus" className="framework-perseus">
             {this.props.developerMode &&
@@ -80,19 +81,18 @@ var EditorPage = React.createClass({
                     rendererOnly={this.props.jsonMode}
                     question={this.props.question}
                     answerArea={this.props.answerArea}
-                    imageUploader={this.props.imageUploader}
                     onChange={this.handleChange}
                     wasAnswered={this.state.wasAnswered}
                     gradeMessage={this.state.gradeMessage}
                     onCheckAnswer={this.handleCheckAnswer}
-                    apiOptions={this._apiOptions()} />
+                    apiOptions={apiOptions} />
             }
 
             {(!this.props.developerMode || !this.props.jsonMode) &&
                 <CombinedHintsEditor
                     ref="hintsEditor"
                     hints={this.props.hints}
-                    imageUploader={this.props.imageUploader}
+                    apiOptions={apiOptions}
                     onChange={this.handleChange} />
             }
         </div>;
@@ -156,7 +156,10 @@ var EditorPage = React.createClass({
 
     _apiOptions: function() {
         return _.extend(
-            {},
+            // Move deprecated props.imageUploader to apiOptions,
+            // but override this with the one on apiOptions if
+            // that is specified
+            {uploadImage: this.props.imageUploader},
             ApiOptions.defaults,
             this.props.apiOptions
         );

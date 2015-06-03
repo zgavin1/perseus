@@ -8,7 +8,6 @@ var ITEM_DATA_VERSION = require("./version.json").itemDataVersion;
 
 var ItemEditor = React.createClass({
     propTypes: {
-        imageUploader: React.PropTypes.func,
         wasAnswered: React.PropTypes.bool,
         gradeMessage: React.PropTypes.string,
         apiOptions: ApiOptions.propTypes,
@@ -39,7 +38,6 @@ var ItemEditor = React.createClass({
                         ref="questionEditor"
                         placeholder="Type your question here..."
                         className="perseus-question-editor"
-                        imageUploader={this.props.imageUploader}
                         onChange={this.handleEditorChange}
                         apiOptions={this.props.apiOptions}
                         showWordCount={true}

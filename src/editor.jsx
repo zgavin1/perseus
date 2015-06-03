@@ -241,7 +241,6 @@ var imageUrlsFromContent = function(content) {
 
 var Editor = React.createClass({
     propTypes: {
-        imageUploader: React.PropTypes.func,
         apiOptions: ApiOptions.propTypes,
     },
 
@@ -446,7 +445,7 @@ var Editor = React.createClass({
                           value={this.props.content} />
             ];
         var textareaWrapper;
-        if (this.props.imageUploader) {
+        if (this.props.apiOptions.uploadImage) {
             textareaWrapper = <DragTarget
                     onDrop={this.handleDrop}
                     className="perseus-textarea-pair">
@@ -541,12 +540,15 @@ var Editor = React.createClass({
             .reject(_.isNull)
             .tap(() => { this.props.onChange({ content: content }); })
             .each(fileAndSentinel => {
-                this.props.imageUploader(fileAndSentinel.file, url => {
-                    this.props.onChange({
-                        content: this.props.content.replace(
-                            fileAndSentinel.sentinel, url)
-                    });
-                });
+                this.props.apiOptions.uploadImage(
+                    fileAndSentinel.file,
+                    (url) => {
+                        this.props.onChange({
+                            content: this.props.content.replace(
+                                fileAndSentinel.sentinel, url)
+                        });
+                    }
+                );
             });
     },
 
