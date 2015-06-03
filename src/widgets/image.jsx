@@ -9,8 +9,10 @@ var Renderer     = require("../renderer.jsx");
 var Changeable   = require("../mixins/changeable.jsx");
 var EditorJsonify = require("../mixins/editor-jsonify.jsx");
 
+var ImageUploadDialog = require("../image-upload-dialog.jsx");
 var Graphie      = require("../components/graphie.jsx");
 var RangeInput   = require("../components/range-input.jsx");
+var RelocateImage = require("../util/relocate-image.jsx");
 var SvgImage     = require("../components/svg-image.jsx");
 var TextInput    = require("../components/text-input.jsx");
 
@@ -213,14 +215,30 @@ var ImageEditor = React.createClass({
         };
     },
 
+    getInitialState: function() {
+        return {
+            showUploadDialog: false,
+        };
+    },
+
     render: function() {
         var imageSettings = <div className="image-settings">
-            <div>Background image:</div>
             <div>
-                <label>Url:{' '}
+                <label><strong>Image URL:</strong>{' '}
                     <BlurInput
                         value={this.props.backgroundImage.url || ''}
                         onChange={url => this.onUrlChange(url, false)} />
+                    {this.props.apiOptions.uploadImage && [
+                        " or ",
+                        <button type="button"
+                                key="image-upload-button"
+                                onClick={() => {
+                                    this.setState({showUploadDialog: true});
+                                }}>
+                            Upload
+                        </button>
+                    ]}
+                    {' '}
                     <InfoTip>
                         <p>Create an image in graphie, or use the "Add image"
                         function to create a background.</p>
@@ -312,6 +330,14 @@ var ImageEditor = React.createClass({
                     }
                 }}
                 widgetEnabled={false} />
+            {this.state.showUploadDialog &&
+                <ImageUploadDialog
+                    onImageReceipt={this._receiveImages}
+                    onUrlReceipt={this._receiveUrl}
+                    onClose={() => {
+                        this.setState({showUploadDialog: false});
+                    }} />
+            }
         </div>;
     },
 
@@ -443,6 +469,27 @@ var ImageEditor = React.createClass({
         var range = this.props.range.slice();
         range[type] = newRange;
         this.props.onChange({range: range});
+    },
+
+    _receiveImages: function(images) {
+        var uploadImage = this.props.apiOptions.uploadImage;
+        // throw out second+ images (we're only one widget,
+        // sorry!), and ignore the action if no images were
+        // uploaded.
+        var imageData = images[0];
+        if (uploadImage && imageData) {
+            uploadImage(imageData, (url) => {
+                this.onUrlChange(url, false);
+            });
+        }
+    },
+
+    _receiveUrl: function(url) {
+        RelocateImage(
+            this.props.apiOptions.uploadImage,
+            url,
+            (newUrl) => this.onUrlChange(newUrl, false)
+        );
     },
 
     getSaveWarnings: function() {
