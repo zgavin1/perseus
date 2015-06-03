@@ -1,10 +1,19 @@
+/**
+ * Image upload dialog.
+ *
+ * Mostly copy-pasta from the one in webapp :(
+ *
+ * TODO(aria): Unify image uploading code (oh gosh, there
+ * is so much of it everywhere! it is leaking!)
+ */
+
 var DragTarget = require("react-components/drag-target.jsx");
 var LayeredComponentMixin = require("react-components/layered-component-mixin.jsx");
 var React = require("react");
 var WindowDrag = require("react-components/window-drag.jsx");
 var _ = require("underscore");
 
-var Modal = require("../react-package/modal.jsx");
+var Modal = require("react-components/modal.jsx");
 
 // Three paned image upload dialog, inspired by imgur's.
 var ImageUploadDialog = React.createClass({
@@ -17,7 +26,7 @@ var ImageUploadDialog = React.createClass({
     render: function() {
         return <Modal ref="modal" onClose={this.props.onClose}>
             <div className="modal-header">
-                <span className="close" data-dismiss="modal">&#215;</span>
+                <a className="close" onClick={this.props.onClose}>&#215;</a>
                 <h2>Add Image</h2>
             </div>
             <div className="modal-body">
@@ -119,3 +128,4 @@ var ImageUploadDialog = React.createClass({
 });
 
 module.exports = ImageUploadDialog;
+
