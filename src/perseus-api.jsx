@@ -24,6 +24,8 @@
  * semantic meaning across the same perseus api major version.
  */
 
+var _ = require("underscore");
+
 var StubTagEditor = require("./components/stub-tag-editor.jsx");
 
 module.exports = {
@@ -56,6 +58,7 @@ module.exports = {
             enableOldAnswerTypes: false,
             readOnly: false,
             groupAnnotator: function() { return null; },
+            relocateImage: (url, callback) => { _.defer(callback, url); },
         }
     },
     ClassNames: {
