@@ -488,7 +488,13 @@ var ImageEditor = React.createClass({
         RelocateImage(
             this.props.apiOptions.uploadImage,
             url,
-            (newUrl) => this.onUrlChange(newUrl, false)
+            (newUrl) => {
+                if (newUrl == null) {
+                    alert("We couldn't upload that image, sorry :(");
+                } else {
+                    this.onUrlChange(newUrl, false);
+                }
+            }
         );
     },
 

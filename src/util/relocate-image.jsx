@@ -44,6 +44,10 @@ var createImageFileFromURL = (url, callback) => {
         callback(null, file);
     };
 
+    xhr.onerror = () => {
+        callback("CORS error");
+    };
+
     xhr.send();
 };
 
