@@ -246,10 +246,109 @@ var item2Props = {
     "hints": []
 };
 
+var radio = {
+    "question": {
+        "content": "\n\n[[☃ radio 1]]\n\n",
+        "images": {},
+        "widgets": {
+            "radio 1": {
+                "type": "radio",
+                "alignment": "default",
+                "graded": true,
+                "options": {
+                    "choices": [
+                        {
+                            "content": "{{passage-ref 1 1}} (“Online...psychology”)",
+                            "clue": "These lines state that the social networking sites are popular and important to the field of psychology, but do not state why."
+                        },
+                        {
+                            "content": "{{passage-ref 1 2}} (“Facebook...strangers”)",
+                            "clue": "These lines explain the function of one social media site, but do not explain why the study of social media use is important to the field of psychology."
+                        },
+                        {
+                            "isNoneOfTheAbove": false,
+                            "content": "{{passage-ref 1 3}} (“Facebook...account”)",
+                            "clue": "These lines demonstrate the popularity of Facebook among college students, but do not inform our understanding of the study’s importance to the wider field of psychology."
+                        },
+                        {
+                            "isNoneOfTheAbove": false,
+                            "content": "{{passage-ref 1 4}} (“Given...students”)",
+                            "clue": "This choice is the best answer. These lines explain that the study of social media networks is important to psychology because it informs our understanding of self-esteem and personality in college students."
+                        }
+                    ],
+                    "randomize": false,
+                    "multipleSelect": false,
+                    "displayCount": null,
+                    "hasNoneOfTheAbove": false,
+                    "onePerLine": true,
+                    "deselectEnabled": false
+                },
+                "version": {
+                    "major": 1,
+                    "minor": 0
+                }
+            }
+        }
+    },
+    "answerArea": {
+        "type": "multiple",
+        "options": {
+            "content": "",
+            "images": {},
+            "widgets": {}
+        },
+        "calculator": false,
+        "periodicTable": false
+    },
+    "itemDataVersion": {
+        "major": 0,
+        "minor": 1
+    },
+    "hints": []
+}
+
+var passage = {
+    "question": {
+        "content": "[[☃ passage 1]]\n\n",
+        "images": {},
+        "widgets": {
+            "passage 1": {
+                "type": "passage",
+                "alignment": "default",
+                "graded": true,
+                "options": {
+                    "passageTitle": "Cool Passage",
+                    "passageText": "{{Online social networking sites, such as Facebook, Google+, and Bebo, have grown in popularity in recent years and they provide an exciting new area of study in the field of psychology.}} {{Facebook provides individuals with easy access to view personal information about their friends, coworkers, and even complete strangers.}} {{Facebook has over 500 million active users and every month over 700 billion minutes are spent on Facebook. Among U.S. college students, 96% have a Facebook account.}} {{Given the popularity of online social networking sites, Facebook in particular, the current study was designed to investigate the relationship between Facebook use, the importance of {{quality}} of friendships to self-esteem, and personality in college students.}}\n\nSocial relationships are considered by many to be the most important component of human life. With the expansion of the Internet and social networking sites, more people are using technology to communicate with their friends and family online and maintain these interpersonal connections in novel ways that were not available in previous generations. {{Some researchers initially believed online activities negatively impacted relationships}} and feared that virtual communication would replace face-to-face interactions and deteriorate social bonds. Others, however, have found support for the idea that social networking sites and the Internet have expanded methods of staying socially connected with others and increased relationship closeness and connectedness. Social networking sites, such as Facebook, allow users to add “friends” and keep track of their status, interests, photos, “likes,” and updates of others’ personal information in cyberspace.\n\nInternet use is related to both positive and negative psychological and social factors, but the key to understanding these outcomes is through examining specific types of Internet use instead of simply the amount of time spent online. While using social media can have positive benefits associated with community engagement, education, social connectedness, and identity development, it can also lead to risks linked to social rejection, cyberbullying, depression, exposure to inappropriate content, and other negative consequences related to general well-being. For example, a negative relationship has been found between time spent using electronic media, including social networking sites, and college grades. In college, upper-class students with more Facebook friends reported high levels of social adjustment and stronger attachment to the college than students with less Facebook friends, although freshmen did not benefit from having more Facebook friends and actually reported decreased social and emotional adjustment.\n\n{{With respect to self-esteem, the research is also mixed, especially considering the different types of self-esteem. In certain cases, excessive Facebook use may be related to lower general self-esteem.}} {{For example, Mehdizadeh (2010) found a significant negative correlation between self-esteem and the number of times students checked Facebook per day and between self-esteem and the time spent on Facebook per session.}} Those with lower self-esteem also presented less self-promoting content on Facebook pages. {{However, Facebook can enhance self-esteem specifically related to the social functions of the self (social self-esteem) when individuals receive positive comments and feedback from their friends online.}} {{In addition, researchers have found that introverted individuals and individuals with low self-esteem may benefit from the social opportunities provided by the Facebook interface, without the anxiety of interacting face-to-face.}}\n\nFacebook provides an opportunity for individuals who {{value}} their friendships to stay informed about social events and this technology may be particularly important and highly utilized by individuals whose value of themselves is contingent on how well their relationships with friends are succeeding... Related to the current investigation, the quality of friendships and how this quality affects self-esteem may be correlated with the frequency and intensity in which individuals engage in social networking. Individuals who value their friendships and see these friendships as important dimensions of themselves may engage in increased social networking behaviors to provide additional means for keeping connected with friends and sharing personal activities.",
+                    "footnotes": "^ Changed for cultural accuracy. ",
+                    "showLineNumbers": true
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            }
+        }
+    },
+    "answerArea": {
+        "type": "multiple",
+        "options": {
+            "content": "",
+            "images": {},
+            "widgets": {}
+        },
+        "calculator": false,
+        "periodicTable": false
+    },
+    "itemDataVersion": {
+        "major": 0,
+        "minor": 1
+    },
+    "hints": []
+}
 
 function initPerseus(Perseus) {
     React.render(
-        React.createElement(Perseus.MultiRenderer, {itemList: [item1Props, item2Props]}),
+        React.createElement(Perseus.MultiRenderer, {itemList: [item1Props, item2Props, radio], leftColumn: passage}),
         document.getElementById("multirenderer-container")
     );
 }

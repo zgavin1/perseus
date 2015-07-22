@@ -228,7 +228,7 @@ var Renderer = React.createClass({
                 this.props.highlightedWidgets,
                 id
             );
-            
+
             // By this point we should have no duplicates, which are
             // filtered out in this.render(), so we shouldn't have to
             // worry about using this widget key and ref:
@@ -390,6 +390,8 @@ var Renderer = React.createClass({
             results // allow our parent to inspect the local
                     // interwidget results before acting
         );
+        console.log("This is the renderer interWidgets");
+        console.log(this.props.interWidgets);
 
         if (propsInterWidgetResult) {
             return propsInterWidgetResult;
