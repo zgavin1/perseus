@@ -390,8 +390,6 @@ var Renderer = React.createClass({
             results // allow our parent to inspect the local
                     // interwidget results before acting
         );
-        console.log("This is the renderer interWidgets");
-        console.log(this.props.interWidgets);
 
         if (propsInterWidgetResult) {
             return propsInterWidgetResult;
