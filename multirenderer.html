@@ -96,9 +96,160 @@ require(["ke-deps.js"], function() {
     require(["live-build/perseus.js"], initPerseus);
 });
 
+var item1Props = {
+    "question": {
+        "content": "[[☃ matrix 1]]\n\n[[☃ measurer 1]]\n\n",
+        "images": {},
+        "widgets": {
+            "matrix 1": {
+                "type": "matrix",
+                "alignment": "default",
+                "graded": true,
+                "options": {
+                    "matrixBoardSize": [
+                        3,
+                        3
+                    ],
+                    "answers": [
+                        []
+                    ],
+                    "prefix": "",
+                    "suffix": "",
+                    "cursorPosition": [
+                        0,
+                        0
+                    ]
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            },
+            "measurer 1": {
+                "type": "measurer",
+                "alignment": "default",
+                "graded": true,
+                "options": {
+                    "box": [
+                        480,
+                        480
+                    ],
+                    "image": {},
+                    "showProtractor": true,
+                    "showRuler": false,
+                    "rulerLabel": "",
+                    "rulerTicks": 10,
+                    "rulerPixels": 40,
+                    "rulerLength": 10
+                },
+                "version": {
+                    "major": 1,
+                    "minor": 0
+                }
+            },
+            "group 1": {
+                "options": {},
+                "type": "group",
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            }
+        }
+    },
+    "answerArea": {
+        "type": "multiple",
+        "options": {
+            "content": "",
+            "images": {},
+            "widgets": {}
+        },
+        "calculator": false,
+        "periodicTable": false
+    },
+    "itemDataVersion": {
+        "major": 0,
+        "minor": 1
+    },
+    "hints": []
+};
+
+var item2Props = {
+    "question": {
+        "content": "[[☃ sorter 1]]\n\n[[☃ table 1]]\n\n",
+        "images": {},
+        "widgets": {
+            "sorter 1": {
+                "type": "sorter",
+                "alignment": "default",
+                "graded": true,
+                "options": {
+                    "correct": [
+                        "$x$",
+                        "$y$",
+                        "$z$"
+                    ],
+                    "layout": "horizontal",
+                    "padding": true
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            },
+            "table 1": {
+                "type": "table",
+                "alignment": "default",
+                "graded": true,
+                "options": {
+                    "headers": [
+                        ""
+                    ],
+                    "rows": 4,
+                    "columns": 1,
+                    "answers": [
+                        [
+                            ""
+                        ],
+                        [
+                            ""
+                        ],
+                        [
+                            ""
+                        ],
+                        [
+                            ""
+                        ]
+                    ]
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            }
+        }
+    },
+    "answerArea": {
+        "type": "multiple",
+        "options": {
+            "content": "",
+            "images": {},
+            "widgets": {}
+        },
+        "calculator": false,
+        "periodicTable": false
+    },
+    "itemDataVersion": {
+        "major": 0,
+        "minor": 1
+    },
+    "hints": []
+};
+
+
 function initPerseus(Perseus) {
     React.render(
-        React.createElement(Perseus.MultiRenderer, null),
+        React.createElement(Perseus.MultiRenderer, {itemList: [item1Props, item2Props]}),
         document.getElementById("multirenderer-container")
     );
 }
