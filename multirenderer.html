@@ -360,6 +360,26 @@ function initPerseus(Perseus) {
             }),
         document.getElementById("multirenderer-container")
     );
+
+    // Useful to testing what happens when the multi-renderers props change.
+    window.switchItem = function(original) {
+        React.render(
+            React.createElement(
+                Perseus.MultiRenderer,
+                {
+                    questions: (
+                        original ?
+                            [item1Props, item2Props, radio] :
+                            [item2Props, item1Props, radio]),
+                    context: passage,
+                    questionNumbers: {
+                        start: 3,
+                        totalQuestions: 6,
+                    }
+                }),
+            document.getElementById("multirenderer-container")
+        );
+    };
 }
 
 })();

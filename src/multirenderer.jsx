@@ -26,6 +26,21 @@ var MultiRenderer = React.createClass({
         }),
     },
 
+    /**
+     * Create a new set of keys for this.state.keys.
+     *
+     * This will generate unique keys for all of our children renderers, which
+     * (when used) will cause all of our renderers to be unmounted and new ones
+     * to be mounted.
+     */
+    _createKeys: function() {
+        return {
+            context: _.uniqueId("context-"),
+            questions: _.map(this.props.questions,
+                             () => _.uniqueId("question-")),
+        };
+    },
+
     getInitialState: function() {
         return {
             // To ensure that each question's widgets have access to the
@@ -34,11 +49,38 @@ var MultiRenderer = React.createClass({
             // rendering the questions only after the context has been
             // rendered.
             isContextRendered: false,
+
+            // This is an object containing keys we'll give to our child
+            // renderers. Using this, we can force React to remount the
+            // renderers when our item data changes instead of reusing them.
+            // NOTE(johnsullivan): If the Perseus Renderer deals with prop
+            //     changes well, we don't have to do this. At this time, there
+            //     seem to be subtle problems that come up.
+            keys: this._createKeys(),
         };
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        // If the context or questions change, we just remount everything. We
+        // could be a little smarter (to only remount the questions if the
+        // context changes for example), but it doesn't seem necessary.
+        if (!_.isEqual(this.props.context, nextProps.context) ||
+                !_.isEqual(this.props.questions, nextProps.questions)) {
+            this.setState({
+                isContextRendered: false,
+                keys: this._createKeys(),
+            });
+        }
     },
 
     componentDidMount: function() {
         this.setState({isContextRendered: true});
+    },
+
+    componentDidUpdate: function(prevProps, prevState) {
+        if (!this.state.isContextRendered) {
+            this.setState({isContextRendered: true});
+        }
     },
 
     /**
@@ -65,16 +107,12 @@ var MultiRenderer = React.createClass({
         var rendererList = null;
         if (this.state.isContextRendered) {
             rendererList = _.flatten(_.map(this.props.questions, (item, i) => {
-                // TODO (phillip): Think of a better key for the Renderer. This
-                //    might get us into some weird situations when we get a new
-                //    list of items (ideally we'd have React unmount everything
-                //    previously there, and mount new stuff).
                 // This two-list will be flattened by the outer call to
                 // _.flatten.
                 return [
                     this._renderQuestionNumber(i),
                     <Renderer
-                        key={i}
+                        key={this.state.keys.questions[i]}
                         interWidgets={this._interWidgets}
                         content={item.question.content}
                         images={item.question.images}
@@ -85,6 +123,7 @@ var MultiRenderer = React.createClass({
 
         return <div className="MultiRenderer">
             <Renderer
+                key={this.state.keys.context}
                 ref="context"
                 content={this.props.context.question.content}
                 images={this.props.context.question.images}
