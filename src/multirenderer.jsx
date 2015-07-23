@@ -2,8 +2,17 @@ var Renderer = require("./renderer.jsx");
 
 var MultiRenderer = React.createClass({
     propTypes: {
-        itemList: React.PropTypes.arrayOf(React.PropTypes.object),
-        leftColumn: React.PropTypes.object,
+        // A list of item data. Each will be rendered in its own Perseus
+        // Renderer and treated as an independent question. A question's
+        // widgets cannot access any other question's widgets through the inter
+        // widgets bus (but see the context prop below).
+        questions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+
+        // A single item data. This item provides context that is shared
+        // between all of the questions. It will be rendered in its own Perseus
+        // Renderer. Each question's widgets can access the widgets in the
+        // context through the inter widgets bus.
+        context: React.PropTypes.object,
 
         // An object that describes how to render question numbers. If falsey,
         // no question numbers will be rendered.
@@ -18,18 +27,18 @@ var MultiRenderer = React.createClass({
     },
 
     getInitialState: function() {
-        // To ensure that the widgets in the right column have access to the
-        // left column through the _interWidgets method, we render the left
-        // column first. When the component is mounted we set
-        // leftColumnRendered to true allowing the right column widgets to be
-        // renderered. This means that the right column widgets can use the
-        // interWidgets communication channel to get information from the left
-        // column.
-        return {leftColumnRendered: false};
+        return {
+            // To ensure that each question's widgets have access to the
+            // context's widgets through the inter widgets bus, we must
+            // guarantee that the context is rendered first. We do this by
+            // rendering the questions only after the context has been
+            // rendered.
+            isContextRendered: false,
+        };
     },
 
     componentDidMount: function() {
-        this.setState({leftColumnRendered: true});
+        this.setState({isContextRendered: true});
     },
 
     /**
@@ -54,8 +63,8 @@ var MultiRenderer = React.createClass({
         // We render in two passes, see comment in getInitialState for more
         // information.
         var rendererList = null;
-        if (this.state.leftColumnRendered) {
-            rendererList = _.flatten(_.map(this.props.itemList, (item, i) => {
+        if (this.state.isContextRendered) {
+            rendererList = _.flatten(_.map(this.props.questions, (item, i) => {
                 // TODO (phillip): Think of a better key for the Renderer. This
                 //    might get us into some weird situations when we get a new
                 //    list of items (ideally we'd have React unmount everything
@@ -76,10 +85,10 @@ var MultiRenderer = React.createClass({
 
         return <div className="MultiRenderer">
             <Renderer
-                ref="leftColumn"
-                content={this.props.leftColumn.question.content}
-                images={this.props.leftColumn.question.images}
-                widgets={this.props.leftColumn.question.widgets} />
+                ref="context"
+                content={this.props.context.question.content}
+                images={this.props.context.question.images}
+                widgets={this.props.context.question.widgets} />
             {rendererList}
         </div>;
     },
@@ -88,7 +97,7 @@ var MultiRenderer = React.createClass({
         if (localResults.length) {
             return localResults;
         } else {
-            return this.refs.leftColumn.interWidgets(filterCriterion);
+            return this.refs.context.interWidgets(filterCriterion);
         }
     },
 });
