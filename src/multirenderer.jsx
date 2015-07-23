@@ -9,10 +9,11 @@ var MultiRenderer = React.createClass({
     getInitialState: function() {
         // To ensure that the widgets in the right column have access to the
         // left column through the _interWidgets method, we render the left
-        // column first. When the component is mounted we set leftColumnRendered
-        // to true allowing the right column widgets to be renderered. This
-        // means that the right column widgets can use the interWidgets
-        // communication channel to get information from the left column.
+        // column first. When the component is mounted we set
+        // leftColumnRendered to true allowing the right column widgets to be
+        // renderered. This means that the right column widgets can use the
+        // interWidgets communication channel to get information from the left
+        // column.
         return {leftColumnRendered: false};
     },
 
