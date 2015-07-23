@@ -348,7 +348,16 @@ var passage = {
 
 function initPerseus(Perseus) {
     React.render(
-        React.createElement(Perseus.MultiRenderer, {itemList: [item1Props, item2Props, radio], leftColumn: passage}),
+        React.createElement(
+            Perseus.MultiRenderer,
+            {
+                itemList: [item1Props, item2Props, radio],
+                leftColumn: passage,
+                questionNumbers: {
+                    start: 1,
+                    totalQuestions: 3,
+                }
+            }),
         document.getElementById("multirenderer-container")
     );
 }
