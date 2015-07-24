@@ -121,7 +121,7 @@ var MultiRenderer = React.createClass({
             }), true);
         }
 
-        return <div className="MultiRenderer">
+        return <div className="multirenderer">
             <div className="col">
                 <div className="col-content">
                     <Renderer
