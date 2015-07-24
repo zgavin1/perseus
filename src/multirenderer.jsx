@@ -122,13 +122,21 @@ var MultiRenderer = React.createClass({
         }
 
         return <div className="MultiRenderer">
-            <Renderer
-                key={this.state.keys.context}
-                ref="context"
-                content={this.props.context.question.content}
-                images={this.props.context.question.images}
-                widgets={this.props.context.question.widgets} />
-            {rendererList}
+            <div className="col">
+                <div className="col-content">
+                    <Renderer
+                        ref="context"
+                        content={this.props.context.question.content}
+                        images={this.props.context.question.images}
+                        widgets={this.props.context.question.widgets} />
+                </div>
+            </div>
+
+            <div className="col">
+                <div className="col-content">
+                    {rendererList}
+                </div>
+            </div>
         </div>;
     },
 
