@@ -1,3 +1,4 @@
+var HintsRenderer = require("./hints-renderer.jsx");
 var Renderer = require("./renderer.jsx");
 
 var MultiRenderer = React.createClass({
@@ -24,6 +25,23 @@ var MultiRenderer = React.createClass({
             // end of each question number (ex: "Question 2 of 7").
             totalQuestions: React.PropTypes.number.isRequired,
         }),
+
+        // Mapping from question number to options. Note that the question
+        // number here is unaffected by the value of the questionNumbers prop
+        // (ie: the first question rendered is always considered to be question
+        // 0).
+        //
+        // NOTE: Use the _getQuestionOptions method rather than reading from
+        //     this prop directly.
+        questionOptions: React.PropTypes.objectOf(React.PropTypes.shape({
+            // The number of hints to show for this question
+            hintsVisible: React.PropTypes.number,
+        })),
+    },
+
+    // Default values for each question's options.
+    DEFAULT_QUESTION_OPTIONS: {
+        hintsVisible: 0,
     },
 
     /**
@@ -39,6 +57,20 @@ var MultiRenderer = React.createClass({
             questions: _.map(this.props.questions,
                              () => _.uniqueId("question-")),
         };
+    },
+
+    /**
+     * Always use this method, rather than accessing the questionOptions prop
+     * directly.
+     */
+    _getQuestionOptions: function(questionNum) {
+        if (!this.props.questionOptions) {
+            return DEFAULT_QUESTION_OPTIONS;
+        }
+
+        return _.defaults(
+            this.props.questionOptions[questionNum] || {},
+            this.DEFAULT_QUESTION_OPTIONS);
     },
 
     getInitialState: function() {
@@ -106,19 +138,23 @@ var MultiRenderer = React.createClass({
         // information.
         var rendererList = null;
         if (this.state.isContextRendered) {
-            rendererList = _.flatten(_.map(this.props.questions, (item, i) => {
-                // This two-list will be flattened by the outer call to
-                // _.flatten.
-                return [
-                    this._renderQuestionNumber(i),
+            rendererList = _.map(this.props.questions, (item, i) => {
+                // TODO(johnsullivan): Is keying the Renderer and HintsRenderer
+                //     necessary here?
+                return <div key={this.state.keys.questions[i] + "-container"}>
+                    {this._renderQuestionNumber(i)}
                     <Renderer
-                        key={this.state.keys.questions[i]}
+                        key={this.state.keys.questions[i] + "-question"}
                         interWidgets={this._interWidgets}
                         content={item.question.content}
                         images={item.question.images}
-                        widgets={item.question.widgets} />,
-                ];
-            }), true);
+                        widgets={item.question.widgets} />
+                    <HintsRenderer
+                        key={this.state.keys.questions[i] + "-hints"}
+                        hintsVisible={this._getQuestionOptions(i).hintsVisible}
+                        hints={item.hints} />
+                </div>;
+            });
         }
 
         return <div className="multirenderer">
