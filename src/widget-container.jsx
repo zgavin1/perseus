@@ -13,7 +13,9 @@ var WidgetContainer = React.createClass({
         type: React.PropTypes.string,
         enabledFeatures: EnabledFeatures.propTypes,
         initialProps: React.PropTypes.object.isRequired,
+
         widgetInfo: React.PropTypes.object,
+        editorOnChange: React.PropTypes.func,
     },
 
     getInitialState: function() {
@@ -53,11 +55,20 @@ var WidgetContainer = React.createClass({
             </a>
             <WidgetEditor
                 ref="widgetEditor"
-                onChange={() => console.log("onChange called")}
+                onChange={this._handleWidgetChange}
                 {...this.props.widgetInfo.options}
                 />
             <WidgetType {...this.state.widgetProps} ref="widget" />
         </div>;
+    },
+
+    _handleWidgetChange: function(newProps, cb, silent) {
+        var newWidgetInfo = _.clone(this.props.widgetInfo);
+        newWidgetInfo.options = _.extend(
+            this.refs.widgetEditor.serialize(),
+            newProps
+        );
+        this.props.editorOnChange(newProps, cb, silent);
     },
 
     componentWillReceiveProps: function(nextProps) {

@@ -18,6 +18,9 @@ var ArticleRenderer = React.createClass({
             rendererProps,
             React.PropTypes.arrayOf(rendererProps)
         ]).isRequired,
+        // We pass down the same onChange that the editor receives since we're
+        // gonna render an widget editor in the renderer.
+        editorOnChange: React.PropTypes.func.isRequired,
     },
 
     shouldComponentUpdate: function(nextProps, nextState) {
@@ -31,6 +34,7 @@ var ArticleRenderer = React.createClass({
                 {...section}
                 key={i}
                 apiOptions={this.props.apiOptions}
+                editorOnChange={this.props.editorOnChange}
                 enabledFeatures={this.props.enabledFeatures} />;
         });
 

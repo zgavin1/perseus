@@ -107,6 +107,7 @@ var Renderer = React.createClass({
         interWidgets: React.PropTypes.func,
         alwaysUpdate: React.PropTypes.bool,
         reviewMode: React.PropTypes.bool,
+        editorOnChange: React.PropTypes.func,
     },
 
     componentWillReceiveProps: function(nextProps) {
@@ -239,11 +240,21 @@ var Renderer = React.createClass({
                     enabledFeatures={this.props.enabledFeatures}
                     type={type}
                     initialProps={this.getWidgetProps(id)}
+                    shouldHighlight={shouldHighlight}
+
                     widgetInfo={widgetInfo}
-                    shouldHighlight={shouldHighlight} />;
+                    editorOnChange={
+                        this._handleWidgetEditorChange.bind(this, id)
+                    } />;
         } else {
             return null;
         }
+    },
+
+    _handleWidgetEditorChange: function(id, newProps, cb, silent) {
+        var widgets = _.clone(this.props.widgets);
+        widgets[id] = _.extend({}, widgets[id], newProps);
+        this.props.editorOnChange({widgets: widgets}, cb, silent);
     },
 
     getApiOptions: function(props) {

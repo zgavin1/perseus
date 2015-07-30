@@ -34,6 +34,7 @@ var SectionControlButton = React.createClass({
 });
 
 var ArticleEditor = React.createClass({
+    displayName: 'ArticleEditor',
 
     propTypes: {
         json: React.PropTypes.oneOfType([
@@ -131,6 +132,7 @@ var ArticleEditor = React.createClass({
 
         return <div className="perseus-editor-table">
             {sections.map((section, i) => {
+                var editorOnChange = _.partial(this._handleEditorChange, i);
                 return [
                     <div className="perseus-editor-row">
                         <div className="perseus-editor-left-cell">
@@ -177,7 +179,7 @@ var ArticleEditor = React.createClass({
                                 placeholder="Type your section text here..."
                                 imageUploader={this.props.imageUploader}
                                 onChange={
-                                    _.partial(this._handleEditorChange, i)
+                                    editorOnChange
                                 }
                                 apiOptions={apiOptions}
                                 enabledFeatures={this.props.enabledFeatures} />
@@ -188,9 +190,10 @@ var ArticleEditor = React.createClass({
                                 json={section}
                                 ref={"renderer" + i}
                                 apiOptions={apiOptions}
-                                enabledFeatures={
-                                    this.props.enabledFeatures
-                                } />
+                                editorOnChange={
+                                    editorOnChange
+                                }
+                                enabledFeatures={this.props.enabledFeatures} />
                         </div>
                     </div>
                 ];
