@@ -11,6 +11,7 @@ var EditorPage = require("./editor-page.jsx");
  * query them with serialize.
  */
 var StatefulEditorPage = React.createClass({
+    displayName: 'StatefulEditorPage',
 
     propTypes: {
         componentClass: React.PropTypes.func

@@ -11,6 +11,8 @@ var TextListEditor = require("../components/text-list-editor.jsx");
 var Util = require("../util.js");
 
 var Categorizer = React.createClass({
+    displayName: "Categorizer",
+
     mixins: [WidgetJsonifyDeprecated, Changeable],
 
     propTypes: {
@@ -138,6 +140,8 @@ _.extend(Categorizer, {
 
 
 var CategorizerEditor = React.createClass({
+    displayName: "CategorizerEditor",
+
     mixins: [EditorJsonify, Changeable],
 
     propTypes: {

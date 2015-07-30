@@ -84,6 +84,8 @@ var WidgetSelect = React.createClass({
 // with all available transforms applied, but the results of those
 // transforms will not be propogated upwards until serialization.
 var WidgetEditor = React.createClass({
+    displayName: 'WidgetEditor',
+
     propTypes: {
         // Unserialized props
         id: React.PropTypes.string.isRequired,
@@ -149,8 +151,8 @@ var WidgetEditor = React.createClass({
                     <i className={"icon-chevron-" +
                             (this.state.showWidget ? "down" : "right")} />
                 </a>
-                {supportedAlignments.length > 1 && 
-                <select 
+                {supportedAlignments.length > 1 &&
+                <select
                         className="alignment"
                         value={widgetInfo.alignment}
                         onChange={this._handleAlignmentChange} >
@@ -264,6 +266,8 @@ var imageUrlsFromContent = function(content) {
 };
 
 var Editor = React.createClass({
+    displayName: 'Editor',
+
     propTypes: {
         imageUploader: React.PropTypes.func,
         apiOptions: ApiOptions.propTypes,
@@ -675,10 +679,10 @@ var Editor = React.createClass({
         var widgetContent = widgetPlaceholder.replace("{id}", id);
 
         // Add newlines before block-display widgets like graphs
-        var isBlock = Widgets.getDefaultAlignment(widgetType, 
+        var isBlock = Widgets.getDefaultAlignment(widgetType,
             this.props.enabledFeatures || EnabledFeatures.defaults) ===
             "block";
-        
+
         var prelude = oldContent.slice(0, cursorRange[0]);
         var postlude = oldContent.slice(cursorRange[1]);
 
