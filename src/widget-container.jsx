@@ -5,11 +5,15 @@ var EnabledFeatures = require("./enabled-features.jsx");
 var Widgets = require("./widgets.js");
 
 var WidgetContainer = React.createClass({
+    displayName: "WidgetContainer",
+
     propTypes: {
+        id: React.PropTypes.string,
         shouldHighlight: React.PropTypes.bool.isRequired,
         type: React.PropTypes.string,
         enabledFeatures: EnabledFeatures.propTypes,
         initialProps: React.PropTypes.object.isRequired,
+        widgetInfo: React.PropTypes.object,
     },
 
     getInitialState: function() {
@@ -41,7 +45,17 @@ var WidgetContainer = React.createClass({
 
         className += " widget-" + alignment;
 
+        var WidgetEditor = Widgets.getEditor(type);
+
         return <div className={className} style={style}>
+            <a href="javascript:void(0)" onClick={this.showWidgetEditor}>
+                Click me
+            </a>
+            <WidgetEditor
+                ref="widgetEditor"
+                onChange={() => console.log("onChange called")}
+                {...this.props.widgetInfo.options}
+                />
             <WidgetType {...this.state.widgetProps} ref="widget" />
         </div>;
     },
@@ -61,6 +75,11 @@ var WidgetContainer = React.createClass({
             this.props.type !== nextProps.type ||
             this.state.widgetProps !== nextState.widgetProps
         );
+    },
+
+    showWidgetEditor: function() {
+        debugger;
+        console.log('Hello');
     },
 
     getWidget: function() {

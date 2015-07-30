@@ -228,16 +228,18 @@ var Renderer = React.createClass({
                 this.props.highlightedWidgets,
                 id
             );
-            
+
             // By this point we should have no duplicates, which are
             // filtered out in this.render(), so we shouldn't have to
             // worry about using this widget key and ref:
             return <WidgetContainer
                     ref={"container:" + id}
                     key={"container:" + id}
+                    id={id}
                     enabledFeatures={this.props.enabledFeatures}
                     type={type}
                     initialProps={this.getWidgetProps(id)}
+                    widgetInfo={widgetInfo}
                     shouldHighlight={shouldHighlight} />;
         } else {
             return null;
