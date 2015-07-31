@@ -3,7 +3,6 @@ var React = require('react');
 
 var EnabledFeatures = require("./enabled-features.jsx");
 var Widgets = require("./widgets.js");
-var FloatingWidgetEditor = require("./editor/floating-widget-editor.jsx");
 
 var WidgetContainer = React.createClass({
     propTypes: {
@@ -15,7 +14,7 @@ var WidgetContainer = React.createClass({
 
         widgetInfo: React.PropTypes.object,
         id: React.PropTypes.string,
-        editorOnChange: React.PropTypes.func,
+        getWidgetDecorator: React.PropTypes.func,
     },
 
     getInitialState: function() {
@@ -46,17 +45,13 @@ var WidgetContainer = React.createClass({
 
         className += " widget-" + alignment;
 
-        var showFloatingWidgetEditor = this.props.apiOptions &&
-            this.props.apiOptions.showFloatingWidgetEditor;
+        var getWidgetDecorator = this.props.getWidgetDecorator;
+
+        var widgetDecorator = getWidgetDecorator &&
+            getWidgetDecorator(this.props.id, this.props.widgetInfo, this.state.widgetProps);
 
         return <div>
-            {showFloatingWidgetEditor &&
-                <FloatingWidgetEditor
-                    apiOptions={this.props.apiOptions}
-                    widgetInfo={this.props.widgetInfo}
-                    id={this.props.id}
-                    onChange={this.props.editorOnChange} />
-            }
+            {widgetDecorator}
             <WidgetType {...this.state.widgetProps} ref="widget" />
         </div>;
     },

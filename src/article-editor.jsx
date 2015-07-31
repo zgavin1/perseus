@@ -5,6 +5,7 @@ var ApiOptions = require("./perseus-api.jsx").Options;
 var ArticleRenderer = require("./article-renderer.jsx");
 var Editor = require("./editor.jsx");
 var EnabledFeatures = require("./enabled-features.jsx");
+var FloatingWidgetEditor = require("./editor/floating-widget-editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
 var Renderer = require("./renderer.jsx");
 var SectionControlButton = require("./components/section-control-button.jsx");
@@ -98,17 +99,29 @@ var ArticleEditor = React.createClass({
         </div>;
     },
 
-    _renderSections: function() {
-        var apiOptions = _.extend(
+    _getWidgetDecorator: function (i, id, widgetInfo, widgetProps) {
+        return  <FloatingWidgetEditor
+                    apiOptions={this._getApiOptions()}
+                    widgetInfo={widgetInfo}
+                    id={id}
+                    onChange={_.partial(this._handleEditorChange, i)} />
+
+    },
+
+    _getApiOptions: function () {
+        return _.extend(
             {},
             ApiOptions.defaults,
             this.props.apiOptions,
             {
                 // Alignment options are always available in article editors
                 showAlignmentOptions: true,
-                showFloatingWidgetEditor: true,
             }
         );
+    },
+
+    _renderSections: function() {
+        var apiOptions = this._getApiOptions();
 
         var sections = this._sections();
 
@@ -171,8 +184,8 @@ var ArticleEditor = React.createClass({
                                 json={section}
                                 ref={"renderer" + i}
                                 apiOptions={apiOptions}
-                                editorOnChange={
-                                    _.partial(this._handleEditorChange, i)
+                                getWidgetDecorator={
+                                    _.partial(this._getWidgetDecorator, i)
                                 }
                                 enabledFeatures={
                                     this.props.enabledFeatures

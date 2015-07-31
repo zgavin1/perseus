@@ -108,7 +108,7 @@ var Renderer = React.createClass({
         alwaysUpdate: React.PropTypes.bool,
         reviewMode: React.PropTypes.bool,
 
-        editorOnChange: React.PropTypes.func,
+        getWidgetDecorator: React.PropTypes.func,
     },
 
     componentWillReceiveProps: function(nextProps) {
@@ -138,8 +138,6 @@ var Renderer = React.createClass({
             interWidgets: () => null,
             alwaysUpdate: false,
             reviewMode: false,
-
-            editorOnChange: () => null,
         };
     },
 
@@ -245,9 +243,7 @@ var Renderer = React.createClass({
                     // Floating widget editor props
                     widgetInfo={this.props.widgets[id]}
                     id={id}
-                    editorOnChange={
-                        this._handleWidgetEditorChange.bind(this, id)
-                    }
+                    getWidgetDecorator={this.props.getWidgetDecorator}
 
                     type={type}
                     initialProps={this.getWidgetProps(id)}
@@ -255,12 +251,6 @@ var Renderer = React.createClass({
         } else {
             return null;
         }
-    },
-
-    _handleWidgetEditorChange: function(id, newProps, cb, silent) {
-        var widgets = _.clone(this.props.widgets);
-        widgets[id] = _.extend({}, widgets[id], newProps);
-        this.props.editorOnChange({ widgets }, cb, silent);
     },
 
     getApiOptions: function(props) {
