@@ -6,8 +6,11 @@ var ArticleRenderer = require("./article-renderer.jsx");
 var Editor = require("./editor.jsx");
 var EnabledFeatures = require("./enabled-features.jsx");
 var JsonEditor = require("./json-editor.jsx");
+var Pen = require("./editor/pen.js").Pen;
 var Renderer = require("./renderer.jsx");
 var SectionControlButton = require("./components/section-control-button.jsx");
+
+window.Pen = Pen;
 
 var rendererProps = React.PropTypes.shape({
     content: React.PropTypes.string,
