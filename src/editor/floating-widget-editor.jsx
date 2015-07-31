@@ -1,6 +1,5 @@
 var ApiOptions = require("../perseus-api.jsx").Options;
 var SectionControlButton = require("../components/section-control-button.jsx");
-var WidgetEditor = require("../widget-editor.jsx");
 
 var FloatingWidgetButtons = React.createClass({
     displayName: "FloatingWidgetButtons",
@@ -30,10 +29,7 @@ var FloatingWidgetEditor = React.createClass({
         widgetInfo: React.PropTypes.object.isRequired,
         id: React.PropTypes.string.isRequired,
         onChange: React.PropTypes.func.isRequired,
-    },
-
-    getInitialState: function() {
-        return { showEditor: true };
+        onToggleEditor: React.PropTypes.func.isRequired,
     },
 
     render: function() {
@@ -41,20 +37,13 @@ var FloatingWidgetEditor = React.createClass({
             <FloatingWidgetButtons
                 onEditClicked={this._toggleEditor}
                 onTrashClicked={this._handleWidgetRemove} />
-            {this.state.showEditor &&
-                <WidgetEditor
-                    apiOptions={this.props.apiOptions}
-                    ref="widget"
-                    onChange={this.props.onChange}
-                    onRemove={this._handleWidgetRemove}
-                    id={this.props.id}
-                    {...this.props.widgetInfo} />
-            }
         </div>;
     },
 
-    _toggleEditor: function() {
-        this.setState({ showEditor: !this.state.showEditor });
+    _toggleEditor: function(e) {
+    	if (this.props.onToggleEditor) {
+    		this.props.onToggleEditor(this.props.id, this.props.widgetInfo, e.clientY, e.clientX);
+    	}
     },
 
     _handleWidgetRemove: function() {

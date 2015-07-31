@@ -43,7 +43,8 @@ var ArticleEditor = React.createClass({
 
     getInitialState: function() {
         return {
-            mode: "edit"
+            mode: "edit",
+            visibleEditors: {}
         };
     },
 
@@ -104,8 +105,19 @@ var ArticleEditor = React.createClass({
                     apiOptions={this._getApiOptions()}
                     widgetInfo={widgetInfo}
                     id={id}
+                    onToggleEditor={this._handleToggleEditor}
                     onChange={_.partial(this._handleEditorChange, i)} />
 
+    },
+
+    _handleToggleEditor: function (id, widgetInfo, top, left) {
+        var visibleEditors = {};
+        if (!(id in this.state.visibleEditors)) {
+            visibleEditors[id] = [top, left];
+        }
+        this.setState({
+            visibleEditors: visibleEditors
+        });
     },
 
     _getApiOptions: function () {
@@ -176,6 +188,7 @@ var ArticleEditor = React.createClass({
                                     _.partial(this._handleEditorChange, i)
                                 }
                                 apiOptions={apiOptions}
+                                visibleEditors={this.state.visibleEditors}
                                 enabledFeatures={this.props.enabledFeatures} />
                         </div>
 

@@ -14,7 +14,7 @@ var SectionControlButton = React.createClass({
                 }
                 onClick={(e) => {
                     e.preventDefault();
-                    this.props.onClick();
+                    this.props.onClick(e);
                 }}>
             <span className={this.props.icon} />
         </a>;
