@@ -6,7 +6,6 @@ var ApiOptions = require("./perseus-api.jsx").Options;
 var DragTarget = require("react-components/drag-target.jsx");
 var EnabledFeatures = require("./enabled-features.jsx");
 var PerseusMarkdown = require("./perseus-markdown.jsx");
-var PropCheckBox = require("./components/prop-check-box.jsx");
 var Util = require("./util.js");
 var WidgetEditor = require("./widget-editor.jsx");
 var Widgets = require("./widgets.js");
@@ -550,7 +549,7 @@ var Editor = React.createClass({
 
         var newWidgets = _.clone(this.props.widgets);
         newWidgets[id] = {
-            options: {},
+            options: Widgets.getEditor(widgetType).defaultProps,
             type: widgetType,
             // Track widget version on creation, so that a widget editor
             // without a valid version prop can only possibly refer to a
