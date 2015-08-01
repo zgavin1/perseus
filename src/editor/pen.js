@@ -853,9 +853,14 @@ converter.parse = function(e) {
 
     // when `space` is pressed
     if (code === 32) {
-        var cmd = this.stack.join('');
-        this.stack.length = 0;
-        return this.valid(cmd);
+        var markdownSyntax = this.stack.join('');
+        this.stack = [];
+
+        var cmd = this.valid(markdownSyntax);
+        if (cmd) {
+            e.preventDefault();
+            return cmd;
+        }
     }
 
     // make cmd
