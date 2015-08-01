@@ -51,7 +51,7 @@ var WidgetContainer = React.createClass({
             getWidgetDecorator(this.props.id, this.props.widgetInfo,
                 this.state.widgetProps);
 
-        return <div>
+        return <div contentEditable={false}>
             {widgetDecorator}
             <WidgetType {...this.state.widgetProps} ref="widget" />
         </div>;
