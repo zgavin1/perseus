@@ -50,6 +50,15 @@ var ArticleEditor = React.createClass({
         };
     },
 
+    componentDidMount: function() {
+        var options = {
+            editor: $(".perseus-article")[0],
+            debug: true,
+            stay: false,
+        }
+        window.pen = new Pen(options);
+    },
+
     render: function() {
 
         return <div className="framework-perseus perseus-article-editor">

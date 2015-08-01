@@ -58,7 +58,9 @@ utils.copy = function(defaults, source) {
 // log
 utils.log = function(message, force) {
     if (debugMode || force)
-        console.log('%cPEN DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+        console.log('%cPEN DEBUGGER: %c' + message,
+            'font-family:arial,sans-serif;color:#1abf89;line-height:2em;',
+            'font-family:cursor,monospace;color:#333;');
 };
 
 utils.delayExec = function(fn) {
