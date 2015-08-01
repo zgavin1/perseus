@@ -208,7 +208,7 @@ function initEvents(ctx) {
         // Hide menu when focusing outside of editor
         outsideClick = function(e) {
             if (ctx._menu && !containsNode(editor, e.target) && !containsNode(ctx._menu, e.target)) {
-                removeListener(ctx, doc, 'click', outsideClick);
+                // removeListener(ctx, doc, 'click', outsideClick);
                 toggleMenu(100);
             }
         };
@@ -308,7 +308,7 @@ function initEvents(ctx) {
     // listen for placeholder
     addListener(ctx, editor, 'focus', function() {
         if (ctx.isEmpty()) lineBreak(ctx, true);
-        addListener(ctx, doc, 'click', outsideClick);
+        // addListener(ctx, doc, 'click', outsideClick);
     });
 
     addListener(ctx, editor, 'blur', function() {
