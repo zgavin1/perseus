@@ -48,7 +48,8 @@ var WidgetContainer = React.createClass({
         var getWidgetDecorator = this.props.getWidgetDecorator;
 
         var widgetDecorator = getWidgetDecorator &&
-            getWidgetDecorator(this.props.id, this.props.widgetInfo, this.state.widgetProps);
+            getWidgetDecorator(this.props.id, this.props.widgetInfo,
+                this.state.widgetProps);
 
         return <div>
             {widgetDecorator}

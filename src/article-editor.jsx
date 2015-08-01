@@ -7,7 +7,6 @@ var Editor = require("./editor.jsx");
 var EnabledFeatures = require("./enabled-features.jsx");
 var FloatingWidgetEditor = require("./editor/floating-widget-editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
-var Renderer = require("./renderer.jsx");
 var SectionControlButton = require("./components/section-control-button.jsx");
 
 var rendererProps = React.PropTypes.shape({
@@ -44,7 +43,7 @@ var ArticleEditor = React.createClass({
     getInitialState: function() {
         return {
             mode: "edit",
-            visibleEditors: {}
+            visibleWidgetEditors: {},
         };
     },
 
@@ -106,18 +105,17 @@ var ArticleEditor = React.createClass({
                     widgetInfo={widgetInfo}
                     id={id}
                     onToggleEditor={this._handleToggleEditor}
-                    onChange={_.partial(this._handleEditorChange, i)} />
+                    onChange={_.partial(this._handleEditorChange, i)} />;
 
     },
 
     _handleToggleEditor: function (id, widgetInfo, top, left) {
-        var visibleEditors = {};
-        if (!(id in this.state.visibleEditors)) {
-            visibleEditors[id] = [top, left];
+        var visibleWidgetEditors = {};
+        if (!(id in this.state.visibleWidgetEditors)) {
+            visibleWidgetEditors[id] = [top, left];
         }
-        this.setState({
-            visibleEditors: visibleEditors
-        });
+
+        this.setState({ visibleWidgetEditors });
     },
 
     _getApiOptions: function () {
@@ -188,7 +186,9 @@ var ArticleEditor = React.createClass({
                                     _.partial(this._handleEditorChange, i)
                                 }
                                 apiOptions={apiOptions}
-                                visibleEditors={this.state.visibleEditors}
+                                visibleWidgetEditors={
+                                    this.state.visibleWidgetEditors
+                                }
                                 enabledFeatures={this.props.enabledFeatures} />
                         </div>
 
