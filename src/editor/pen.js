@@ -876,7 +876,16 @@ converter.action = function(pen, cmd) {
     if (pen.selection.focusOffset > cmd[1]) return;
 
     var node = pen.selection.focusNode;
-    node.textContent = node.textContent.slice(cmd[1]);
+    var newContent = node.textContent.slice(cmd[1]);
+
+    if (newContent === "") {
+        var newNode = document.createElement("br");
+        node.textContent = "";
+        node.parentElement.appendChild(newNode);
+        node = newNode;
+    } else {
+        node.textContent = node.textContent.slice(cmd[1]);
+    }
     pen.execCommand(cmd[0]);
 };
 
