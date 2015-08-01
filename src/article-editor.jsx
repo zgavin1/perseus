@@ -55,7 +55,7 @@ var ArticleEditor = React.createClass({
             editor: $(".perseus-article")[0],
             debug: true,
             stay: false,
-        }
+        };
         window.pen = new Pen(options);
     },
 
@@ -197,6 +197,7 @@ var ArticleEditor = React.createClass({
                                 onChange={
                                     _.partial(this._handleEditorChange, i)
                                 }
+                                onNewWidget={this._handleNewWidget}
                                 apiOptions={apiOptions}
                                 visibleWidgetEditors={
                                     this.state.visibleWidgetEditors
@@ -262,6 +263,14 @@ var ArticleEditor = React.createClass({
         var sections = _.clone(this._sections());
         sections[i] = _.extend({}, sections[i], newProps);
         this.props.onChange({json: sections});
+    },
+
+    _handleNewWidget: function (id, widgetInfo) {
+        requestAnimationFrame(() => {
+            var offset = $("#editor-button-" + id.replace(" ", "-")).offset();
+            this._handleToggleEditor(id, widgetInfo, offset.top - 10,
+                offset.left);
+        });
     },
 
     _handleMoveSectionEarlier: function(i) {

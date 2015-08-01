@@ -13,7 +13,7 @@ var FloatingWidgetEditor = React.createClass({
     },
 
     render: function() {
-        return <div>
+        return <div id={"editor-button-" + this.props.id.replace(" ", "-")}>
             <SectionControlButton
                 icon="icon-edit"
                 onClick={this._toggleEditor} />
@@ -25,8 +25,9 @@ var FloatingWidgetEditor = React.createClass({
 
     _toggleEditor: function(e) {
         if (this.props.onToggleEditor) {
+        	var offset = $(e.currentTarget).offset();
             this.props.onToggleEditor(this.props.id, this.props.widgetInfo,
-                e.clientY, e.clientX);
+                offset.top - 10, offset.left);
         }
     },
 

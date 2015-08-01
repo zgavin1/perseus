@@ -140,21 +140,35 @@ var Editor = React.createClass({
         };
     },
 
-    getWidgetEditor: function(id, type, isVisible) {
+    getWidgetEditor: function(id, type, position) {
         if (!Widgets.getEditor(type)) {
             return;
         }
 
-        return <WidgetEditor
+        var editor = <WidgetEditor
             ref={id}
             id={id}
             type={type}
             onChange={this._handleWidgetEditorChange.bind(this, id)}
             onRemove={this._handleWidgetEditorRemove.bind(this, id)}
             apiOptions={this.props.apiOptions}
-            {...this.props.widgets[id]}
+            {...this.props.widgets[id]} />;
 
-            isVisible={isVisible} />;
+        if (position) {
+            var style = {
+                position: "absolute",
+                top: position[0],
+                left: 0,
+                width: 360,
+                backgroundColor: "white",
+                zIndex: 100
+            };
+            return <div style={style}>
+                {editor}
+            </div>;
+        } else {
+            return editor;
+        }
     },
 
     _handleWidgetEditorChange: function(id, newProps, cb, silent) {
@@ -257,12 +271,17 @@ var Editor = React.createClass({
                     //     selectedWidget = id;
                     // }
 
-                    var isVisible = this.props.visibleWidgetEditors &&
-                        id in this.props.visibleWidgetEditors;
+                    var visibleWidgetEditors = this.props.visibleWidgetEditors;
+                    var position = visibleWidgetEditors &&
+                        visibleWidgetEditors[id];
+
+                    if (visibleWidgetEditors && !position) {
+                        continue;
+                    }
 
                     var duplicate = id in widgets;
 
-                    widgets[id] = this.getWidgetEditor(id, type, isVisible);
+                    widgets[id] = this.getWidgetEditor(id, type, position);
                     var classes = (duplicate || !widgets[id] ? "error " : "") +
                             (selected ? "selected " : "");
                     var key = duplicate ? i : id;
@@ -576,6 +595,10 @@ var Editor = React.createClass({
                 newContent.length - postlude.length
             );
         });
+
+        if (this.props.onNewWidget) {
+            this.props.onNewWidget(id, newWidgets[id]);
+        }
     },
 
     _addWidget: function(widgetType) {
