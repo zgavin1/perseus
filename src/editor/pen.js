@@ -221,7 +221,7 @@ function initEvents(ctx) {
     addListener(ctx, editor, 'keyup', function(e) {
         if (e.which === 8 && ctx.isEmpty()) return lineBreak(ctx, true);
         // toggle toolbar on key select
-        if (e.which !== 13 || e.shiftKey) return updateStatus(400);
+        if (e.which !== 13 || e.shiftKey) return updateStatus(100);
         var node = getNode(ctx, true);
         if (!node || !node.nextSibling || !lineBreakReg.test(node.nodeName)) return;
         if (node.nodeName !== node.nextSibling.nodeName) return;
