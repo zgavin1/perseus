@@ -3,6 +3,7 @@ require("./all-widgets.js");
 var version = require("./version.json");
 
 module.exports = {
+    ExerciseEditor:     require("./exercise-editor.jsx"),
     apiVersion:         version.apiVersion,
     itemDataVersion:    version.itemDataVersion,
     itemVersion:        require("./item-version"),
