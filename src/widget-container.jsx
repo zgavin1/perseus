@@ -52,6 +52,7 @@ var WidgetContainer = React.createClass({
         return <div>
             {showFloatingWidgetEditor &&
                 <FloatingWidgetEditor
+                    apiOptions={this.props.apiOptions}
                     widgetInfo={this.props.widgetInfo}
                     id={this.props.id}
                     onChange={this.props.editorOnChange} />
