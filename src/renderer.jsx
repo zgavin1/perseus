@@ -2,6 +2,7 @@ var React = require('react');
 var _ = require("underscore");
 var classNames = require("classnames");
 
+var JiptParagraphs = require("./jipt-paragraphs.jsx");
 var PerseusMarkdown = require("./perseus-markdown.jsx");
 var QuestionParagraph = require("./question-paragraph.jsx");
 var SvgImage = require("./components/svg-image.jsx");
@@ -44,7 +45,9 @@ if (typeof KA !== "undefined" && KA.language === "en-pt") {
     // We add a function that will get called whenever jipt says the dom needs
     // to be updated
     KA.jipt_dom_insert_checks.push(function(text, node, attribute) {
-        var index = $(node).data("perseus-component-index");
+        var $node = $(node);
+        var index = $node.data("perseus-component-index");
+        var paragraphIndex = $node.data("perseus-paragraph-index");
         // We only update if we had added an index onto the node's data.
         if (node && typeof index !== "undefined") {
             var component = window.PerseusTranslationComponents[index];
@@ -58,13 +61,10 @@ if (typeof KA !== "undefined" && KA.language === "en-pt") {
             // unescape \\t to \t among other characters here
             text = text.replace(
                 rEscapedChars,
-                function(ch) {
-                    return specialChars[ch];
-                });
+                (ch) => specialChars[ch]
+            );
 
-            component.setState({
-                jiptContent: text
-            });
+            component.replaceJiptcontent(text, paragraphIndex);
 
             // Return false to tell jipt not to insert anything into the DOM
             // itself, otherwise it will mess up what React expects there to be
@@ -492,6 +492,24 @@ var Renderer = React.createClass({
                     props.content.indexOf('crwdns') !== -1;
     },
 
+    replaceJiptContent: function(content, paragraphIndex) {
+        if (paragraphIndex == null) {
+            // we're not translating paragraph-wise; replace the whole content
+            this.setState({
+                jiptContent: content,
+            });
+        } else {
+            // Split the paragraphs; we have to use getContent() in case
+            // nothing has been translated yet (in which case we just have
+            // this.props.content)
+            var paragraphs = JiptParagraphs.parse(this.getContent());
+            paragraphs[paragraphIndex] = content;
+            this.setState({
+                jiptContent: paragraphs.join("\n\n"),
+            });
+        }
+    },
+
     render: function() {
         if (this.reuseMarkdown) {
             return this.lastRenderedMarkdown;
@@ -522,16 +540,40 @@ var Renderer = React.createClass({
                 this.translationIndex =
                     window.PerseusTranslationComponents.push(this) - 1;
             }
+
             // We now need to output this tag, as jipt looks for it to be
             // able to replace it with a translation that it runs an ajax
             // call to get.  We add a data attribute with the index to the
             // Persues.TranslationComponent registry so that when jipt
             // calls its before_dom_insert we can lookup this component by
             // this attribute and render the text with markdown.
-            return <div
-                    data-perseus-component-index={this.translationIndex}>
-                {content}
-            </div>;
+            if (!this.props.apiOptions.isArticle) {
+                // Exercise content gets translated as a whole
+                return <div
+                        data-perseus-component-index={this.translationIndex}>
+                    {content}
+                </div>;
+            } else {
+                // Article content gets translated paragraph by paragraph
+                var paragraphs = JiptParagraphs.parse(content);
+                return <div>
+                    {paragraphs.map((paragraph, paragraphIndex) => {
+                        // We need both the translationIndex to look up
+                        // this perseus renderer when translating, but
+                        // also the paragraph index to tell this renderer
+                        // which paragraph was translated.
+                        return <div
+                                data-perseus-component-index={
+                                    this.translationIndex
+                                }
+                                data-perseus-paragraph-index={
+                                    paragraphIndex
+                                }>
+                            {paragraph}
+                        </div>;
+                    })}
+                </div>;
+            }
         }
 
         // Hacks:
