@@ -140,10 +140,11 @@ var Editor = React.createClass({
         };
     },
 
-    getWidgetEditor: function(id, type) {
+    getWidgetEditor: function(id, type, isVisible) {
         if (!Widgets.getEditor(type)) {
             return;
         }
+
         return <WidgetEditor
             ref={id}
             id={id}
@@ -151,7 +152,9 @@ var Editor = React.createClass({
             onChange={this._handleWidgetEditorChange.bind(this, id)}
             onRemove={this._handleWidgetEditorRemove.bind(this, id)}
             apiOptions={this.props.apiOptions}
-            {...this.props.widgets[id]} />;
+            {...this.props.widgets[id]}
+
+            isVisible={isVisible} />;
     },
 
     _handleWidgetEditorChange: function(id, newProps, cb, silent) {
@@ -254,18 +257,18 @@ var Editor = React.createClass({
                     //     selectedWidget = id;
                     // }
 
-                    if (this.props.visibleWidgetEditors &&
-                        id in this.props.visibleWidgetEditors) {
-                        var duplicate = id in widgets;
+                    var isVisible = this.props.visibleWidgetEditors &&
+                        id in this.props.visibleWidgetEditors;
 
-                        widgets[id] = this.getWidgetEditor(id, type);
-                        var classes = (duplicate || !widgets[id] ? "error " : "") +
-                                (selected ? "selected " : "");
-                        var key = duplicate ? i : id;
-                        underlayPieces.push(
-                            <b className={classes} key={key}>{pieces[i]}</b>
-                        );
-                    }
+                    var duplicate = id in widgets;
+
+                    widgets[id] = this.getWidgetEditor(id, type, isVisible);
+                    var classes = (duplicate || !widgets[id] ? "error " : "") +
+                            (selected ? "selected " : "");
+                    var key = duplicate ? i : id;
+                    underlayPieces.push(
+                        <b className={classes} key={key}>{pieces[i]}</b>
+                    );
                 }
             }
 
