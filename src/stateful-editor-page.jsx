@@ -57,7 +57,7 @@ var StatefulEditorPage = React.createClass({
                     type: "change",
                     newState: newState
                 })
-            });
+            }, cb);
         }
     },
 
