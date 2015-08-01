@@ -2,6 +2,7 @@ var React = require('react');
 var _ = require("underscore");
 
 var EditorPage = require("./editor-page.jsx");
+var store = require("./editor/store.jsx");
 
 /* Renders an EditorPage (or an ArticleEditor) as a non-controlled component.
  *
@@ -23,36 +24,40 @@ var StatefulEditorPage = React.createClass({
     },
 
     render: function() {
-        return <this.props.componentClass {...this.state} />;
+        var editorProps = _.clone(this.props.editorComponentProps);
+        editorProps.onChange = this.handleChange;
+        editorProps.ref = "editor";
+        editorProps.json = this.state.appData.get("json").toJS();
+        return <this.props.componentClass {...editorProps} />;
     },
 
     getInitialState: function() {
-        return _({}).extend(_.omit(this.props, 'componentClass'), {
-            onChange: this.handleChange,
-            ref: "editor"
-        });
+        return {
+            appData: store(null, {
+                type: "initWithJson",
+                json: this.props.json
+            })
+        };
     },
 
-    // getInitialState isn't called if the react component is re-rendered
-    // in-place on the dom, in which case this is called instead, so we
-    // need to update the state here.
-    // (This component is currently re-rendered by the "Add image" button.)
-    componentWillReceiveProps: function(nextProps) {
-        // be careful not to overwrite our onChange and ref
-        this.setState(_(nextProps).omit("onChange", "ref"));
-    },
-
+    // TODO(kevindangoor) Save warnings should probably be a model layer
+    // thing to check the data.
     getSaveWarnings: function() {
         return this.refs.editor.getSaveWarnings();
     },
 
     serialize: function() {
-        return this.refs.editor.serialize();
+        return this.state.appData.get("json").toJS();
     },
 
     handleChange: function(newState, cb) {
         if (this.isMounted()) {
-            this.setState(newState, cb);
+            this.setState({
+                appData: store(this.state.appData, {
+                    type: "change",
+                    newState: newState
+                })
+            });
         }
     },
 

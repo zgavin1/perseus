@@ -151,30 +151,32 @@ Perseus.init({skipMathJax: false}).then(function() {
 
     var editorProps = {
         json: content,
-        developerMode: true,
-        imageUploader: function(image, callback) {
-            _.delay(callback, 1000, "http://fake.image.url");
+        componentClass: Perseus.ArticleEditor,
+        editorComponentProps: {
+            developerMode: true,
+            imageUploader: function(image, callback) {
+                _.delay(callback, 1000, "http://fake.image.url");
+            },
+            enabledFeatures: enabledFeatures,
+            apiOptions: {
+                enableOldAnswerTypes: true,
+                fancyDropdowns: true,
+                __onInputError: function() {
+                    var args = _.toArray(arguments);
+                    console.log.apply(console, ["onInputError:"].concat(args));
+                    return true;
+                },
+                __interceptInputFocus: function() {
+                    var args = _.toArray(arguments);
+                    console.log.apply(console, ["interceptInputFocus:"].concat(args));
+                    return;
+                },
+                onFocusChange: function(newPath, oldPath) {
+                    console.log("onFocusChange", newPath, oldPath);
+                },
+                __staticRender: true
+            },
         },
-        enabledFeatures: enabledFeatures,
-        apiOptions: {
-            enableOldAnswerTypes: true,
-            fancyDropdowns: true,
-            __onInputError: function() {
-                var args = _.toArray(arguments);
-                console.log.apply(console, ["onInputError:"].concat(args));
-                return true;
-            },
-            __interceptInputFocus: function() {
-                var args = _.toArray(arguments);
-                console.log.apply(console, ["interceptInputFocus:"].concat(args));
-                return;
-            },
-            onFocusChange: function(newPath, oldPath) {
-                console.log("onFocusChange", newPath, oldPath);
-            },
-            __staticRender: true
-        },
-        componentClass: Perseus.ArticleEditor
     };
 
     var StatefulEditorPage = React.createFactory(Perseus.StatefulEditorPage);
