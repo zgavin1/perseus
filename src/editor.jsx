@@ -140,11 +140,12 @@ var Editor = React.createClass({
         };
     },
 
-    getWidgetEditor: function(id, type) {
+    getWidgetEditor: function(id, type, position) {
         if (!Widgets.getEditor(type)) {
             return;
         }
-        return <WidgetEditor
+
+        var editor = <WidgetEditor
             ref={id}
             id={id}
             type={type}
@@ -152,6 +153,22 @@ var Editor = React.createClass({
             onRemove={this._handleWidgetEditorRemove.bind(this, id)}
             apiOptions={this.props.apiOptions}
             {...this.props.widgets[id]} />;
+
+        if (position) {
+            var style = {
+                position: "absolute",
+                top: position[0],
+                left: 0,
+                width: 360,
+                backgroundColor: "white",
+                zIndex: 100
+            };
+            return <div style={style}>
+                {editor}
+            </div>;
+        } else {
+            return editor;
+        }
     },
 
     _handleWidgetEditorChange: function(id, newProps, cb, silent) {
@@ -254,18 +271,23 @@ var Editor = React.createClass({
                     //     selectedWidget = id;
                     // }
 
-                    if (this.props.visibleWidgetEditors &&
-                        id in this.props.visibleWidgetEditors) {
-                        var duplicate = id in widgets;
+                    var visibleWidgetEditors = this.props.visibleWidgetEditors;
+                    var position = visibleWidgetEditors &&
+                        visibleWidgetEditors[id];
 
-                        widgets[id] = this.getWidgetEditor(id, type);
-                        var classes = (duplicate || !widgets[id] ? "error " : "") +
-                                (selected ? "selected " : "");
-                        var key = duplicate ? i : id;
-                        underlayPieces.push(
-                            <b className={classes} key={key}>{pieces[i]}</b>
-                        );
+                    if (visibleWidgetEditors && !position) {
+                        continue;
                     }
+
+                    var duplicate = id in widgets;
+
+                    widgets[id] = this.getWidgetEditor(id, type, position);
+                    var classes = (duplicate || !widgets[id] ? "error " : "") +
+                            (selected ? "selected " : "");
+                    var key = duplicate ? i : id;
+                    underlayPieces.push(
+                        <b className={classes} key={key}>{pieces[i]}</b>
+                    );
                 }
             }
 
@@ -573,6 +595,10 @@ var Editor = React.createClass({
                 newContent.length - postlude.length
             );
         });
+
+        if (this.props.onNewWidget) {
+            this.props.onNewWidget(id, newWidgets[id]);
+        }
     },
 
     _addWidget: function(widgetType) {
