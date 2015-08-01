@@ -19,8 +19,7 @@ var ArticleRenderer = React.createClass({
             React.PropTypes.arrayOf(rendererProps)
         ]).isRequired,
         enabledFeatures: React.PropTypes.object,
-
-        editorOnChange: React.PropTypes.func.isRequired,
+        getWidgetDecorator: React.PropTypes.func,
     },
 
     shouldComponentUpdate: function(nextProps, nextState) {
@@ -34,17 +33,13 @@ var ArticleRenderer = React.createClass({
                 {...section}
                 key={i}
                 apiOptions={this.props.apiOptions}
-                editorOnChange={this._handleEditorChange}
+                getWidgetDecorator={this.props.getWidgetDecorator}
                 enabledFeatures={this.props.enabledFeatures} />;
         });
 
         return <div className="framework-perseus perseus-article">
             {sections}
         </div>;
-    },
-
-    _handleEditorChange: function(newProps) {
-        this.props.editorOnChange(newProps);
     },
 
     _sections: function() {

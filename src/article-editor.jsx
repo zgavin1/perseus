@@ -5,8 +5,8 @@ var ApiOptions = require("./perseus-api.jsx").Options;
 var ArticleRenderer = require("./article-renderer.jsx");
 var Editor = require("./editor.jsx");
 var EnabledFeatures = require("./enabled-features.jsx");
+var FloatingWidgetEditor = require("./editor/floating-widget-editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
-var Renderer = require("./renderer.jsx");
 var SectionControlButton = require("./components/section-control-button.jsx");
 
 var rendererProps = React.PropTypes.shape({
@@ -42,7 +42,8 @@ var ArticleEditor = React.createClass({
 
     getInitialState: function() {
         return {
-            mode: "edit"
+            mode: "edit",
+            visibleWidgetEditors: {},
         };
     },
 
@@ -98,17 +99,39 @@ var ArticleEditor = React.createClass({
         </div>;
     },
 
-    _renderSections: function() {
-        var apiOptions = _.extend(
+    _getWidgetDecorator: function (i, id, widgetInfo, widgetProps) {
+        return  <FloatingWidgetEditor
+                    apiOptions={this._getApiOptions()}
+                    widgetInfo={widgetInfo}
+                    id={id}
+                    onToggleEditor={this._handleToggleEditor}
+                    onChange={_.partial(this._handleEditorChange, i)} />;
+
+    },
+
+    _handleToggleEditor: function (id, widgetInfo, top, left) {
+        var visibleWidgetEditors = {};
+        if (!(id in this.state.visibleWidgetEditors)) {
+            visibleWidgetEditors[id] = [top, left];
+        }
+
+        this.setState({ visibleWidgetEditors });
+    },
+
+    _getApiOptions: function () {
+        return _.extend(
             {},
             ApiOptions.defaults,
             this.props.apiOptions,
             {
                 // Alignment options are always available in article editors
                 showAlignmentOptions: true,
-                showFloatingWidgetEditor: true,
             }
         );
+    },
+
+    _renderSections: function() {
+        var apiOptions = this._getApiOptions();
 
         var sections = this._sections();
 
@@ -163,6 +186,9 @@ var ArticleEditor = React.createClass({
                                     _.partial(this._handleEditorChange, i)
                                 }
                                 apiOptions={apiOptions}
+                                visibleWidgetEditors={
+                                    this.state.visibleWidgetEditors
+                                }
                                 enabledFeatures={this.props.enabledFeatures} />
                         </div>
 
@@ -171,8 +197,8 @@ var ArticleEditor = React.createClass({
                                 json={section}
                                 ref={"renderer" + i}
                                 apiOptions={apiOptions}
-                                editorOnChange={
-                                    _.partial(this._handleEditorChange, i)
+                                getWidgetDecorator={
+                                    _.partial(this._getWidgetDecorator, i)
                                 }
                                 enabledFeatures={
                                     this.props.enabledFeatures

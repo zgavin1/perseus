@@ -123,6 +123,7 @@ var Editor = React.createClass({
     propTypes: {
         imageUploader: React.PropTypes.func,
         apiOptions: ApiOptions.propTypes,
+        visibleWidgetEditors: React.PropTypes.object
     },
 
     getDefaultProps: function() {
@@ -253,14 +254,18 @@ var Editor = React.createClass({
                     //     selectedWidget = id;
                     // }
 
-                    var duplicate = id in widgets;
+                    if (this.props.visibleWidgetEditors &&
+                        id in this.props.visibleWidgetEditors) {
+                        var duplicate = id in widgets;
 
-                    widgets[id] = this.getWidgetEditor(id, type);
-                    var classes = (duplicate || !widgets[id] ? "error " : "") +
-                            (selected ? "selected " : "");
-                    var key = duplicate ? i : id;
-                    underlayPieces.push(
-                            <b className={classes} key={key}>{pieces[i]}</b>);
+                        widgets[id] = this.getWidgetEditor(id, type);
+                        var classes = (duplicate || !widgets[id] ? "error " : "") +
+                                (selected ? "selected " : "");
+                        var key = duplicate ? i : id;
+                        underlayPieces.push(
+                            <b className={classes} key={key}>{pieces[i]}</b>
+                        );
+                    }
                 }
             }
 
