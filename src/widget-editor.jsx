@@ -18,6 +18,7 @@ var WidgetEditor = React.createClass({
         onChange: React.PropTypes.func.isRequired,
         onRemove: React.PropTypes.func.isRequired,
         apiOptions: ApiOptions.propTypes,
+
         isVisible: React.PropTypes.bool,
 
         // Serialized props
@@ -70,7 +71,8 @@ var WidgetEditor = React.createClass({
                                 graded={widgetInfo.graded}
                                 onChange={this.props.onChange} />;
 
-        var style = { display: this.props.isVisible ? "inherit" : "none" };
+        // var style = { display: this.props.isVisible ? "inherit" : "none" };
+        var style = {};
 
         return <div className="perseus-widget-editor" style={style}>
             <div className={"perseus-widget-editor-title " +
