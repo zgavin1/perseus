@@ -237,7 +237,9 @@ var ArticleEditor = React.createClass({
     _changeMode: function(e) {
         var newMode = e.target.value;
         this.props.onChange({
-            json: this.serialize()
+            // TODO(kevindangoor) Whatever the line below was here for will
+            // need to be replicated
+            // json: this.serialize()
         }, () => {
             this.setState({mode: newMode});
         });
