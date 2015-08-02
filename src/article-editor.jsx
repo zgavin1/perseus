@@ -57,7 +57,7 @@ var ArticleEditor = React.createClass({
         React.findDOMNode(this.refs.editorSpot).innerHTML =
             PerseusMarkdown.basicOutput(parsedMarkdown);
         var options = {
-            editor: this.refs.editorSpot,
+            editor: React.findDOMNode(this.refs.editorSpot),
             debug: true,
             stay: false,
         };
