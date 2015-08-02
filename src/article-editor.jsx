@@ -52,8 +52,16 @@ var ArticleEditor = React.createClass({
         };
     },
 
+    getSectionInfo: function () {
+        var info = this.props.json;
+        if (_.isArray(info)) {
+            return info[0];
+        }
+    },
+
     componentDidMount: function() {
-        var parsedMarkdown = PerseusMarkdown.parse(this.props.json.content);
+        // TODO(kevindangoor) Yep, this doesn't do sections correctly.
+        var parsedMarkdown = PerseusMarkdown.parse(this.getSectionInfo().content);
         React.findDOMNode(this.refs.editorSpot).innerHTML =
             PerseusMarkdown.basicOutput(parsedMarkdown);
         var options = {
@@ -62,6 +70,33 @@ var ArticleEditor = React.createClass({
             stay: false,
         };
         window.pen = new Pen(options);
+        this.displayWidgets();
+    },
+
+    displayWidgets: function () {
+        $(".widget").each((i, widgetDiv) => {
+            var widgetId = widgetDiv.dataset.widgetId;
+            // TODO(kevindangoor) This doesn't take sections into account
+            var widgetInfo = this.getSectionInfo().widgets[widgetId];
+            var type = widgetId.split(" ")[0];
+            React.render(<WidgetContainer
+                    enabledFeatures={this.props.enabledFeatures}
+                    apiOptions={this.props.apiOptions}
+
+                    // Floating widget editor props
+                    widgetInfo={widgetInfo}
+                    id={widgetId}
+                    getWidgetDecorator={_.partial(this._getWidgetDecorator, 0)}
+
+                    type={type}
+                    shouldHighlight={false}
+                    initialProps={this.getWidgetProps(widgetId, widgetInfo.options, widgetInfo.alignment)} />,
+                    widgetDiv);
+        });
+    },
+
+    componentDidUpdate: function () {
+        this.displayWidgets();
     },
 
     render: function() {
@@ -147,7 +182,7 @@ var ArticleEditor = React.createClass({
         );
     },
 
-    getWidgetProps: function(id, widgetProps) {
+    getWidgetProps: function(id, widgetProps, alignment) {
         // var widgetProps = this.state.widgetProps[id] || {};
 
         // The widget needs access to its "rubric" at all times when in review
@@ -156,12 +191,10 @@ var ArticleEditor = React.createClass({
         // if (this.props.reviewMode && this.state.widgetInfo[id]) {
         //     reviewModeRubric = this.state.widgetInfo[id].options;
         // }
-
         return _.extend({}, widgetProps, {
             ref: id,
             widgetId: id,
-            alignment: this.state.widgetInfo[id] &&
-                       this.state.widgetInfo[id].alignment,
+            alignment: alignment,
             // problemNum: this.props.problemNum,
             enabledFeatures: this.props.enabledFeatures,
             apiOptions: this._getApiOptions(),
@@ -172,7 +205,7 @@ var ArticleEditor = React.createClass({
             // reviewModeRubric: reviewModeRubric,
             onChange: (newProps, cb) => {
                 this._setWidgetProps(id, newProps, cb);
-            }
+            },
         });
     },
 
@@ -180,27 +213,6 @@ var ArticleEditor = React.createClass({
         var apiOptions = this._getApiOptions();
 
         var sections = this._sections();
-
-        $(".widget").each(function (i, widgetDiv) {
-            var widgetId = widgetDiv.dataset.widgetId;
-            // TODO(kevindangoor) This doesn't take sections into account
-            var widgetInfo = this.props.json.widgets[widgetId];
-            var type = widgetId.split(" ")[0];
-            React.render(<WidgetContainer
-                    ref={"container:" + widgetId}
-                    key={"container:" + widgetId}
-                    enabledFeatures={this.props.enabledFeatures}
-                    apiOptions={this.props.apiOptions}
-
-                    // Floating widget editor props
-                    widgetInfo={widgetInfo}
-                    id={widgetId}
-                    getWidgetDecorator={_.partial(this._getWidgetDecorator, 0)}
-
-                    type={type}
-                    initialProps={this.getWidgetProps(id, widgetInfo.options)} />,
-                    widgetDiv);
-        });
 
         return <div className="perseus-editor-table">
             {sections.map((section, i) => {
@@ -307,7 +319,10 @@ var ArticleEditor = React.createClass({
     _handleEditorChange: function(i, newProps) {
         var sections = _.clone(this._sections());
         sections[i] = _.extend({}, sections[i], newProps);
-        this.props.onChange({json: sections});
+        this.props.onChange({json: sections},
+            () => {
+                this.displayWidgets();
+            });
     },
 
     _handleNewWidget: function (id, widgetInfo) {
