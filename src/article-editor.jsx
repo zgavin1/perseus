@@ -223,7 +223,7 @@ var ArticleEditor = React.createClass({
                 return [
                     <div className="perseus-editor-row">
                         <div className="perseus-editor-left-cell">
-                            <div className="pod-title">
+                            <div className="pod-title" style={{display:"none"}}>
                                 Section {i+1}
                                 <div style={{
                                     display: "inline-block",
