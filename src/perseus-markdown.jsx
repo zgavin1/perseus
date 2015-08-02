@@ -87,6 +87,20 @@ var mathMatch = (source) => {
     return null;
 };
 
+var parseInline = function(parse, content, state) {
+    var isCurrentlyInline = state.inline || false;
+    state.inline = true;
+    var result = parse(content, state);
+    state.inline = isCurrentlyInline;
+    return result;
+};
+
+var parseCaptureInline = function(capture, parse, state) {
+    return {
+        content: parseInline(parse, capture[1], state)
+    };
+};
+
 var TITLED_TABLE_REGEX = new RegExp(
     "^\\|\\| +(.*) +\\|\\| *\\n" +
     "(" +
@@ -185,6 +199,26 @@ var rules = _.extend({}, SimpleMarkdown.defaultRules, {
         },
         html: (node, output, state) => {
             return `<div class="widget" data-widget-id="${node.id}"></div>`;
+        }
+    },
+    paragraph: {
+        match: SimpleMarkdown.blockRegex(
+            /^((?:[^\n]|\n(?! *\n))+)(?:\n *)+\n/),
+        parse: parseCaptureInline,
+        react: function(node, output, state) {
+            return reactElement({
+                type: 'div',
+                key: state.key,
+                props: {
+                    className: 'paragraph',
+                    children: output(node.content, state)
+                },
+                _isReactElement: true,
+                _store: null,
+            });
+        },
+        html: function(node, output, state) {
+            return `<p>${output(node.content, state)}</p>`;
         }
     },
     math: {
