@@ -552,7 +552,8 @@ var Renderer = React.createClass({
         this._isTwoColumn = false;
 
         var parsedMardown = PerseusMarkdown.parse(content);
-        var markdownContents = this.outputMarkdown(parsedMardown);
+        // var markdownContents = this.outputMarkdown(parsedMardown);
+        var markdownContents = PerseusMarkdown.basicOutput(parsedMardown);
 
         var className = this._isTwoColumn ?
             ApiClassNames.RENDERER + " " + ApiClassNames.TWO_COLUMN_RENDERER :

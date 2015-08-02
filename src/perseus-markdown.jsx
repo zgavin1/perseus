@@ -182,6 +182,11 @@ var rules = _.extend({}, SimpleMarkdown.defaultRules, {
             return <em key={state.key}>
                 [Widget: {node.id}]
             </em>;
+        },
+        html: (node, output, state) => {
+            var dashedWidgetId = node.id.replace(" ", "-");
+            return `<div class="widget" ` +
+                `data-widget-id="widget-${node.id}"></div>`;
         }
     },
     math: {
@@ -343,14 +348,14 @@ module.exports = {
     parse: parse,
     parseInline: inlineParser,
     reactFor: SimpleMarkdown.reactFor,
-    ruleOutput: SimpleMarkdown.ruleOutput(rules, "react"),
-    basicOutput: SimpleMarkdown.reactFor(
-        SimpleMarkdown.ruleOutput(rules, "react")
-    ),
-    // ruleOutput: SimpleMarkdown.ruleOutput(rules, "html"),
-    // basicOutput: SimpleMarkdown.htmlFor(
-    //     SimpleMarkdown.ruleOutput(rules, "html")
+    // ruleOutput: SimpleMarkdown.ruleOutput(rules, "react"),
+    // basicOutput: SimpleMarkdown.reactFor(
+    //     SimpleMarkdown.ruleOutput(rules, "react")
     // ),
+    ruleOutput: SimpleMarkdown.ruleOutput(rules, "html"),
+    basicOutput: SimpleMarkdown.htmlFor(
+        SimpleMarkdown.ruleOutput(rules, "html")
+    ),
     sanitizeUrl: SimpleMarkdown.sanitizeUrl,
 };
 
