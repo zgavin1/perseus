@@ -86,7 +86,7 @@ utils.merge = function(config) {
         textarea: '<textarea name="content"></textarea>',
         list: [
             'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
-            'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink', 'insertimage'
+            'indent', 'outdent', 'bold', 'underline', 'createlink'
         ],
         cleanAttrs: ['id', 'class', 'style', 'name'],
         cleanTags: ['script']
