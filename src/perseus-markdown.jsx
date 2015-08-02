@@ -347,6 +347,10 @@ module.exports = {
     basicOutput: SimpleMarkdown.reactFor(
         SimpleMarkdown.ruleOutput(rules, "react")
     ),
+    // ruleOutput: SimpleMarkdown.ruleOutput(rules, "html"),
+    // basicOutput: SimpleMarkdown.htmlFor(
+    //     SimpleMarkdown.ruleOutput(rules, "html")
+    // ),
     sanitizeUrl: SimpleMarkdown.sanitizeUrl,
 };
 
