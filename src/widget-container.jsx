@@ -47,13 +47,15 @@ var WidgetContainer = React.createClass({
 
         var getWidgetDecorator = this.props.getWidgetDecorator;
 
+        var widgetProps = this.props.renderProps || this.state.widgetProps;
+
         var widgetDecorator = getWidgetDecorator &&
             getWidgetDecorator(this.props.id, this.props.widgetInfo,
-                this.state.widgetProps);
+                widgetProps);
 
         return <div contentEditable={false}>
             {widgetDecorator}
-            <WidgetType {...this.state.widgetProps} ref="widget" />
+            <WidgetType {...widgetProps} ref="widget" />
         </div>;
     },
 
@@ -70,7 +72,8 @@ var WidgetContainer = React.createClass({
         return (
             this.props.shouldHighlight !== nextProps.shouldHighlight ||
             this.props.type !== nextProps.type ||
-            this.state.widgetProps !== nextState.widgetProps
+            this.state.widgetProps !== nextState.widgetProps ||
+            this.props.renderProps !== nextProps.renderProps
         );
     },
 

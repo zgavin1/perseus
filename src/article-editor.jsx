@@ -79,7 +79,9 @@ var ArticleEditor = React.createClass({
             // TODO(kevindangoor) This doesn't take sections into account
             var widgetInfo = this.getSectionInfo().widgets[widgetId];
             var type = widgetId.split(" ")[0];
-            React.render(<WidgetContainer
+            var widgetProps = this.getWidgetProps(widgetId,
+                    widgetInfo.options, widgetInfo.alignment);
+            var wc = <WidgetContainer
                     enabledFeatures={this.props.enabledFeatures}
                     apiOptions={this.props.apiOptions}
 
@@ -90,7 +92,9 @@ var ArticleEditor = React.createClass({
 
                     type={type}
                     shouldHighlight={false}
-                    initialProps={this.getWidgetProps(widgetId, widgetInfo.options, widgetInfo.alignment)} />,
+                    initialProps={widgetProps}
+                    renderProps={widgetProps} />;
+            React.render(wc,
                     widgetDiv);
         });
     },
@@ -259,6 +263,7 @@ var ArticleEditor = React.createClass({
                             <Editor
                                 {...section}
                                 ref={"editor" + i}
+                                hideEditor={true}
                                 placeholder="Type your section text here..."
                                 imageUploader={this.props.imageUploader}
                                 onChange={
@@ -321,7 +326,7 @@ var ArticleEditor = React.createClass({
         sections[i] = _.extend({}, sections[i], newProps);
         this.props.onChange({json: sections},
             () => {
-                this.displayWidgets();
+                // this.displayWidgets();
             });
     },
 

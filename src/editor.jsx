@@ -353,14 +353,21 @@ var Editor = React.createClass({
                           value={this.props.content} />
             ];
         var textareaWrapper;
+        var textareaStyle = {};
+        if (this.props.hideEditor) {
+            textareaStyle.display = "none";
+        }
         if (this.props.imageUploader) {
             textareaWrapper = <DragTarget
                     onDrop={this.handleDrop}
-                    className="perseus-textarea-pair">
+                    className="perseus-textarea-pair"
+                    style={textareaStyle}>
                 {completeTextarea}
             </DragTarget>;
         } else {
-            textareaWrapper = <div className="perseus-textarea-pair">
+            textareaWrapper = <div
+                className="perseus-textarea-pair"
+                style={textareaStyle}>
                 {completeTextarea}
             </div>;
         }
