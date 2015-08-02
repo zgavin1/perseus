@@ -87,6 +87,7 @@ var mathMatch = (source) => {
     return null;
 };
 
+// TODO(sam): Hacks to let paragraph rule work
 var parseInline = function(parse, content, state) {
     var isCurrentlyInline = state.inline || false;
     state.inline = true;
@@ -100,6 +101,15 @@ var parseCaptureInline = function(capture, parse, state) {
         content: parseInline(parse, capture[1], state)
     };
 };
+
+var reactElement = function(element) {
+    element._store = {
+        validated: true,
+        originalProps: element.props
+    };
+    return element;
+};
+// End hacks
 
 var TITLED_TABLE_REGEX = new RegExp(
     "^\\|\\| +(.*) +\\|\\| *\\n" +
@@ -384,7 +394,7 @@ module.exports = {
     // basicOutput: SimpleMarkdown.reactFor(
     //     SimpleMarkdown.ruleOutput(rules, "react")
     // ),
-    ruleOutput: SimpleMarkdown.ruleOutput(rules, "html"),
+    ruleOutput: SimpleMarkdown.ruleOutput(rules, "react"),
     basicOutput: SimpleMarkdown.htmlFor(
         SimpleMarkdown.ruleOutput(rules, "html")
     ),

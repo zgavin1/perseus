@@ -17,9 +17,6 @@ var FloatingWidgetEditor = React.createClass({
             <SectionControlButton
                 icon="icon-edit"
                 onClick={this._toggleEditor} />
-            <SectionControlButton
-                icon="icon-trash"
-                onClick={this._handleWidgetRemove} />
         </div>;
     },
 

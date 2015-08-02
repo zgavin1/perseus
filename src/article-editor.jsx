@@ -73,7 +73,7 @@ var ArticleEditor = React.createClass({
         this.displayWidgets();
     },
 
-    displayWidgets: function () {
+    displayWidgets: function() {
         $(".widget").each((i, widgetDiv) => {
             var widgetId = widgetDiv.dataset.widgetId;
             // TODO(kevindangoor) This doesn't take sections into account
@@ -99,7 +99,13 @@ var ArticleEditor = React.createClass({
         });
     },
 
-    componentDidUpdate: function () {
+    componentDidUpdate: function(prevProps) {
+        // TODO(sam): This wipes out all previous edits, so we can only add
+        // widgets in the very beginning (before making text edits)
+        var parsedMarkdown = PerseusMarkdown.parse(
+            this.getSectionInfo().content);
+        React.findDOMNode(this.refs.editorSpot).innerHTML =
+            PerseusMarkdown.basicOutput(parsedMarkdown);
         this.displayWidgets();
     },
 
@@ -286,19 +292,7 @@ var ArticleEditor = React.createClass({
     },
 
     _renderAddSection: function() {
-        return <div className="perseus-editor-row">
-            <div className="perseus-editor-left-cell">
-                <a href="#" className="simple-button orange"
-                        onClick={() => {
-                            this._handleAddSectionAfter(
-                                this._sections().length - 1
-                            );
-                        }}>
-                    <span className="icon-plus" /> Add a section
-                </a>
-            </div>
-            <div className="perseus-editor-right-cell" />
-        </div>;
+        return;
     },
 
     _renderPreviewMode: function() {

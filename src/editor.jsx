@@ -322,7 +322,7 @@ var Editor = React.createClass({
                 widgetsAndTemplates = <div className="perseus-editor-widgets">
                     <div className="perseus-editor-widgets-selectors">
                         {widgetsDropDown}
-                        {templatesDropDown}
+                        {/* templatesDropDown */}
                         {wordCountDisplay}
                     </div>
                     {React.addons.createFragment(widgets)}
@@ -594,13 +594,6 @@ var Editor = React.createClass({
         this.props.onChange({
             content: newContent,
             widgets: newWidgets,
-        }, function() {
-            Util.textarea.moveCursor(
-                textarea,
-                // We want to put the cursor after the widget
-                // and after any added newlines
-                newContent.length - postlude.length
-            );
         });
 
         if (this.props.onNewWidget) {
@@ -612,7 +605,8 @@ var Editor = React.createClass({
         var textarea = this.refs.textarea.getDOMNode();
         this._addWidgetToContent(
             this.props.content,
-            [textarea.selectionStart, textarea.selectionEnd],
+            // [textarea.selectionStart, textarea.selectionEnd],
+            [textarea.value.length, textarea.value.length],
             widgetType
         );
         textarea.focus();
