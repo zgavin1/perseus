@@ -184,9 +184,7 @@ var rules = _.extend({}, SimpleMarkdown.defaultRules, {
             </em>;
         },
         html: (node, output, state) => {
-            var dashedWidgetId = node.id.replace(/ /g, "-");
-            return `<div class="widget" ` +
-                `data-widget-id="widget-${node.id}"></div>`;
+            return `<div class="widget" data-widget-id="${node.id}"></div>`;
         }
     },
     math: {
