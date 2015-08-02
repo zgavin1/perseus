@@ -604,9 +604,9 @@ Pen.prototype.execCommand = function(name, value) {
         utils.log('can not find command function for name: ' + name + (value ? (', value: ' + value) : ''), true);
     }
     if (name === 'indent') this.checkContentChange();
-    else this.cleanContent({
-        cleanAttrs: ['style']
-    });
+    // else this.cleanContent({
+    //     cleanAttrs: ['style']
+    // });
 };
 
 // remove attrs and tags
