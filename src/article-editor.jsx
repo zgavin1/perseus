@@ -105,7 +105,7 @@ var ArticleEditor = React.createClass({
         var parsedMarkdown = PerseusMarkdown.parse(
             this.getSectionInfo().content);
         React.findDOMNode(this.refs.editorSpot).innerHTML =
-            PerseusMarkdown.basicOutput(parsedMarkdown);
+            PerseusMarkdown.basicOutput(parsedMarkdown) + "<br>";
         this.displayWidgets();
     },
 
