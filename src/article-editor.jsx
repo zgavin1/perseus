@@ -8,7 +8,9 @@ var EnabledFeatures = require("./enabled-features.jsx");
 var FloatingWidgetEditor = require("./editor/floating-widget-editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
 var Pen = require("./editor/pen.js").Pen;
+var PerseusMarkdown = require("./perseus-markdown.jsx");
 var SectionControlButton = require("./components/section-control-button.jsx");
+var WidgetContainer = require("./widget-container.jsx");
 
 window.Pen = Pen;
 
@@ -51,8 +53,11 @@ var ArticleEditor = React.createClass({
     },
 
     componentDidMount: function() {
+        var parsedMarkdown = PerseusMarkdown.parse(this.props.json.content);
+        React.findDOMNode(this.refs.editorSpot).innerHTML =
+            PerseusMarkdown.basicOutput(parsedMarkdown);
         var options = {
-            editor: $(".perseus-article")[0],
+            editor: this.refs.editorSpot,
             debug: true,
             stay: false,
         };
@@ -142,10 +147,60 @@ var ArticleEditor = React.createClass({
         );
     },
 
+    getWidgetProps: function(id, widgetProps) {
+        // var widgetProps = this.state.widgetProps[id] || {};
+
+        // The widget needs access to its "rubric" at all times when in review
+        // mode (which is really just part of its widget info).
+        // var reviewModeRubric = null;
+        // if (this.props.reviewMode && this.state.widgetInfo[id]) {
+        //     reviewModeRubric = this.state.widgetInfo[id].options;
+        // }
+
+        return _.extend({}, widgetProps, {
+            ref: id,
+            widgetId: id,
+            alignment: this.state.widgetInfo[id] &&
+                       this.state.widgetInfo[id].alignment,
+            // problemNum: this.props.problemNum,
+            enabledFeatures: this.props.enabledFeatures,
+            apiOptions: this._getApiOptions(),
+            // questionCompleted: this.props.questionCompleted,
+            onFocus: _.partial(this._onWidgetFocus, id),
+            onBlur: _.partial(this._onWidgetBlur, id),
+            // interWidgets: this.interWidgets,
+            // reviewModeRubric: reviewModeRubric,
+            onChange: (newProps, cb) => {
+                this._setWidgetProps(id, newProps, cb);
+            }
+        });
+    },
+
     _renderSections: function() {
         var apiOptions = this._getApiOptions();
 
         var sections = this._sections();
+
+        $(".widget").each(function (i, widgetDiv) {
+            var widgetId = widgetDiv.dataset.widgetId;
+            // TODO(kevindangoor) This doesn't take sections into account
+            var widgetInfo = this.props.json.widgets[widgetId];
+            var type = widgetId.split(" ")[0];
+            React.render(<WidgetContainer
+                    ref={"container:" + widgetId}
+                    key={"container:" + widgetId}
+                    enabledFeatures={this.props.enabledFeatures}
+                    apiOptions={this.props.apiOptions}
+
+                    // Floating widget editor props
+                    widgetInfo={widgetInfo}
+                    id={widgetId}
+                    getWidgetDecorator={_.partial(this._getWidgetDecorator, 0)}
+
+                    type={type}
+                    initialProps={this.getWidgetProps(id, widgetInfo.options)} />,
+                    widgetDiv);
+        });
 
         return <div className="perseus-editor-table">
             {sections.map((section, i) => {
@@ -205,17 +260,7 @@ var ArticleEditor = React.createClass({
                                 enabledFeatures={this.props.enabledFeatures} />
                         </div>
 
-                        <div className="perseus-editor-right-cell">
-                            <ArticleRenderer
-                                json={section}
-                                ref={"renderer" + i}
-                                apiOptions={apiOptions}
-                                getWidgetDecorator={
-                                    _.partial(this._getWidgetDecorator, i)
-                                }
-                                enabledFeatures={
-                                    this.props.enabledFeatures
-                                } />
+                        <div className="perseus-editor-right-cell" ref="editorSpot">
                         </div>
                     </div>
                 ];
