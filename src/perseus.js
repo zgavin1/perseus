@@ -22,5 +22,6 @@ module.exports = {
     StatefulEditorPage: require("./stateful-editor-page.jsx"),
     ClassNames:         require("./perseus-api.jsx").ClassNames,
     Util:               require("./util.js"),
-    MultiRenderer:      require("./multirenderer.jsx")
+    MultiRenderer:      require("./multirenderer.jsx"),
+    MultiRendererEditor: require("./multirenderer-editor.jsx"),
 };

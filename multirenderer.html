@@ -359,23 +359,6 @@ var passage = {
 }
 
 function initPerseus(Perseus) {
-    React.render(
-        React.createElement(
-            Perseus.MultiRenderer,
-            {
-                questions: [item1Props, item2Props, radio],
-                context: passage,
-                questionNumbers: {
-                    start: 1,
-                    totalQuestions: 3,
-                },
-                questionOptions: {
-                    1: {hintsVisible: 1},
-                }
-            }),
-        document.getElementById("multirenderer-container")
-    );
-
     // Useful to testing what happens when the multi-renderers props change.
     window.switchItem = function(original) {
         React.render(
@@ -398,7 +381,34 @@ function initPerseus(Perseus) {
                 }),
             document.getElementById("multirenderer-container")
         );
-    };
+    }
+
+    window.Perseus = Perseus;
+
+    Perseus.init({skipMathJax: false}).then(function() {
+        var _ = window._;
+
+        var editorProps = {
+            json: [item1Props, item2Props, radio],
+            context: passage,
+            developerMode: true,
+            imageUploader: function(image, callback) {
+                _.delay(callback, 1000, "http://fake.image.url");
+            },
+            componentClass: Perseus.MultiRendererEditor
+        };
+
+        var StatefulEditorPage = React.createFactory(Perseus.StatefulEditorPage);
+        editor = React.render(
+            StatefulEditorPage(editorProps, null),
+            document.getElementById("multirenderer-container")
+        );
+
+        // Some hacks to make debugging nicer
+        window.MultiRendererEditor = editor.refs.editor;
+    }).fail(function(err) {
+        console.error(err);
+    });
 }
 
 })();
