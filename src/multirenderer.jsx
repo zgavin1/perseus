@@ -65,7 +65,7 @@ var MultiRenderer = React.createClass({
      */
     _getQuestionOptions: function(questionNum) {
         if (!this.props.questionOptions) {
-            return DEFAULT_QUESTION_OPTIONS;
+            return this.DEFAULT_QUESTION_OPTIONS;
         }
 
         return _.defaults(
