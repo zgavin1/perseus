@@ -10,6 +10,7 @@ var rendererProps = React.PropTypes.shape({
     images: React.PropTypes.object,
 });
 
+
 var MultiRendererEditor = React.createClass({
 
     propTypes: {
@@ -46,7 +47,48 @@ var MultiRendererEditor = React.createClass({
                         } />
                 </div>
             </div>
+            <div className="perseus-editor-row">
+                <div className="perseus-editor-left-cell">
+                    <a href="#" className="simple-button orange"
+                            onClick={() => {
+                                this._handleAddQuestion();
+                            }}>
+                        <span className="icon-plus" /> Add a question
+                    </a>
+                </div>
+                <div className="perseus-editor-right-cell" />
+            </div>
         </div>;
+    },
+
+    _handleAddQuestion() {
+        var defaultQuestion = {
+            "question": {
+                "content": "",
+                "images": {},
+                "widgets": {}
+            },
+            "answerArea": {
+                "type": "multiple",
+                "options": {
+                    "content": "",
+                    "images": {},
+                    "widgets": {}
+                },
+                "calculator": false,
+                "periodicTable": false
+            },
+            "itemDataVersion": {
+                "major": 0,
+                "minor": 1
+            },
+            "hints": []
+        };
+
+        this.props.json.push(defaultQuestion);
+        this.props.onChange({
+            json: this.props.json
+        });
     },
 
     // TODO(phillip) I copied this from article-editor.jsx without fully
@@ -54,8 +96,9 @@ var MultiRendererEditor = React.createClass({
     _handleEditorChange: function(i, newProps) {
         var items = _.clone(this.props.json);
         items[i].question = _.extend({}, items[i].question, newProps);
-        this.props.onChange({json: questions});
+        this.props.onChange({json: items});
     },
+
 });
 
 module.exports = MultiRendererEditor;
