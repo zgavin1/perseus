@@ -1,16 +1,26 @@
 .perseus-multirenderer {
-    display: table;
-    table-layout: fixed;
-    width: 100%;
+    .columns(@numColumns) {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
 
-    .col {
-        vertical-align: top;
-        display: table-cell;
-        width: 50%;
+        .col {
+            vertical-align: top;
+            display: table-cell;
+            width: 100% / @numColumns;
+        }
+
+        .col-content {
+            overflow-y: scroll;
+            height: 500px;
+        }
     }
 
-    .col-content {
-        overflow-y: scroll;
-        height: 500px;
+    &.two-column {
+        .columns(2)
+    }
+
+    &.one-column {
+        .columns(1)
     }
 }

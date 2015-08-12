@@ -1,3 +1,5 @@
+var classNames = require("classnames");
+
 var HintsRenderer = require("./hints-renderer.jsx");
 var Renderer = require("./renderer.jsx");
 
@@ -231,8 +233,11 @@ var MultiRenderer = React.createClass({
             });
         }
 
-        return <div className="perseus-multirenderer">
-            <div className="col">
+        // Build the column that'll contain the context's renderer (or not if
+        // we weren't given a context).
+        var contextColumn = null;
+        if (this.props.context) {
+            contextColumn = <div className="col">
                 <div className="col-content">
                     <Renderer
                         ref="context"
@@ -240,8 +245,17 @@ var MultiRenderer = React.createClass({
                         images={this.props.context.images}
                         widgets={this.props.context.widgets} />
                 </div>
-            </div>
+            </div>;
+        }
 
+        var classes = classNames({
+            "perseus-multirenderer": true,
+            "two-column": contextColumn !== null,
+            "one-column": contextColumn === null
+        });
+
+        return <div className={classes}>
+            {contextColumn}
             <div className="col">
                 <div className="col-content">
                     {rendererList}
