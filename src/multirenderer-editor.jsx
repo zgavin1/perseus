@@ -1,8 +1,9 @@
 var React = require('react');
 var _ = require("underscore");
 
-var MultiRenderer = require("./multirenderer.jsx");
 var Editor = require("./editor.jsx");
+var JsonEditor = require("./json-editor.jsx");
+var MultiRenderer = require("./multirenderer.jsx");
 
 var rendererProps = React.PropTypes.shape({
     content: React.PropTypes.string,
@@ -19,10 +20,66 @@ var MultiRendererEditor = React.createClass({
         onChange: React.PropTypes.func.isRequired,
     },
 
+    getInitialState: function() {
+        return {
+            developerMode: false,
+        };
+    },
+
+    _toggleDeveloperMode: function() {
+        this.setState({developerMode: !this.state.developerMode});
+    },
+
+    /**
+     * Called by the JSON editor whenever the user makes changes.
+     */
+    _changeJSON: function(json) {
+        this.props.onChange({
+            questions: json.questions || null,
+            context: json.context || null,
+        });
+    },
+
     render: function() {
+        // We have two totally separate rendering methods for developer vs
+        // normal mode because of how different they are from eachother.
+        if (this.state.developerMode) {
+            return this._renderDeveloper();
+        } else {
+            return this._renderNormal();
+        }
+    },
+
+    /**
+     * Renders the editor in developer json mode.
+     */
+    _renderDeveloper: function() {
+        return <div>
+            <label>
+                <input type="checkbox"
+                       checked
+                       onChange={this._toggleDeveloperMode} />
+                Developer JSON mode
+            </label>
+            <JsonEditor
+                multiLine={true}
+                value={_.pick(this.props, "questions", "context")}
+                onChange={this._changeJSON} />
+        </div>;
+    },
+
+    /**
+     * Renders the editor in normal mode (not developer json mode)
+     */
+    _renderNormal: function() {
         return <div className="perseus-editor-table">
             <div className="perseus-editor-row">
                 <div className="perseus-editor-left-cell">
+                    <label>
+                        <input type="checkbox"
+                               onChange={this._toggleDeveloperMode} />
+                        Developer JSON mode
+                    </label>
                     {this.props.questions.map((item, i) => {
                         return [
                             <div className="pod-title">
