@@ -146,9 +146,9 @@ var MultiRenderer = React.createClass({
                     <Renderer
                         key={this.state.keys.questions[i] + "-question"}
                         interWidgets={this._interWidgets}
-                        content={item.question.content}
-                        images={item.question.images}
-                        widgets={item.question.widgets} />
+                        content={item.content}
+                        images={item.images}
+                        widgets={item.widgets} />
                     <HintsRenderer
                         key={this.state.keys.questions[i] + "-hints"}
                         hintsVisible={this._getQuestionOptions(i).hintsVisible}
@@ -162,9 +162,9 @@ var MultiRenderer = React.createClass({
                 <div className="col-content">
                     <Renderer
                         ref="context"
-                        content={this.props.context.question.content}
-                        images={this.props.context.question.images}
-                        widgets={this.props.context.question.widgets} />
+                        content={this.props.context.content}
+                        images={this.props.context.images}
+                        widgets={this.props.context.widgets} />
                 </div>
             </div>
 

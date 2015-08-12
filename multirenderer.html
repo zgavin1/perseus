@@ -97,231 +97,9 @@ require(["ke-deps.js"], function() {
     require(["live-build/perseus.js"], initPerseus);
 });
 
-var item1Props = {
-    "question": {
-        "content": "[[☃ matrix 1]]\n\n[[☃ measurer 1]]\n\n",
-        "images": {},
-        "widgets": {
-            "matrix 1": {
-                "type": "matrix",
-                "alignment": "default",
-                "graded": true,
-                "options": {
-                    "matrixBoardSize": [
-                        3,
-                        3
-                    ],
-                    "answers": [
-                        []
-                    ],
-                    "prefix": "",
-                    "suffix": "",
-                    "cursorPosition": [
-                        0,
-                        0
-                    ]
-                },
-                "version": {
-                    "major": 0,
-                    "minor": 0
-                }
-            },
-            "measurer 1": {
-                "type": "measurer",
-                "alignment": "default",
-                "graded": true,
-                "options": {
-                    "box": [
-                        480,
-                        480
-                    ],
-                    "image": {},
-                    "showProtractor": true,
-                    "showRuler": false,
-                    "rulerLabel": "",
-                    "rulerTicks": 10,
-                    "rulerPixels": 40,
-                    "rulerLength": 10
-                },
-                "version": {
-                    "major": 1,
-                    "minor": 0
-                }
-            },
-            "group 1": {
-                "options": {},
-                "type": "group",
-                "version": {
-                    "major": 0,
-                    "minor": 0
-                }
-            }
-        }
-    },
-    "answerArea": {
-        "type": "multiple",
-        "options": {
-            "content": "",
-            "images": {},
-            "widgets": {}
-        },
-        "calculator": false,
-        "periodicTable": false
-    },
-    "itemDataVersion": {
-        "major": 0,
-        "minor": 1
-    },
-    "hints": []
-};
-
-var item2Props = {
-    "question": {
-        "content": "[[☃ sorter 1]]\n\n[[☃ table 1]]\n\n",
-        "images": {},
-        "widgets": {
-            "sorter 1": {
-                "type": "sorter",
-                "alignment": "default",
-                "graded": true,
-                "options": {
-                    "correct": [
-                        "$x$",
-                        "$y$",
-                        "$z$"
-                    ],
-                    "layout": "horizontal",
-                    "padding": true
-                },
-                "version": {
-                    "major": 0,
-                    "minor": 0
-                }
-            },
-            "table 1": {
-                "type": "table",
-                "alignment": "default",
-                "graded": true,
-                "options": {
-                    "headers": [
-                        ""
-                    ],
-                    "rows": 4,
-                    "columns": 1,
-                    "answers": [
-                        [
-                            ""
-                        ],
-                        [
-                            ""
-                        ],
-                        [
-                            ""
-                        ],
-                        [
-                            ""
-                        ]
-                    ]
-                },
-                "version": {
-                    "major": 0,
-                    "minor": 0
-                }
-            }
-        }
-    },
-    "answerArea": {
-        "type": "multiple",
-        "options": {
-            "content": "",
-            "images": {},
-            "widgets": {}
-        },
-        "calculator": false,
-        "periodicTable": false
-    },
-    "itemDataVersion": {
-        "major": 0,
-        "minor": 1
-    },
-    "hints": [
-        {
-            "content": "This is the first hint.",
-            "images": {},
-            "widgets": {}
-        },
-        {
-            "content": "And this is the second one.",
-            "images": {},
-            "widgets": {}
-        }
-    ]
-};
-
-var radio = {
-    "question": {
-        "content": "\n\n[[☃ radio 1]]\n\n",
-        "images": {},
-        "widgets": {
-            "radio 1": {
-                "type": "radio",
-                "alignment": "default",
-                "graded": true,
-                "options": {
-                    "choices": [
-                        {
-                            "content": "{{passage-ref 1 1}} (“Online...psychology”)",
-                            "clue": "These lines state that the social networking sites are popular and important to the field of psychology, but do not state why."
-                        },
-                        {
-                            "content": "{{passage-ref 1 2}} (“Facebook...strangers”)",
-                            "clue": "These lines explain the function of one social media site, but do not explain why the study of social media use is important to the field of psychology."
-                        },
-                        {
-                            "isNoneOfTheAbove": false,
-                            "content": "{{passage-ref 1 3}} (“Facebook...account”)",
-                            "clue": "These lines demonstrate the popularity of Facebook among college students, but do not inform our understanding of the study’s importance to the wider field of psychology."
-                        },
-                        {
-                            "isNoneOfTheAbove": false,
-                            "content": "{{passage-ref 1 4}} (“Given...students”)",
-                            "clue": "This choice is the best answer. These lines explain that the study of social media networks is important to psychology because it informs our understanding of self-esteem and personality in college students."
-                        }
-                    ],
-                    "randomize": false,
-                    "multipleSelect": false,
-                    "displayCount": null,
-                    "hasNoneOfTheAbove": false,
-                    "onePerLine": true,
-                    "deselectEnabled": false
-                },
-                "version": {
-                    "major": 1,
-                    "minor": 0
-                }
-            }
-        }
-    },
-    "answerArea": {
-        "type": "multiple",
-        "options": {
-            "content": "",
-            "images": {},
-            "widgets": {}
-        },
-        "calculator": false,
-        "periodicTable": false
-    },
-    "itemDataVersion": {
-        "major": 0,
-        "minor": 1
-    },
-    "hints": []
-}
-
-var passage = {
-    "question": {
-        "content": "[[☃ passage 1]]\n\n",
+var sampleItemData = {
+    context: {
+        "content": "[[☃ passage 1]]",
         "images": {},
         "widgets": {
             "passage 1": {
@@ -341,22 +119,120 @@ var passage = {
             }
         }
     },
-    "answerArea": {
-        "type": "multiple",
-        "options": {
-            "content": "",
+
+    questions: [
+        {
+            "content": "[[☃ radio 1]]",
             "images": {},
-            "widgets": {}
+            "hints": [],
+            "widgets": {
+                "radio 1": {
+                    "type": "radio",
+                    "alignment": "default",
+                    "graded": true,
+                    "options": {
+                        "choices": [
+                            {
+                                "content": "{{passage-ref 1 1}} (“Online...psychology”)",
+                                "clue": "These lines state that the social networking sites are popular and important to the field of psychology, but do not state why."
+                            },
+                            {
+                                "content": "{{passage-ref 1 2}} (“Facebook...strangers”)",
+                                "clue": "These lines explain the function of one social media site, but do not explain why the study of social media use is important to the field of psychology."
+                            },
+                            {
+                                "isNoneOfTheAbove": false,
+                                "content": "{{passage-ref 1 3}} (“Facebook...account”)",
+                                "clue": "These lines demonstrate the popularity of Facebook among college students, but do not inform our understanding of the study’s importance to the wider field of psychology."
+                            },
+                            {
+                                "isNoneOfTheAbove": false,
+                                "content": "{{passage-ref 1 4}} (“Given...students”)",
+                                "clue": "This choice is the best answer. These lines explain that the study of social media networks is important to psychology because it informs our understanding of self-esteem and personality in college students."
+                            }
+                        ],
+                        "randomize": false,
+                        "multipleSelect": false,
+                        "displayCount": null,
+                        "hasNoneOfTheAbove": false,
+                        "onePerLine": true,
+                        "deselectEnabled": false
+                    },
+                    "version": {
+                        "major": 1,
+                        "minor": 0
+                    }
+                }
+            }
         },
-        "calculator": false,
-        "periodicTable": false
-    },
-    "itemDataVersion": {
-        "major": 0,
-        "minor": 1
-    },
-    "hints": []
-}
+        {
+            "content": "[[☃ sorter 1]]\n\n[[☃ table 1]]\n\n",
+            "images": {},
+            "widgets": {
+                "sorter 1": {
+                    "type": "sorter",
+                    "alignment": "default",
+                    "graded": true,
+                    "options": {
+                        "correct": [
+                            "$x$",
+                            "$y$",
+                            "$z$"
+                        ],
+                        "layout": "horizontal",
+                        "padding": true
+                    },
+                    "version": {
+                        "major": 0,
+                        "minor": 0
+                    }
+                },
+                "table 1": {
+                    "type": "table",
+                    "alignment": "default",
+                    "graded": true,
+                    "options": {
+                        "headers": [
+                            ""
+                        ],
+                        "rows": 4,
+                        "columns": 1,
+                        "answers": [
+                            [
+                                ""
+                            ],
+                            [
+                                ""
+                            ],
+                            [
+                                ""
+                            ],
+                            [
+                                ""
+                            ]
+                        ]
+                    },
+                    "version": {
+                        "major": 0,
+                        "minor": 0
+                    }
+                }
+            },
+            "hints": [
+                {
+                    "content": "This is the first hint.",
+                    "images": {},
+                    "widgets": {}
+                },
+                {
+                    "content": "And this is the second one.",
+                    "images": {},
+                    "widgets": {}
+                }
+            ]
+        },
+    ],
+};
 
 function initPerseus(Perseus) {
     // Useful to testing what happens when the multi-renderers props change.
@@ -389,8 +265,8 @@ function initPerseus(Perseus) {
         var _ = window._;
 
         var editorProps = {
-            json: [item1Props, item2Props, radio],
-            context: passage,
+            questions: sampleItemData.questions,
+            context: sampleItemData.context,
             developerMode: true,
             imageUploader: function(image, callback) {
                 _.delay(callback, 1000, "http://fake.image.url");

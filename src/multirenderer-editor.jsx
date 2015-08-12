@@ -14,7 +14,7 @@ var rendererProps = React.PropTypes.shape({
 var MultiRendererEditor = React.createClass({
 
     propTypes: {
-        json: React.PropTypes.arrayOf(rendererProps),
+        questions: React.PropTypes.arrayOf(rendererProps),
         context: React.PropTypes.object,
         onChange: React.PropTypes.func.isRequired,
     },
@@ -23,16 +23,16 @@ var MultiRendererEditor = React.createClass({
         return <div className="perseus-editor-table">
             <div className="perseus-editor-row">
                 <div className="perseus-editor-left-cell">
-                    {this.props.json.map((item, i) => {
+                    {this.props.questions.map((item, i) => {
                         return [
                             <div className="pod-title">
                                 Question #{i + 1}
                             </div>,
                             <Editor
-                                {...item.question}
+                                {...item}
                                 ref={"editor" + i}
                                 onChange={
-                                    _.partial(this._handleEditorChange, i)
+                                    _.partial(this._handleQuestionChange, i)
                                 }
                                 placeholder="Add question here..." />
                         ];
@@ -40,11 +40,12 @@ var MultiRendererEditor = React.createClass({
                 </div>
                 <div className="perseus-editor-right-cell">
                     <MultiRenderer
-                        questions={this.props.json}
+                        questions={this.props.questions}
                         context={this.props.context}
-                        questionNumbers={
-                            {start: 1, totalQuestions: this.props.json.length}
-                        } />
+                        questionNumbers={{
+                                start: 1,
+                                totalQuestions: this.props.questions.length
+                        }} />
                 </div>
             </div>
             <div className="perseus-editor-row">
@@ -85,20 +86,33 @@ var MultiRendererEditor = React.createClass({
             "hints": []
         };
 
-        this.props.json.push(defaultQuestion);
+        this.props.questions.push(defaultQuestion);
         this.props.onChange({
-            json: this.props.json
+            questions: this.props.questions
         });
     },
 
-    // TODO(phillip) I copied this from article-editor.jsx without fully
-    // understanding what is going on.
-    _handleEditorChange: function(i, newProps) {
-        var items = _.clone(this.props.json);
-        items[i].question = _.extend({}, items[i].question, newProps);
-        this.props.onChange({json: items});
-    },
+    /**
+     * Called whenever a question's props change.
+     *
+     * TODO(johnsullivan/phillip): Add a handler for the context's editor once
+     *     we make an editor fo rit.
+     */
+    _handleQuestionChange: function(questionIndex, newProps) {
+        // Clone all the current questions
+        // TODO(johnsullivan/phillip): Not sure if this giant clone is
+        //     necessary. The article renderer does it so we're doing it too!
+        var questions = _.clone(this.props.questions);
 
+        // Modify the one question that was changed (we need to be careful to
+        // not mutate any existing values, otherwise our renderer will have
+        // trouble figuring out which of its props changed).
+        questions[questionIndex] = _.extend({}, questions[questionIndex],
+                                            newProps);
+
+        // Tell our parent that we want our props to change.
+        this.props.onChange({questions: questions});
+    },
 });
 
 module.exports = MultiRendererEditor;
