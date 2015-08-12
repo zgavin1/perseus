@@ -157,7 +157,7 @@ var MultiRenderer = React.createClass({
             });
         }
 
-        return <div className="multirenderer">
+        return <div className="perseus-multirenderer">
             <div className="col">
                 <div className="col-content">
                     <Renderer
