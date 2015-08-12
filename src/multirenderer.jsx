@@ -37,6 +37,10 @@ var MultiRenderer = React.createClass({
             // The number of hints to show for this question
             hintsVisible: React.PropTypes.number,
         })),
+
+        // Called whenever the scores object changes. Should be a function that
+        // takes in a scores object like getScores() returned.
+        onScoresChanged: React.PropTypes.func,
     },
 
     // Default values for each question's options.
@@ -110,9 +114,60 @@ var MultiRenderer = React.createClass({
     },
 
     componentDidUpdate: function(prevProps, prevState) {
+        // If we just finished a two-pass render or our questions changed...
+        if ((!prevState.isContextRendered && this.state.isContextRendered) ||
+                    !_.isEqual(prevProps.questions, this.props.questions)) {
+            this._recalculateScores();
+        }
+
+        // If we just finished rendering and the context was not rendered
+        // before, it is now.
         if (!this.state.isContextRendered) {
             this.setState({isContextRendered: true});
         }
+    },
+
+    /**
+     * Gets the ref name of the given question.
+     *
+     * You can use this function to access a particular question's renderer.
+     * For example:
+     *
+     *     var renderer = this.refs[this._getQuestionRef(2)];
+     *
+     * renderer will have the third question's renderer component (assuming
+     * it was rendered already).
+     */
+    _getQuestionRef: function(questionIndex) {
+        return "question" + this.state.keys.questions[questionIndex];
+    },
+
+    /**
+     * Recalculates scores for each question and stores it.
+     *
+     * This function handles calling the onScoresChanged callback.
+     */
+    _recalculateScores: function() {
+        var newScores = null;
+
+        // Try and get the scores if all the questions have been rendered
+        if (_.all(_.range(this.props.questions.length),
+                   (i) => this.refs[this._getQuestionRef(i)])) {
+            newScores = _.map(
+                    _.range(this.props.questions.length), (questionIndex) => {
+                return this.refs[this._getQuestionRef(questionIndex)].score();
+            });
+        }
+
+        if (!_.isEqual(newScores, this._scores)) {
+            this._scores = newScores;
+
+            if (this.props.onScoresChanged) {
+                this.props.onScoresChanged(this._scores);
+            }
+        }
+
+        return this._scores;
     },
 
     /**
@@ -133,6 +188,23 @@ var MultiRenderer = React.createClass({
         </div>;
     },
 
+    /**
+     * Returns an array of score objects.
+     *
+     * Each score object is a Perseus style score like Renderer.score() would
+     * return. IE:
+     *
+     *     {
+     *         type: "invalid"|"points",
+     *         message: string,
+     *         earned: undefined|number,
+     *         total: undefined|number
+     *     }
+     */
+    getScores: function() {
+        return this._recalculateScores();
+    },
+
     render: function() {
         // We render in two passes, see comment in getInitialState for more
         // information.
@@ -144,10 +216,12 @@ var MultiRenderer = React.createClass({
                 return <div key={this.state.keys.questions[i] + "-container"}>
                     {this._renderQuestionNumber(i)}
                     <Renderer
+                        ref={this._getQuestionRef(i)}
                         key={this.state.keys.questions[i] + "-question"}
                         interWidgets={this._interWidgets}
                         content={item.content}
                         images={item.images}
+                        onInteractWithWidget={this._onInteractWithQuestion}
                         widgets={item.widgets} />
                     <HintsRenderer
                         key={this.state.keys.questions[i] + "-hints"}
@@ -174,6 +248,10 @@ var MultiRenderer = React.createClass({
                 </div>
             </div>
         </div>;
+    },
+
+    _onInteractWithQuestion: function() {
+        this._recalculateScores();
     },
 
     _interWidgets: function(filterCriterion, localResults) {
