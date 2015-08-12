@@ -84,6 +84,15 @@ var MultiRendererEditor = React.createClass({
                         return [
                             <div className="pod-title">
                                 Question #{i + 1}
+                                <div className="question-button-container">
+                                    <a href="javascript: void 0"
+                                       className="simple-button orange"
+                                            onClick={() => {
+                                                this._handleRemoveQuestion(i);
+                                            }}>
+                                        <span className="icon-trash" />
+                                    </a>
+                                </div>
                             </div>,
                             <Editor
                                 {...item}
@@ -107,7 +116,8 @@ var MultiRendererEditor = React.createClass({
             </div>
             <div className="perseus-editor-row">
                 <div className="perseus-editor-left-cell">
-                    <a href="#" className="simple-button orange"
+                    <a href="javascript: void 0"
+                       className="simple-button orange"
                             onClick={() => {
                                 this._handleAddQuestion();
                             }}>
@@ -119,7 +129,15 @@ var MultiRendererEditor = React.createClass({
         </div>;
     },
 
-    _handleAddQuestion() {
+    _handleRemoveQuestion: function(i) {
+        var newQuestions = _.clone(this.props.questions);
+        newQuestions.splice(i, 1);
+        this.props.onChange({
+            questions: newQuestions
+        });
+    },
+
+    _handleAddQuestion: function() {
         var defaultQuestion = {
             "question": {
                 "content": "",
@@ -143,9 +161,10 @@ var MultiRendererEditor = React.createClass({
             "hints": []
         };
 
-        this.props.questions.push(defaultQuestion);
+        var newQuestions = _.clone(this.props.questions);
+        newQuestions.push(defaultQuestion);
         this.props.onChange({
-            questions: this.props.questions
+            questions: newQuestions
         });
     },
 
