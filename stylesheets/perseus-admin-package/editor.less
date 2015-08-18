@@ -457,6 +457,33 @@
         margin: 0 2px;
         padding: 2px 10px;
     }
+
+    // We lay out the two columns on top of eachother to avoid making the page
+    // too wide.
+    .perseus-multirenderer {
+        display: block;
+
+        .question-container {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+
+        .col {
+            display: block;
+            width: 100%;
+        }
+
+        .col-content {
+            height: auto;
+            overflow-y: auto;
+        }
+
+        // The context is usually a very long passage, so we set a max-height
+        // for it.
+        .context-col .col-content {
+            max-height: 500px;
+        }
+    }
 }
 
 //

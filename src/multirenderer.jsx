@@ -327,7 +327,8 @@ var MultiRenderer = React.createClass({
             rendererList = _.map(this.props.questions, (item, i) => {
                 // TODO(johnsullivan): Is keying the Renderer and HintsRenderer
                 //     necessary here?
-                return <div key={this.state.keys.questions[i] + "-container"}>
+                return <div key={this.state.keys.questions[i] + "-container"}
+                            className="question-container">
                     {this._renderQuestionNumber(i)}
                     <Renderer
                         ref={this._getQuestionRef(i)}
@@ -351,7 +352,7 @@ var MultiRenderer = React.createClass({
         // we weren't given a context).
         var contextColumn = null;
         if (this.props.context) {
-            contextColumn = <div className="col">
+            contextColumn = <div className="col context-col">
                 <div className="col-content">
                     <Renderer
                         ref="context"
