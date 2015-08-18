@@ -25,6 +25,7 @@ var MultiRendererEditor = React.createClass({
             developerMode: false,
             serializedState: null,
             problemNum: 0,
+            reviewMode: false,
         };
     },
 
@@ -51,6 +52,10 @@ var MultiRendererEditor = React.createClass({
             serializedState: state,
             problemNum: this.state.problemNum + 1,
         });
+    },
+
+    setReviewMode: function(reviewMode) {
+        this.setState({reviewMode: reviewMode});
     },
 
     render: function() {
@@ -127,7 +132,16 @@ var MultiRendererEditor = React.createClass({
                         questionNumbers={{
                                 start: 1,
                                 totalQuestions: this.props.questions.length
-                        }} />
+                        }}
+                        questionOptions={
+                            _.object(_.map(this.props.questions,
+                                           (question, index) => {
+                                return [
+                                    index,
+                                    {reviewMode: this.state.reviewMode}
+                                ];
+                            }))
+                        } />
                 </div>
             </div>
             <div className="perseus-editor-row">

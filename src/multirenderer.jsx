@@ -43,11 +43,21 @@ var MultiRenderer = React.createClass({
         // (ie: the first question rendered is always considered to be question
         // 0).
         //
+        // See this.DEFAULT_QUESTION_OPTIONS for the default values.
+        //
         // NOTE: Use the _getQuestionOptions method rather than reading from
         //     this prop directly.
         questionOptions: React.PropTypes.objectOf(React.PropTypes.shape({
             // The number of hints to show for this question
             hintsVisible: React.PropTypes.number,
+
+            // Enables/disables review mode for this question. When a renderer
+            // is in review mode, the correct answer will be somehow shown to
+            // the user as well as what they selected (if the widget supports
+            // review mode), and there will be an "INCORRECT", "CORRECT", or
+            // "UNANSWERED" flair added to the question number if it is being
+            // displayed.
+            reviewMode: React.PropTypes.bool,
         })),
 
         // Called whenever the scores object changes. Should be a function that
@@ -58,6 +68,7 @@ var MultiRenderer = React.createClass({
     // Default values for each question's options.
     DEFAULT_QUESTION_OPTIONS: {
         hintsVisible: 0,
+        reviewMode: false,
     },
 
     /**
@@ -85,6 +96,7 @@ var MultiRenderer = React.createClass({
         }
 
         return _.defaults(
+            {},
             this.props.questionOptions[questionNum] || {},
             this.DEFAULT_QUESTION_OPTIONS);
     },
@@ -141,14 +153,7 @@ var MultiRenderer = React.createClass({
     },
 
     componentDidUpdate: function(prevProps, prevState) {
-        // If we just finished a two-pass render or our questions changed...
-        if ((!prevState.isContextRendered && this.state.isContextRendered) ||
-                    !_.isEqual(prevProps.questions, this.props.questions)) {
-            this._recalculateScores();
-        }
-
-        // If we just finished rendering and the context was not rendered
-        // before, it is now.
+        // If we just finished rendering the context
         if (!this.state.isContextRendered) {
             this.setState({isContextRendered: true});
         }
@@ -158,11 +163,27 @@ var MultiRenderer = React.createClass({
             // If we just finished rendering a new problem and need to restore
             // serialized state.
             if (this._renderingNewProblem && this.props.serializedState) {
+                // Make sure our copy of the scores is up to date after we've
+                // restored the serialized state to all the questions. We do
+                // this with a callback (rather than just recalculating the
+                // scores right after we call restoreSerializedState) because
+                // all the questions needs to render once more before they can
+                // be scored.
+                var recalculateScores = (
+                        _.after(this.props.serializedState.length,
+                                () => this._updateScores()));
+
+                // Restore each question individually.
                 _.each(this.props.serializedState, (state, index) => {
                     var questionRenderer =
                             this.refs[this._getQuestionRef(index)];
-                    questionRenderer.restoreSerializedState(state);
+                    questionRenderer.restoreSerializedState(
+                        state, recalculateScores);
                 });
+            } else {
+                // If we're not waiting for a restoreSerializedState call, we
+                // can just immediately recalculate the scores.
+                this._updateScores();
             }
 
             this._renderingNewProblem = false;
@@ -185,47 +206,96 @@ var MultiRenderer = React.createClass({
     },
 
     /**
-     * Recalculates scores for each question and stores it.
+     * Returns an array of score objects.
      *
-     * This function handles calling the onScoresChanged callback.
+     * Each score object is a Perseus style score like Renderer.score() would
+     * return. IE:
+     *
+     *     {
+     *         type: "invalid"|"points",
+     *         message: string,
+     *         earned: undefined|number,
+     *         total: undefined|number
+     *     }
      */
-    _recalculateScores: function() {
-        var newScores = null;
-
+    getScores: function() {
         // Try and get the scores if all the questions have been rendered
         if (_.all(_.range(this.props.questions.length),
                    (i) => this.refs[this._getQuestionRef(i)])) {
-            newScores = _.map(
+            return _.map(
                     _.range(this.props.questions.length), (questionIndex) => {
                 return this.refs[this._getQuestionRef(questionIndex)].score();
             });
         }
 
-        if (!_.isEqual(newScores, this._scores)) {
-            this._scores = newScores;
+        return null;
+    },
+
+    /**
+     * Updates this.state.scores and calls the onScoresChanged callback.
+     */
+    _updateScores: function() {
+        var newScores = this.getScores();
+
+        if (!_.isEqual(newScores, this.state.scores)) {
+            this.setState({scores: newScores});
 
             if (this.props.onScoresChanged) {
-                this.props.onScoresChanged(this._scores);
+                this.props.onScoresChanged(newScores);
             }
         }
+    },
 
-        return this._scores;
+    /**
+     * Returns a review note that shows whether the question is correct.
+     */
+    _renderQuestionReviewNote: function(score) {
+        if (!score || score.type === "invalid") {
+            return <span
+                    className="question-note question-note-not-answered">
+                Not answered
+            </span>;
+        } else if (score.earned !== score.total) {
+            return <span className="question-note question-note-incorrect">
+                Incorrect
+            </span>;
+        } else if (score.earned === score.total) {
+            return <span className="question-note question-note-correct">
+                Correct
+            </span>;
+        } else {
+            return null;
+        }
     },
 
     /**
      * Renders a question number (to be placed above a question).
      *
-     * relativeQuestionNumber will be 0 for the first question we're rendering,
-     * 1 for the second question, etc.
+     * questionIndex will be 0 for the first question we're rendering, 1 for
+     * the second question, etc.
      */
-    _renderQuestionNumber: function(relativeQuestionNumber) {
+    _renderQuestionNumber: function(questionIndex) {
         if (!this.props.questionNumbers) {
             return null;
         }
 
-        var num = this.props.questionNumbers.start + relativeQuestionNumber;
+        var reviewNote = null;
+        if (this._getQuestionOptions(questionIndex).reviewMode &&
+                this.state.scores) {
+            reviewNote = this._renderQuestionReviewNote(
+                    this.state.scores[questionIndex]);
+        }
+
+        var num = this.props.questionNumbers.start + questionIndex;
         var total = this.props.questionNumbers.totalQuestions;
-        return <div key={`question-number-${relativeQuestionNumber}`}>
+
+        if (reviewNote) {
+            return <div key={`question-number-${questionIndex}`}>
+                Question {num} of {total}: {reviewNote}
+            </div>;
+        }
+
+        return <div key={`question-number-${questionIndex}`}>
             Question {num} of {total}
         </div>;
     },
@@ -249,23 +319,6 @@ var MultiRenderer = React.createClass({
         });
     },
 
-    /**
-     * Returns an array of score objects.
-     *
-     * Each score object is a Perseus style score like Renderer.score() would
-     * return. IE:
-     *
-     *     {
-     *         type: "invalid"|"points",
-     *         message: string,
-     *         earned: undefined|number,
-     *         total: undefined|number
-     *     }
-     */
-    getScores: function() {
-        return this._recalculateScores();
-    },
-
     render: function() {
         // We render in two passes, see comment in getInitialState for more
         // information.
@@ -284,6 +337,7 @@ var MultiRenderer = React.createClass({
                         images={item.images}
                         onInteractWithWidget={this._onInteractWithQuestion}
                         problemNum={this.state.problemNum}
+                        reviewMode={this._getQuestionOptions(i).reviewMode}
                         widgets={item.widgets} />
                     <HintsRenderer
                         key={this.state.keys.questions[i] + "-hints"}
@@ -325,7 +379,7 @@ var MultiRenderer = React.createClass({
     },
 
     _onInteractWithQuestion: function() {
-        this._recalculateScores();
+        this._updateScores();
     },
 
     _interWidgets: function(filterCriterion, localResults) {

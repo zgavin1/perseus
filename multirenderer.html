@@ -23,6 +23,7 @@
 <div id="extras">
     <button type="button" id="save-state">save serialized state</button>
     <button type="button" id="restore-state">restore serialized state</button>
+    <label><input type="checkbox" id="review-mode"> review mode</label>
 </div>
 
 <!-- Begin Perseus HTML -->
@@ -275,6 +276,10 @@ function initPerseus(Perseus) {
 
     $("#restore-state").click(function() {
         editor.restoreSerializedState(gSerializedState);
+    });
+
+    $("#review-mode").change(function() {
+        editor.setReviewMode($(this).is(":checked"));
     });
 
     window.Perseus = Perseus;

@@ -58,6 +58,10 @@ var StatefulEditorPage = React.createClass({
         return this.refs.editor.restoreSerializedState(serializedState);
     },
 
+    setReviewMode: function(reviewMode) {
+        this.refs.editor.setReviewMode(reviewMode);
+    },
+
     handleChange: function(newState, cb) {
         if (this.isMounted()) {
             this.setState(newState, cb);
