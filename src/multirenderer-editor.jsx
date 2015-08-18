@@ -141,6 +141,13 @@ var MultiRendererEditor = React.createClass({
                                        }}>
                                         <span className="icon-trash" />
                                     </a>
+                                    <a href="javascript: void 0"
+                                       className={buttonClassName}
+                                       onClick={() => {
+                                           this._handleAddQuestion(i);
+                                       }}>
+                                        <span className="icon-plus" />
+                                    </a>
                                 </div>
                             </div>,
                             <Editor
@@ -174,18 +181,6 @@ var MultiRendererEditor = React.createClass({
                             }))
                         } />
                 </div>
-            </div>
-            <div className="perseus-editor-row">
-                <div className="perseus-editor-left-cell">
-                    <a href="javascript: void 0"
-                       className="simple-button orange"
-                            onClick={() => {
-                                this._handleAddQuestion();
-                            }}>
-                        <span className="icon-plus" /> Add a question
-                    </a>
-                </div>
-                <div className="perseus-editor-right-cell" />
             </div>
         </div>;
     },
@@ -223,7 +218,13 @@ var MultiRendererEditor = React.createClass({
         });
     },
 
-    _handleAddQuestion: function() {
+    /**
+     * Called whenever a user wants to add a new question.
+     *
+     * The question will be created immediately after the given question
+     * index.
+     */
+    _handleAddQuestion: function(questionIndex) {
         var defaultQuestion = {
             "question": {
                 "content": "",
@@ -248,7 +249,7 @@ var MultiRendererEditor = React.createClass({
         };
 
         var newQuestions = _.clone(this.props.questions);
-        newQuestions.push(defaultQuestion);
+        newQuestions.splice(questionIndex + 1, 0, defaultQuestion);
         this.props.onChange({
             questions: newQuestions
         });
