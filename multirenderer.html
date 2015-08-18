@@ -20,6 +20,11 @@
 </head>
 <body>
 
+<div id="extras">
+    <button type="button" id="save-state">save serialized state</button>
+    <button type="button" id="restore-state">restore serialized state</button>
+</div>
+
 <!-- Begin Perseus HTML -->
 <div id="multirenderer-container">
 </div>
@@ -233,6 +238,10 @@ var sampleItemData = {
     ],
 };
 
+// This will be set to some serialized state when the "save serialized state"
+// button is clicked.
+var gSerializedState = null;
+
 function initPerseus(Perseus) {
     // Useful to testing what happens when the multi-renderers props change.
     window.switchItem = function(original) {
@@ -257,6 +266,16 @@ function initPerseus(Perseus) {
             document.getElementById("multirenderer-container")
         );
     }
+
+    var editor = null;
+
+    $("#save-state").click(function() {
+        gSerializedState = editor.getSerializedState();
+    });
+
+    $("#restore-state").click(function() {
+        editor.restoreSerializedState(gSerializedState);
+    });
 
     window.Perseus = Perseus;
 

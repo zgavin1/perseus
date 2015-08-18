@@ -23,6 +23,8 @@ var MultiRendererEditor = React.createClass({
     getInitialState: function() {
         return {
             developerMode: false,
+            serializedState: null,
+            problemNum: 0,
         };
     },
 
@@ -37,6 +39,17 @@ var MultiRendererEditor = React.createClass({
         this.props.onChange({
             questions: json.questions || null,
             context: json.context || null,
+        });
+    },
+
+    getSerializedState: function() {
+        return this.refs.multirenderer.getSerializedState();
+    },
+
+    restoreSerializedState: function(state) {
+        this.setState({
+            serializedState: state,
+            problemNum: this.state.problemNum + 1,
         });
     },
 
@@ -106,8 +119,11 @@ var MultiRendererEditor = React.createClass({
                 </div>
                 <div className="perseus-editor-right-cell">
                     <MultiRenderer
+                        ref="multirenderer"
                         questions={this.props.questions}
                         context={this.props.context}
+                        problemNum={this.state.problemNum}
+                        serializedState={this.state.serializedState}
                         questionNumbers={{
                                 start: 1,
                                 totalQuestions: this.props.questions.length

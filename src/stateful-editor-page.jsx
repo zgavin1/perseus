@@ -50,6 +50,14 @@ var StatefulEditorPage = React.createClass({
         return this.refs.editor.serialize();
     },
 
+    getSerializedState: function() {
+        return this.refs.editor.getSerializedState();
+    },
+
+    restoreSerializedState: function(serializedState) {
+        return this.refs.editor.restoreSerializedState(serializedState);
+    },
+
     handleChange: function(newState, cb) {
         if (this.isMounted()) {
             this.setState(newState, cb);

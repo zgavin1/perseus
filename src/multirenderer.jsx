@@ -17,6 +17,16 @@ var MultiRenderer = React.createClass({
         // context through the inter widgets bus.
         context: React.PropTypes.object,
 
+        // Some blob of serialized state given by getSerializedState. When the
+        // MultiRenderer is mounted or the problemNum changes, the rendered
+        // questions will be forced into this state.
+        serializedState: React.PropTypes.array,
+
+        // A unique ID for the current "problem". If you are displaying a
+        // number of items sequentially, you should change this every time the
+        // item changes so we can reset everything.
+        problemNum: React.PropTypes.number,
+
         // An object that describes how to render question numbers. If falsey,
         // no question numbers will be rendered.
         questionNumbers: React.PropTypes.shape({
@@ -99,16 +109,31 @@ var MultiRenderer = React.createClass({
     },
 
     componentWillReceiveProps: function(nextProps) {
-        // If the context or questions change, we just remount everything. We
-        // could be a little smarter (to only remount the questions if the
-        // context changes for example), but it doesn't seem necessary.
-        if (!_.isEqual(this.props.context, nextProps.context) ||
+        // If the context, questions, or problem change, we just remount
+        // everything. We could be a little smarter (to only remount the
+        // questions if the context changes for example), but it doesn't seem
+        // necessary and may source errors.
+        if (this.props.problemNum !== nextProps.problemNum ||
+                !_.isEqual(this.props.context, nextProps.context) ||
                 !_.isEqual(this.props.questions, nextProps.questions)) {
             this.setState({
                 isContextRendered: false,
                 keys: this._createKeys(),
             });
         }
+
+        // If the problem changed, make note of it
+        if (this.props.problemNum !== nextProps.problemNum) {
+            this._renderingNewProblem = true;
+        }
+    },
+
+    componentWillMount: function() {
+        // This will be true while we're rendering a new "problem" (where two
+        // items with different problemIds are considered different problems).
+        // Once we've finished rendering the new problem, it'll be set to
+        // false.
+        this._renderingNewProblem = true;
     },
 
     componentDidMount: function() {
@@ -126,6 +151,21 @@ var MultiRenderer = React.createClass({
         // before, it is now.
         if (!this.state.isContextRendered) {
             this.setState({isContextRendered: true});
+        }
+
+        // If we just *finished* a two pass render (so everything is rendered)
+        if (!prevState.isContextRendered && this.state.isContextRendered) {
+            // If we just finished rendering a new problem and need to restore
+            // serialized state.
+            if (this._renderingNewProblem && this.props.serializedState) {
+                _.each(this.props.serializedState, (state, index) => {
+                    var questionRenderer =
+                            this.refs[this._getQuestionRef(index)];
+                    questionRenderer.restoreSerializedState(state);
+                });
+            }
+
+            this._renderingNewProblem = false;
         }
     },
 
@@ -190,6 +230,25 @@ var MultiRenderer = React.createClass({
         </div>;
     },
 
+    /*
+     * Returns a blob of data that can be used to restore an item's state.
+     *
+     * See the serializedState prop for this data's usage.
+     */
+    getSerializedState: function() {
+        // Ensure that all the questions have been rendered
+        if (!_.all(_.range(this.props.questions.length),
+                   (i) => this.refs[this._getQuestionRef(i)])) {
+            return null;
+        }
+
+        // Create an array that contains all the questions' serialized state
+        return _.map(_.range(this.props.questions.length), (i) => {
+            var questionRenderer = this.refs[this._getQuestionRef(i)];
+            return questionRenderer.getSerializedState();
+        });
+    },
+
     /**
      * Returns an array of score objects.
      *
@@ -224,6 +283,7 @@ var MultiRenderer = React.createClass({
                         content={item.content}
                         images={item.images}
                         onInteractWithWidget={this._onInteractWithQuestion}
+                        problemNum={this.state.problemNum}
                         widgets={item.widgets} />
                     <HintsRenderer
                         key={this.state.keys.questions[i] + "-hints"}
