@@ -64,7 +64,7 @@ if (typeof KA !== "undefined" && KA.language === "en-pt") {
                 (ch) => specialChars[ch]
             );
 
-            component.replaceJiptcontent(text, paragraphIndex);
+            component.replaceJiptContent(text, paragraphIndex);
 
             // Return false to tell jipt not to insert anything into the DOM
             // itself, otherwise it will mess up what React expects there to be
@@ -502,7 +502,8 @@ var Renderer = React.createClass({
             // Split the paragraphs; we have to use getContent() in case
             // nothing has been translated yet (in which case we just have
             // this.props.content)
-            var paragraphs = JiptParagraphs.parse(this.getContent());
+            var allContent = this.getContent(this.props, this.state);
+            var paragraphs = JiptParagraphs.parse(allContent);
             paragraphs[paragraphIndex] = content;
             this.setState({
                 jiptContent: paragraphs.join("\n\n"),

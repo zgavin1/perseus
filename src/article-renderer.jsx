@@ -25,7 +25,13 @@ var ArticleRenderer = React.createClass({
     },
 
     render: function() {
-        var apiOptions = 
+        var apiOptions = _.extend(
+            {
+                isArticle: true
+            },
+            ApiOptions.defaults,
+            this.props.apiOptions
+        );
 
 
         // TODO(alex): Add mobile api functions and pass them down here
@@ -33,7 +39,7 @@ var ArticleRenderer = React.createClass({
             return <Renderer
                 {...section}
                 key={i}
-                apiOptions={this.props.apiOptions}
+                apiOptions={apiOptions}
                 enabledFeatures={this.props.enabledFeatures} />;
         });
 
