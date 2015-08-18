@@ -90,7 +90,9 @@ var MultiRendererEditor = React.createClass({
      * Renders the editor in normal mode (not developer json mode)
      */
     _renderNormal: function() {
-        return <div className="perseus-editor-table">
+        var editorClassName =
+            "perseus-multirenderer-editor perseus-editor-table";
+        return <div className={editorClassName}>
             <div className="perseus-editor-row">
                 <div className="perseus-editor-left-cell">
                     <label>
@@ -99,11 +101,14 @@ var MultiRendererEditor = React.createClass({
                         Developer JSON mode
                     </label>
                     {this.props.questions.map((item, i) => {
+                        var buttonClassName =
+                            "simple-button orange question-control-button";
+
                         var shiftDownButton = null;
                         if (i + 1 < this.props.questions.length) {
                             shiftDownButton = (
                                 <a href="javascript: void 0"
-                                   className="simple-button orange"
+                                   className={buttonClassName}
                                    onClick={() => {
                                        this._handleShiftQuestion(i, 1);
                                    }}>
@@ -115,7 +120,7 @@ var MultiRendererEditor = React.createClass({
                         if (i > 0) {
                             shiftUpButton = (
                                 <a href="javascript: void 0"
-                                   className="simple-button orange"
+                                   className={buttonClassName}
                                    onClick={() => {
                                        this._handleShiftQuestion(i, -1);
                                    }}>
@@ -130,7 +135,7 @@ var MultiRendererEditor = React.createClass({
                                     {shiftDownButton}
                                     {shiftUpButton}
                                     <a href="javascript: void 0"
-                                       className="simple-button orange"
+                                       className={buttonClassName}
                                        onClick={() => {
                                            this._handleRemoveQuestion(i);
                                        }}>
