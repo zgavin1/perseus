@@ -342,7 +342,7 @@ var MultiRenderer = React.createClass({
                     <HintsRenderer
                         key={this.state.keys.questions[i] + "-hints"}
                         hintsVisible={this._getQuestionOptions(i).hintsVisible}
-                        hints={item.hints} />
+                        hints={item.hints || []} />
                 </div>;
             });
         }
