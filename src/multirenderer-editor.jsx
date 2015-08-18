@@ -100,6 +100,14 @@ var MultiRendererEditor = React.createClass({
                                onChange={this._toggleDeveloperMode} />
                         Developer JSON mode
                     </label>
+                    <div className="pod-title">
+                        Context
+                    </div>
+                    <Editor
+                        {...this.props.context}
+                        ref="context"
+                        onChange={this._handleContextChange}
+                        placeholder="Add context here..." />
                     {this.props.questions.map((item, i) => {
                         var buttonClassName =
                             "simple-button orange question-control-button";
@@ -257,14 +265,9 @@ var MultiRendererEditor = React.createClass({
 
     /**
      * Called whenever a question's props change.
-     *
-     * TODO(johnsullivan/phillip): Add a handler for the context's editor once
-     *     we make an editor fo rit.
      */
     _handleQuestionChange: function(questionIndex, newProps) {
         // Clone all the current questions
-        // TODO(johnsullivan/phillip): Not sure if this giant clone is
-        //     necessary. The article renderer does it so we're doing it too!
         var questions = _.clone(this.props.questions);
 
         // Modify the one question that was changed (we need to be careful to
@@ -275,6 +278,16 @@ var MultiRendererEditor = React.createClass({
 
         // Tell our parent that we want our props to change.
         this.props.onChange({questions: questions});
+    },
+
+    /**
+     * Called whenever the context's props change.
+     */
+    _handleContextChange: function(newProps) {
+        // Update the context with the properties that changed
+        context = _.extend({}, this.props.context, newProps);
+
+        this.props.onChange({context: context});
     },
 });
 
