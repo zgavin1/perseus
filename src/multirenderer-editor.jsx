@@ -99,15 +99,41 @@ var MultiRendererEditor = React.createClass({
                         Developer JSON mode
                     </label>
                     {this.props.questions.map((item, i) => {
+                        var shiftDownButton = null;
+                        if (i + 1 < this.props.questions.length) {
+                            shiftDownButton = (
+                                <a href="javascript: void 0"
+                                   className="simple-button orange"
+                                   onClick={() => {
+                                       this._handleShiftQuestion(i, 1);
+                                   }}>
+                                    <span className="icon-circle-arrow-down" />
+                                </a>);
+                        }
+
+                        var shiftUpButton = null;
+                        if (i > 0) {
+                            shiftUpButton = (
+                                <a href="javascript: void 0"
+                                   className="simple-button orange"
+                                   onClick={() => {
+                                       this._handleShiftQuestion(i, -1);
+                                   }}>
+                                    <span className="icon-circle-arrow-up" />
+                                </a>);
+                        }
+
                         return [
                             <div className="pod-title">
                                 Question #{i + 1}
                                 <div className="question-button-container">
+                                    {shiftDownButton}
+                                    {shiftUpButton}
                                     <a href="javascript: void 0"
                                        className="simple-button orange"
-                                            onClick={() => {
-                                                this._handleRemoveQuestion(i);
-                                            }}>
+                                       onClick={() => {
+                                           this._handleRemoveQuestion(i);
+                                       }}>
                                         <span className="icon-trash" />
                                     </a>
                                 </div>
@@ -159,11 +185,36 @@ var MultiRendererEditor = React.createClass({
         </div>;
     },
 
-    _handleRemoveQuestion: function(i) {
+    _handleRemoveQuestion: function(questionIndex) {
         var newQuestions = _.clone(this.props.questions);
-        newQuestions.splice(i, 1);
+        newQuestions.splice(questionIndex, 1);
         this.props.onChange({
             questions: newQuestions
+        });
+    },
+
+    /**
+     * Called whenever a content creator tries to change the position of a
+     * question.
+     *
+     * delta will either be -1 if moving the question up, or 1 if moving the
+     * question down.
+     */
+    _handleShiftQuestion: function(questionIndex, delta) {
+        if (delta !== -1 && delta !== 1) {
+            console.error("Illegal delta value");
+            return;
+        }
+
+        var newQuestions = _.clone(this.props.questions);
+
+        // Swap the question with either the question above or below it
+        var temp = newQuestions[questionIndex];
+        newQuestions[questionIndex] = newQuestions[questionIndex + delta];
+        newQuestions[questionIndex + delta] = temp;
+
+        this.props.onChange({
+            questions: newQuestions,
         });
     },
 
