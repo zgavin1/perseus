@@ -39,6 +39,7 @@ var ArticleRenderer = React.createClass({
             return <Renderer
                 {...section}
                 key={i}
+                key_={i}
                 apiOptions={apiOptions}
                 enabledFeatures={this.props.enabledFeatures} />;
         });

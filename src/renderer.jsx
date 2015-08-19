@@ -557,21 +557,29 @@ var Renderer = React.createClass({
             } else {
                 // Article content gets translated paragraph by paragraph
                 var paragraphs = JiptParagraphs.parse(content);
-                return <div>
+                return <div className={ApiClassNames.RENDERER}>
                     {paragraphs.map((paragraph, paragraphIndex) => {
                         // We need both the translationIndex to look up
                         // this perseus renderer when translating, but
                         // also the paragraph index to tell this renderer
                         // which paragraph was translated.
-                        return <div
-                                data-perseus-component-index={
-                                    this.translationIndex
-                                }
-                                data-perseus-paragraph-index={
-                                    paragraphIndex
-                                }>
-                            {paragraph}
-                        </div>;
+                        // We render both an outer div.paragraph and an
+                        // inner div.paragraph to mimick the structure
+                        // of paragraphs normally so the jipt dom class
+                        // changes work. le sigh.
+                        // TODO(aria): THIS IS BROKEN ON NON-PARAGRAPHS
+                        // LIKE TABLES
+                        return <QuestionParagraph key={paragraphIndex} key_={paragraphIndex}>
+                                <div className="paragraph"
+                                    data-perseus-component-index={
+                                        this.translationIndex
+                                    }
+                                    data-perseus-paragraph-index={
+                                        paragraphIndex
+                                    }>
+                                {paragraph}
+                            </div>
+                        </QuestionParagraph>;
                     })}
                 </div>;
             }
@@ -642,7 +650,7 @@ var Renderer = React.createClass({
                 ),
             });
 
-            return <QuestionParagraph key={state.key} className={className}>
+            return <QuestionParagraph key_={state.key} key={state.key} className={className}>
                 {output}
             </QuestionParagraph>;
         }

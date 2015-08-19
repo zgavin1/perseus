@@ -5,7 +5,7 @@ var QuestionParagraph = React.createClass({
         var className = (this.props.className) ?
             "paragraph " + this.props.className :
             "paragraph";
-        return <div className={className}>
+        return <div className={className} data-key={this.props.key_}>
             {this.props.children}
         </div>;
     }
