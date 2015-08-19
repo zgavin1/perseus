@@ -54,6 +54,20 @@ var MultiRendererEditor = React.createClass({
         });
     },
 
+    serialize: function() {
+        // If we have editors on screen, run serialize on them
+        if (!this.state.developerMode) {
+            return {
+                context: this.refs.contextEditor.serialize(),
+                questions: _.map(_.range(this.props.questions.length), (i) => {
+                    return this.refs["editor" + i].serialize();
+                }),
+            };
+        }
+
+        return _.pick(this.props, "questions", "context");
+    },
+
     setReviewMode: function(reviewMode) {
         this.setState({reviewMode: reviewMode});
     },
@@ -179,7 +193,7 @@ var MultiRendererEditor = React.createClass({
                     </div>
                     <Editor
                         {...this.props.context}
-                        ref="context"
+                        ref="contextEditor"
                         onChange={this._handleContextChange}
                         placeholder="Add context here..." />
                     {questionEditors}
