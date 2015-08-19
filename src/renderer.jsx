@@ -570,7 +570,7 @@ var Renderer = React.createClass({
                         // TODO(aria): THIS IS BROKEN ON NON-PARAGRAPHS
                         // LIKE TABLES
                         return <QuestionParagraph key={paragraphIndex} key_={paragraphIndex}>
-                                <div className="paragraph"
+                                <div className="paragraph" key={paragraphIndex} data-key={paragraphIndex}
                                     data-perseus-component-index={
                                         this.translationIndex
                                     }
