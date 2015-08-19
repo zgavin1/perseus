@@ -503,7 +503,7 @@ var Renderer = React.createClass({
             // nothing has been translated yet (in which case we just have
             // this.props.content)
             var allContent = this.getContent(this.props, this.state);
-            var paragraphs = JiptParagraphs.parseToArray(allContent);
+            var paragraphs = JiptParagraphs.parse(allContent);
             paragraphs[paragraphIndex] = content;
             this.setState({
                 jiptContent: paragraphs.join("\n\n"),
@@ -556,16 +556,23 @@ var Renderer = React.createClass({
                 </div>;
             } else {
                 // Article content gets translated paragraph by paragraph
-                var parsedJiptParagraphs = JiptParagraphs.parseToAst(content);
-
-                // We *have* to use our standard output function for this,
-                // so that we get the exact same DOM structure, so that when
-                // crowdin adds crowdin classes to the output, those
-                // classes don't get replaced by react's re-rendering, since
-                // the outer paragraph nodes will stay the same.
-                // TODO(aria): cry
+                var paragraphs = JiptParagraphs.parse(content);
                 return <div>
-                    {this.outputMarkdown(parsedJiptParagraphs)}
+                    {paragraphs.map((paragraph, paragraphIndex) => {
+                        // We need both the translationIndex to look up
+                        // this perseus renderer when translating, but
+                        // also the paragraph index to tell this renderer
+                        // which paragraph was translated.
+                        return <div
+                                data-perseus-component-index={
+                                    this.translationIndex
+                                }
+                                data-perseus-paragraph-index={
+                                    paragraphIndex
+                                }>
+                            {paragraph}
+                        </div>;
+                    })}
                 </div>;
             }
         }
