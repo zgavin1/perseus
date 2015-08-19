@@ -483,13 +483,13 @@ var Renderer = React.createClass({
     },
 
     getContent: function(props, state) {
-        return state.jiptContent || props.content;
+        return props.content; // state.jiptContent || props.content;
     },
 
     shouldRenderJiptPlaceholder: function(props, state) {
-        return typeof KA !== "undefined" && KA.language === "en-pt" &&
-                    state.jiptContent == null &&
-                    props.content.indexOf('crwdns') !== -1;
+        return typeof KA !== "undefined" && KA.language === "en-pt";// &&
+                    //state.jiptContent == null &&
+                    //props.content.indexOf('crwdns') !== -1;
     },
 
     replaceJiptContent: function(content, paragraphIndex) {
