@@ -90,6 +90,80 @@ var MultiRendererEditor = React.createClass({
      * Renders the editor in normal mode (not developer json mode)
      */
     _renderNormal: function() {
+        var questionEditors = this.props.questions.map((item, i) => {
+            var buttonClassName =
+                "simple-button orange question-control-button";
+
+            var shiftDownButton = null;
+            if (i + 1 < this.props.questions.length) {
+                shiftDownButton = (
+                    <a href="javascript: void 0"
+                       className={buttonClassName}
+                       onClick={() => {
+                           this._handleShiftQuestion(i, 1);
+                       }}>
+                        <span className="icon-circle-arrow-down" />
+                    </a>);
+            }
+
+            var shiftUpButton = null;
+            if (i > 0) {
+                shiftUpButton = (
+                    <a href="javascript: void 0"
+                       className={buttonClassName}
+                       onClick={() => {
+                           this._handleShiftQuestion(i, -1);
+                       }}>
+                        <span className="icon-circle-arrow-up" />
+                    </a>);
+            }
+
+            return [
+                <div className="pod-title">
+                    Question #{i + 1}
+                    <div className="question-button-container">
+                        {shiftDownButton}
+                        {shiftUpButton}
+                        <a href="javascript: void 0"
+                           className={buttonClassName}
+                           onClick={() => {
+                               this._handleRemoveQuestion(i);
+                           }}>
+                            <span className="icon-trash" />
+                        </a>
+                        <a href="javascript: void 0"
+                           className={buttonClassName}
+                           onClick={() => {
+                               this._handleAddQuestion(i);
+                           }}>
+                            <span className="icon-plus" />
+                        </a>
+                    </div>
+                </div>,
+                <Editor
+                    {...item}
+                    ref={"editor" + i}
+                    onChange={
+                        _.partial(this._handleQuestionChange, i)
+                    }
+                    placeholder="Add question here..." />
+            ];
+        });
+
+
+        // We want to make srue users can create a question if there aren't any
+        // yet.
+        if (questionEditors.length === 0) {
+            questionEditors = (
+                <a href="javascript: void 0"
+                   className="simple-button orange"
+                   onClick={() => {
+                       this._handleAddQuestion(0);
+                   }}>
+                    <span className="icon-plus" /> Create the first question
+                </a>);
+        }
+
         var editorClassName =
             "perseus-multirenderer-editor perseus-editor-table";
         return <div className={editorClassName}>
@@ -108,65 +182,7 @@ var MultiRendererEditor = React.createClass({
                         ref="context"
                         onChange={this._handleContextChange}
                         placeholder="Add context here..." />
-                    {this.props.questions.map((item, i) => {
-                        var buttonClassName =
-                            "simple-button orange question-control-button";
-
-                        var shiftDownButton = null;
-                        if (i + 1 < this.props.questions.length) {
-                            shiftDownButton = (
-                                <a href="javascript: void 0"
-                                   className={buttonClassName}
-                                   onClick={() => {
-                                       this._handleShiftQuestion(i, 1);
-                                   }}>
-                                    <span className="icon-circle-arrow-down" />
-                                </a>);
-                        }
-
-                        var shiftUpButton = null;
-                        if (i > 0) {
-                            shiftUpButton = (
-                                <a href="javascript: void 0"
-                                   className={buttonClassName}
-                                   onClick={() => {
-                                       this._handleShiftQuestion(i, -1);
-                                   }}>
-                                    <span className="icon-circle-arrow-up" />
-                                </a>);
-                        }
-
-                        return [
-                            <div className="pod-title">
-                                Question #{i + 1}
-                                <div className="question-button-container">
-                                    {shiftDownButton}
-                                    {shiftUpButton}
-                                    <a href="javascript: void 0"
-                                       className={buttonClassName}
-                                       onClick={() => {
-                                           this._handleRemoveQuestion(i);
-                                       }}>
-                                        <span className="icon-trash" />
-                                    </a>
-                                    <a href="javascript: void 0"
-                                       className={buttonClassName}
-                                       onClick={() => {
-                                           this._handleAddQuestion(i);
-                                       }}>
-                                        <span className="icon-plus" />
-                                    </a>
-                                </div>
-                            </div>,
-                            <Editor
-                                {...item}
-                                ref={"editor" + i}
-                                onChange={
-                                    _.partial(this._handleQuestionChange, i)
-                                }
-                                placeholder="Add question here..." />
-                        ];
-                    })}
+                    {questionEditors}
                 </div>
                 <div className="perseus-editor-right-cell">
                     <MultiRenderer
