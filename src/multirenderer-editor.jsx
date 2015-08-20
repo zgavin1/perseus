@@ -5,6 +5,8 @@ var Editor = require("./editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
 var MultiRenderer = require("./multirenderer.jsx");
 
+var EDITOR_MODES = ["edit", "preview", "json"];
+
 /**
  * Component that displays the mode dropdown.
  *
@@ -14,7 +16,7 @@ var MultiRenderer = require("./multirenderer.jsx");
 var ModeDropdown = React.createClass({
 
     propTypes: {
-        currentMode: React.PropTypes.string,
+        currentMode: React.PropTypes.oneOf(EDITOR_MODES),
 
         // A function that takes in a string signifying the mode (ex: "edit")
         onChange: React.PropTypes.func,
@@ -45,11 +47,14 @@ var MultiRendererEditor = React.createClass({
     propTypes: {
         json: React.PropTypes.object,
         onChange: React.PropTypes.func.isRequired,
+
+        // The mode we'll start in
+        defaultMode: React.PropTypes.oneOf(EDITOR_MODES),
     },
 
     getInitialState: function() {
         return {
-            mode: "edit",
+            mode: this.props.defaultMode || "edit",
             serializedState: null,
             problemNum: 0,
             reviewMode: false,

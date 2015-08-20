@@ -282,7 +282,8 @@ function initPerseus(Perseus) {
             imageUploader: function(image, callback) {
                 _.delay(callback, 1000, "http://fake.image.url");
             },
-            componentClass: Perseus.MultiRendererEditor
+            componentClass: Perseus.MultiRendererEditor,
+            defaultMode: query.editorMode,
         };
 
         var StatefulEditorPage = React.createFactory(Perseus.StatefulEditorPage);
