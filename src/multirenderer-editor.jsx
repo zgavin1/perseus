@@ -132,6 +132,16 @@ var MultiRendererEditor = React.createClass({
      * Renders the editor in preview mode.
      */
     _renderPreview: function() {
+        var questionNumbers = {
+            start: 1,
+            totalQuestions:
+                // If we're rendering a simple item (which can only happen if
+                // the content was URL encoded and we went straight to preview
+                // mode) we'll force the totalQuestions to 1.
+                this.props.json.questions ?
+                    this.props.json.questions.length : 1,
+        };
+
         return <div>
             <ModeDropdown currentMode="preview" onChange={this._setMode} />
             <MultiRenderer
@@ -139,10 +149,7 @@ var MultiRendererEditor = React.createClass({
                 json={this.props.json}
                 problemNum={this.state.problemNum}
                 serializedState={this.state.serializedState}
-                questionNumbers={{
-                        start: 1,
-                        totalQuestions: this.props.json.questions.length,
-                }}
+                questionNumbers={questionNumbers}
                 questionOptions={this._generateQuestionOptions()}
                 enableMoreQuestionsTag={true} />
         </div>;
