@@ -5,18 +5,10 @@ var Editor = require("./editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
 var MultiRenderer = require("./multirenderer.jsx");
 
-var rendererProps = React.PropTypes.shape({
-    content: React.PropTypes.string,
-    widgets: React.PropTypes.object,
-    images: React.PropTypes.object,
-});
-
-
 var MultiRendererEditor = React.createClass({
 
     propTypes: {
-        questions: React.PropTypes.arrayOf(rendererProps),
-        context: React.PropTypes.object,
+        json: React.PropTypes.object,
         onChange: React.PropTypes.func.isRequired,
     },
 
@@ -37,10 +29,7 @@ var MultiRendererEditor = React.createClass({
      * Called by the JSON editor whenever the user makes changes.
      */
     _changeJSON: function(json) {
-        this.props.onChange({
-            questions: json.questions || null,
-            context: json.context || null,
-        });
+        this.props.onChange({json: json});
     },
 
     getSerializedState: function() {
@@ -59,13 +48,14 @@ var MultiRendererEditor = React.createClass({
         if (!this.state.developerMode) {
             return {
                 context: this.refs.contextEditor.serialize(),
-                questions: _.map(_.range(this.props.questions.length), (i) => {
+                questions: _.map(_.range(this.props.json.questions.length),
+                                 (i) => {
                     return this.refs["editor" + i].serialize();
                 }),
             };
         }
 
-        return _.pick(this.props, "questions", "context");
+        return this.props.json;
     },
 
     setReviewMode: function(reviewMode) {
@@ -95,7 +85,7 @@ var MultiRendererEditor = React.createClass({
             </label>
             <JsonEditor
                 multiLine={true}
-                value={_.pick(this.props, "questions", "context")}
+                value={this.props.json}
                 onChange={this._changeJSON} />
         </div>;
     },
@@ -104,12 +94,12 @@ var MultiRendererEditor = React.createClass({
      * Renders the editor in normal mode (not developer json mode)
      */
     _renderNormal: function() {
-        var questionEditors = this.props.questions.map((item, i) => {
+        var questionEditors = this.props.json.questions.map((item, i) => {
             var buttonClassName =
                 "simple-button orange question-control-button";
 
             var shiftDownButton = null;
-            if (i + 1 < this.props.questions.length) {
+            if (i + 1 < this.props.json.questions.length) {
                 shiftDownButton = (
                     <a href="javascript: void 0"
                        className={buttonClassName}
@@ -192,7 +182,7 @@ var MultiRendererEditor = React.createClass({
                         Context
                     </div>
                     <Editor
-                        {...this.props.context}
+                        {...this.props.json.context}
                         ref="contextEditor"
                         onChange={this._handleContextChange}
                         placeholder="Add context here..." />
@@ -201,16 +191,16 @@ var MultiRendererEditor = React.createClass({
                 <div className="perseus-editor-right-cell">
                     <MultiRenderer
                         ref="multirenderer"
-                        questions={this.props.questions}
-                        context={this.props.context}
+                        json={this.props.json}
                         problemNum={this.state.problemNum}
                         serializedState={this.state.serializedState}
                         questionNumbers={{
                                 start: 1,
-                                totalQuestions: this.props.questions.length
+                                totalQuestions:
+                                    this.props.json.questions.length,
                         }}
                         questionOptions={
-                            _.object(_.map(this.props.questions,
+                            _.object(_.map(this.props.json.questions,
                                            (question, index) => {
                                 return [
                                     index,
@@ -224,11 +214,11 @@ var MultiRendererEditor = React.createClass({
     },
 
     _handleRemoveQuestion: function(questionIndex) {
-        var newQuestions = _.clone(this.props.questions);
-        newQuestions.splice(questionIndex, 1);
-        this.props.onChange({
-            questions: newQuestions
-        });
+        var json = _.clone(this.props.json);
+        json.questions = _.clone(json.questions);
+
+        json.questions.splice(questionIndex, 1);
+        this.props.onChange({json: json});
     },
 
     /**
@@ -244,16 +234,15 @@ var MultiRendererEditor = React.createClass({
             return;
         }
 
-        var newQuestions = _.clone(this.props.questions);
+        var json = _.clone(this.props.json);
+        json.questions = _.clone(json.questions);
 
         // Swap the question with either the question above or below it
-        var temp = newQuestions[questionIndex];
-        newQuestions[questionIndex] = newQuestions[questionIndex + delta];
-        newQuestions[questionIndex + delta] = temp;
+        var temp = json.questions[questionIndex];
+        json.questions[questionIndex] = json.questions[questionIndex + delta];
+        json.questions[questionIndex + delta] = temp;
 
-        this.props.onChange({
-            questions: newQuestions,
-        });
+        this.props.onChange({json: json});
     },
 
     /**
@@ -286,11 +275,11 @@ var MultiRendererEditor = React.createClass({
             "hints": []
         };
 
-        var newQuestions = _.clone(this.props.questions);
-        newQuestions.splice(questionIndex + 1, 0, defaultQuestion);
-        this.props.onChange({
-            questions: newQuestions
-        });
+        var json = _.clone(this.props.json);
+        json.questions = _.clone(json.questions);
+        json.questions.splice(questionIndex + 1, 0, defaultQuestion);
+
+        this.props.onChange({json: json});
     },
 
     /**
@@ -298,26 +287,26 @@ var MultiRendererEditor = React.createClass({
      */
     _handleQuestionChange: function(questionIndex, newProps) {
         // Clone all the current questions
-        var questions = _.clone(this.props.questions);
+        var json = _.clone(this.props.json);
 
         // Modify the one question that was changed (we need to be careful to
         // not mutate any existing values, otherwise our renderer will have
         // trouble figuring out which of its props changed).
-        questions[questionIndex] = _.extend({}, questions[questionIndex],
-                                            newProps);
+        json.questions[questionIndex] =
+            _.extend({}, json.questions[questionIndex], newProps);
 
         // Tell our parent that we want our props to change.
-        this.props.onChange({questions: questions});
+        this.props.onChange({json: json});
     },
 
     /**
      * Called whenever the context's props change.
      */
     _handleContextChange: function(newProps) {
-        // Update the context with the properties that changed
-        context = _.extend({}, this.props.context, newProps);
+        var json = _.clone(this.props.json);
+        json.context = _.extend({}, this.props.json.context, newProps);
 
-        this.props.onChange({context: context});
+        this.props.onChange({json: json});
     },
 });
 

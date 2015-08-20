@@ -5,17 +5,20 @@ var Renderer = require("./renderer.jsx");
 
 var MultiRenderer = React.createClass({
     propTypes: {
-        // A list of item data. Each will be rendered in its own Perseus
-        // Renderer and treated as an independent question. A question's
-        // widgets cannot access any other question's widgets through the inter
-        // widgets bus (but see the context prop below).
-        questions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+        json: React.PropTypes.shape({
+            // A list of item data. Each will be rendered in its own Perseus
+            // Renderer and treated as an independent question. A question's
+            // widgets cannot access any other question's widgets through the
+            // inter widgets bus (but see the context prop below).
+            questions:
+                React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
 
-        // A single item data. This item provides context that is shared
-        // between all of the questions. It will be rendered in its own Perseus
-        // Renderer. Each question's widgets can access the widgets in the
-        // context through the inter widgets bus.
-        context: React.PropTypes.object,
+            // A single item data. This item provides context that is shared
+            // between all of the questions. It will be rendered in its own
+            // Perseus Renderer. Each question's widgets can access the widgets
+            // in the context through the inter widgets bus.
+            context: React.PropTypes.object,
+        }).isRequired,
 
         // Some blob of serialized state given by getSerializedState. When the
         // MultiRenderer is mounted or the problemNum changes, the rendered
@@ -81,7 +84,7 @@ var MultiRenderer = React.createClass({
     _createKeys: function() {
         return {
             context: _.uniqueId("context-"),
-            questions: _.map(this.props.questions,
+            questions: _.map(this.props.json.questions,
                              () => _.uniqueId("question-")),
         };
     },
@@ -121,13 +124,12 @@ var MultiRenderer = React.createClass({
     },
 
     componentWillReceiveProps: function(nextProps) {
-        // If the context, questions, or problem change, we just remount
-        // everything. We could be a little smarter (to only remount the
-        // questions if the context changes for example), but it doesn't seem
-        // necessary and may source errors.
+        // If the itemdata, or problem change, we just remount everything. We
+        // could be a little smarter (to only remount the questions if the
+        // context changes for example), but it doesn't seem necessary and may
+        // source errors.
         if (this.props.problemNum !== nextProps.problemNum ||
-                !_.isEqual(this.props.context, nextProps.context) ||
-                !_.isEqual(this.props.questions, nextProps.questions)) {
+                !_.isEqual(this.props.json, nextProps.json)) {
             this.setState({
                 isContextRendered: false,
                 keys: this._createKeys(),
@@ -220,14 +222,17 @@ var MultiRenderer = React.createClass({
      */
     getScores: function() {
         // Try and get the scores if all the questions have been rendered
-        if (_.all(_.range(this.props.questions.length),
-                   (i) => this.refs[this._getQuestionRef(i)])) {
-            return _.map(
-                    _.range(this.props.questions.length), (questionIndex) => {
+        if (_.all(_.range(this.props.json.questions.length),
+                  (i) => this.refs[this._getQuestionRef(i)])) {
+            var scoreQuestion = (questionIndex) => {
                 return this.refs[this._getQuestionRef(questionIndex)].score();
-            });
+            };
+            return _.map(_.range(this.props.json.questions.length),
+                         scoreQuestion);
         }
 
+        // The questions aren't rendered right now, so we don't know what the
+        // scores are.
         return null;
     },
 
@@ -307,13 +312,13 @@ var MultiRenderer = React.createClass({
      */
     getSerializedState: function() {
         // Ensure that all the questions have been rendered
-        if (!_.all(_.range(this.props.questions.length),
+        if (!_.all(_.range(this.props.json.questions.length),
                    (i) => this.refs[this._getQuestionRef(i)])) {
             return null;
         }
 
         // Create an array that contains all the questions' serialized state
-        return _.map(_.range(this.props.questions.length), (i) => {
+        return _.map(_.range(this.props.json.questions.length), (i) => {
             var questionRenderer = this.refs[this._getQuestionRef(i)];
             return questionRenderer.getSerializedState();
         });
@@ -324,7 +329,7 @@ var MultiRenderer = React.createClass({
         // information.
         var rendererList = null;
         if (this.state.isContextRendered) {
-            rendererList = _.map(this.props.questions, (item, i) => {
+            rendererList = _.map(this.props.json.questions, (item, i) => {
                 // TODO(johnsullivan): Is keying the Renderer and HintsRenderer
                 //     necessary here?
                 return <div key={this.state.keys.questions[i] + "-container"}
@@ -351,14 +356,14 @@ var MultiRenderer = React.createClass({
         // Build the column that'll contain the context's renderer (or not if
         // we weren't given a context).
         var contextColumn = null;
-        if (this.props.context) {
+        if (this.props.json.context) {
             contextColumn = <div className="col context-col">
                 <div className="col-content">
                     <Renderer
                         ref="context"
-                        content={this.props.context.content}
-                        images={this.props.context.images}
-                        widgets={this.props.context.widgets} />
+                        content={this.props.json.context.content}
+                        images={this.props.json.context.images}
+                        widgets={this.props.json.context.widgets} />
                 </div>
             </div>;
         }

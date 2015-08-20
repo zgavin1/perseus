@@ -277,8 +277,7 @@ function initPerseus(Perseus) {
                 query.content ? JSON.parse(query.content) : defaultItemData);
 
         var editorProps = {
-            questions: content.questions,
-            context: content.context,
+            json: content,
             developerMode: true,
             imageUploader: function(image, callback) {
                 _.delay(callback, 1000, "http://fake.image.url");
