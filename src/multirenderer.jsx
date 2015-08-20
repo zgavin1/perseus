@@ -4,6 +4,36 @@ var HintsRenderer = require("./hints-renderer.jsx");
 var Renderer = require("./renderer.jsx");
 
 var MultiRenderer = React.createClass({
+    statics: {
+        /**
+         * Transforms the json into a multi-item if it's not already.
+         *
+         * The transformation logic only deals with simple items (ie: you can
+         * either pass a multi item into this function, or a simple item, but
+         * not another item type).
+         */
+        _transformJson: function(json) {
+            // If this is not a multi item, we'll assume it's a simple item and
+            // convert it.
+            if (!json.questions) {
+                return {
+                    questions: [
+                        _.extend({}, json.question, {hints: json.hints})
+                    ]
+                };
+            }
+
+            return json;
+        },
+
+        /**
+         * Gets the number of questions in an item.
+         */
+        getNumQuestionsInJson: function(json) {
+            return MultiRenderer._transformJson(json).questions.length;
+        },
+    },
+
     propTypes: {
         json: React.PropTypes.oneOfType([
             // This is the shape of a multi item
@@ -98,25 +128,13 @@ var MultiRenderer = React.createClass({
     },
 
     /**
-     * Generally use this to access this.props.json.
+     * Returns the json prop run through this._transformJson.
      *
-     * this.props.json can be a simple or multi item. This function lets us
-     * sidestep some special cases by always returning a multi item (it will
-     * transform a simple item into a multi item if necessary).
+     * Use this over accessing this.prop.json directly in pretty much all
+     * cases.
      */
     _getJson: function() {
-        // If this is not a multi item, we'll assume it's a simple item and
-        // convert it.
-        if (!this.props.json.questions) {
-            return {
-                questions: [
-                    _.extend({}, this.props.json.question,
-                             {hints: this.props.json.hints})
-                ]
-            };
-        }
-
-        return this.props.json;
+        return MultiRenderer._transformJson(this.props.json);
     },
 
     /**
