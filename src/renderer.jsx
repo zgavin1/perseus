@@ -267,6 +267,8 @@ var Renderer = React.createClass({
             widgetId: id,
             alignment: this.state.widgetInfo[id] &&
                        this.state.widgetInfo[id].alignment,
+            static: this.state.widgetInfo[id] &&
+                    this.state.widgetInfo[id].static,
             problemNum: this.props.problemNum,
             enabledFeatures: this.props.enabledFeatures,
             apiOptions: this.getApiOptions(this.props),
