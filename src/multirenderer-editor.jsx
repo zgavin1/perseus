@@ -5,6 +5,41 @@ var Editor = require("./editor.jsx");
 var JsonEditor = require("./json-editor.jsx");
 var MultiRenderer = require("./multirenderer.jsx");
 
+/**
+ * Component that displays the mode dropdown.
+ *
+ * The mode dropdown is the selector at the top of the editor that lets you
+ * switch between edit, preview, and dev-only JSON mode.
+ */
+var ModeDropdown = React.createClass({
+
+    propTypes: {
+        currentMode: React.PropTypes.string,
+
+        // A function that takes in a string signifying the mode (ex: "edit")
+        onChange: React.PropTypes.func,
+    },
+
+    _handleSelectMode: function(event) {
+        if (this.props.onChange) {
+            this.props.onChange(event.target.value);
+        }
+    },
+
+    render: function() {
+        return <label>
+            Mode:{" "}
+            <select value={this.props.currentMode}
+                    onChange={this._handleSelectMode}>
+                <option value="edit">Edit</option>
+                <option value="preview">Preview</option>
+                <option value="json">Dev-only JSON</option>
+            </select>
+        </label>;
+    },
+
+});
+
 var MultiRendererEditor = React.createClass({
 
     propTypes: {
@@ -14,15 +49,15 @@ var MultiRendererEditor = React.createClass({
 
     getInitialState: function() {
         return {
-            developerMode: false,
+            mode: "edit",
             serializedState: null,
             problemNum: 0,
             reviewMode: false,
         };
     },
 
-    _toggleDeveloperMode: function() {
-        this.setState({developerMode: !this.state.developerMode});
+    _setMode: function(mode) {
+        this.setState({mode: mode});
     },
 
     /**
@@ -33,6 +68,10 @@ var MultiRendererEditor = React.createClass({
     },
 
     getSerializedState: function() {
+        if (!this.refs.multirenderer) {
+            return null;
+        }
+
         return this.refs.multirenderer.getSerializedState();
     },
 
@@ -65,11 +104,42 @@ var MultiRendererEditor = React.createClass({
     render: function() {
         // We have two totally separate rendering methods for developer vs
         // normal mode because of how different they are from eachother.
-        if (this.state.developerMode) {
+        if (this.state.mode === "json") {
             return this._renderDeveloper();
-        } else {
+        } else if (this.state.mode === "edit") {
             return this._renderNormal();
+        } else if (this.state.mode === "preview") {
+            return this._renderPreview();
         }
+    },
+
+    /**
+     * Create the question options prop that we should send down to the
+     * Multi-Renderer.
+     */
+    _generateQuestionOptions: function() {
+        return _.object(_.map(this.props.json.questions, (question, index) => {
+            return [index, {reviewMode: this.state.reviewMode}];
+        }));
+    },
+
+    /**
+     * Renders the editor in preview mode.
+     */
+    _renderPreview: function() {
+        return <div>
+            <ModeDropdown currentMode="preview" onChange={this._setMode} />
+            <MultiRenderer
+                ref="multirenderer"
+                json={this.props.json}
+                problemNum={this.state.problemNum}
+                serializedState={this.state.serializedState}
+                questionNumbers={{
+                        start: 1,
+                        totalQuestions: this.props.json.questions.length,
+                }}
+                questionOptions={this._generateQuestionOptions()} />
+        </div>;
     },
 
     /**
@@ -77,12 +147,7 @@ var MultiRendererEditor = React.createClass({
      */
     _renderDeveloper: function() {
         return <div>
-            <label>
-                <input type="checkbox"
-                       checked
-                       onChange={this._toggleDeveloperMode} />
-                Developer JSON mode
-            </label>
+            <ModeDropdown currentMode="json" onChange={this._setMode} />
             <JsonEditor
                 multiLine={true}
                 value={this.props.json}
@@ -173,11 +238,8 @@ var MultiRendererEditor = React.createClass({
         return <div className={editorClassName}>
             <div className="perseus-editor-row">
                 <div className="perseus-editor-left-cell">
-                    <label>
-                        <input type="checkbox"
-                               onChange={this._toggleDeveloperMode} />
-                        Developer JSON mode
-                    </label>
+                    <ModeDropdown currentMode="edit"
+                                  onChange={this._setMode} />
                     <div className="pod-title">
                         Context
                     </div>
@@ -199,15 +261,7 @@ var MultiRendererEditor = React.createClass({
                                 totalQuestions:
                                     this.props.json.questions.length,
                         }}
-                        questionOptions={
-                            _.object(_.map(this.props.json.questions,
-                                           (question, index) => {
-                                return [
-                                    index,
-                                    {reviewMode: this.state.reviewMode}
-                                ];
-                            }))
-                        } />
+                        questionOptions={this._generateQuestionOptions()} />
                 </div>
             </div>
         </div>;
