@@ -138,7 +138,8 @@ var MultiRendererEditor = React.createClass({
                         start: 1,
                         totalQuestions: this.props.json.questions.length,
                 }}
-                questionOptions={this._generateQuestionOptions()} />
+                questionOptions={this._generateQuestionOptions()}
+                enableMoreQuestionsTag={true} />
         </div>;
     },
 

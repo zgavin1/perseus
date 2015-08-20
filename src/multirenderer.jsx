@@ -66,6 +66,10 @@ var MultiRenderer = React.createClass({
         // Called whenever the scores object changes. Should be a function that
         // takes in a scores object like getScores() returned.
         onScoresChanged: React.PropTypes.func,
+
+        // If true, the more questions tag will be shown as appropriate (when
+        // the user should scroll down to see more questions).
+        enableMoreQuestionsTag: React.PropTypes.bool,
     },
 
     // Default values for each question's options.
@@ -120,6 +124,11 @@ var MultiRenderer = React.createClass({
             //     changes well, we don't have to do this. At this time, there
             //     seem to be subtle problems that come up.
             keys: this._createKeys(),
+
+            // This will be true when the the questions column is clipping some
+            // of its children, and the user should scroll down to see more
+            // questions.
+            moreQuestionsBelow: false,
         };
     },
 
@@ -150,8 +159,50 @@ var MultiRenderer = React.createClass({
         this._renderingNewProblem = true;
     },
 
+    /**
+     * Set this.state.moreQuestionsBelow appropriately.
+     */
+    _updateMoreQuestionsBelow: function() {
+        // Find the last question's DOM node
+        var lastQuestion = this.refs[
+                this._getQuestionRef(this.props.questions.length - 1)];
+        if (!lastQuestion) {
+            return;
+        }
+        var $lastQuestion = $(React.findDOMNode(lastQuestion));
+
+        // Get the y coordinate of the middle of the last question,
+        // relative to the top of the questions column.
+        // WARNING: This is tricky to think about. The last question's top
+        // value will change if the user is scrolling through the questions
+        // (using a scrollbar on the questions column).
+        var lastQuestionMiddle =
+                $lastQuestion.position().top + $lastQuestion.height() / 2;
+
+        // We say there are more questions below if the last question's mid
+        // point is clipped.
+        var $questionColumn = $(React.findDOMNode(this.refs.questionsColumn));
+        var moreQuestionsBelow = lastQuestionMiddle > $questionColumn.height();
+        if (this.state.moreQuestionsBelow !== moreQuestionsBelow) {
+            this.setState({
+                moreQuestionsBelow: moreQuestionsBelow,
+            });
+        }
+    },
+
     componentDidMount: function() {
         this.setState({isContextRendered: true});
+
+        // Attach a handler to the question column that controls the visibility
+        // of the more questions tag.
+        var $questionColumn = $(React.findDOMNode(this.refs.questionsColumn));
+        $questionColumn.scroll(_.debounce(() => {
+            if (!this.isMounted()) {
+                return;
+            }
+
+            this._updateMoreQuestionsBelow();
+        }, 100));
     },
 
     componentDidUpdate: function(prevProps, prevState) {
@@ -187,6 +238,9 @@ var MultiRenderer = React.createClass({
                 // can just immediately recalculate the scores.
                 this._updateScores();
             }
+
+            // Figure out whether there are questions offscreen or not
+            this._updateMoreQuestionsBelow();
 
             this._renderingNewProblem = false;
         }
@@ -368,17 +422,30 @@ var MultiRenderer = React.createClass({
             </div>;
         }
 
-        var classes = classNames({
+        var multirendererClasses = classNames({
             "perseus-multirenderer": true,
             "two-column": contextColumn !== null,
             "one-column": contextColumn === null
         });
 
-        return <div className={classes}>
+        var moreQuestionsClasses = classNames({
+            "more-questions": true,
+            "show-label": this.state.moreQuestionsBelow &&
+                          this.props.enableMoreQuestionsTag,
+        });
+
+        return <div className={multirendererClasses}>
             {contextColumn}
             <div className="col">
-                <div className="col-content">
+                <div ref="questionsColumn" className="col-content">
                     {rendererList}
+                </div>
+                <div className="more-questions-container">
+                    <div className={moreQuestionsClasses}>
+                        <i className="icon-arrow-down"></i>
+                        <span>Scroll for more questions</span>
+                        <i className="icon-arrow-down"></i>
+                    </div>
                 </div>
             </div>
         </div>;

@@ -5,8 +5,9 @@
         width: 100%;
 
         .col {
-            vertical-align: top;
             display: table-cell;
+            position: relative;
+            vertical-align: top;
             width: 100% / @numColumns;
         }
 
@@ -23,6 +24,40 @@
     &.one-column {
         .columns(1)
     }
+
+    .more-questions-container {
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        text-align: center;
+        width: 100%;
+        z-index: 10;
+
+        .more-questions {
+            background: @satBlue;
+            border-bottom: none;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            color: #fff;
+            display: inline-block;
+            line-height: 18px;
+            opacity: 0;
+            padding: 0 8px;
+            transition: opacity .2s ease .1s;
+
+            span {
+                font-size: 12px;
+                margin: 0 5px;
+            }
+
+            i {
+                font-size: 9px;
+            }
+
+            &.show-label {
+                opacity: 1;
+            }
+        }
 }
 
 .question-button-container {
