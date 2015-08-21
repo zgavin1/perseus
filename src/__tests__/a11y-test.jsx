@@ -23,7 +23,7 @@ var noWidgets = {
         "minor": 1
     },
     "hints": []
-}
+};
 
 var oneAccessibleWidget = {
     "question": {
@@ -258,6 +258,100 @@ var imageWithoutAltText = {
     "hints": []
 };
 
+var multiItemImageWithoutAltText = {
+    "questions": [
+        {
+            "content": "hello\n\n[[☃ image 1]]\n\n",
+            "images": {},
+            "widgets": {
+                "image 1": {
+                    "type": "image",
+                    "graded": true,
+                    "options": {
+                        "title": "",
+                        "range": [
+                            [
+                                0,
+                                10
+                            ],
+                            [
+                                0,
+                                10
+                            ]
+                        ],
+                        "box": [
+                            350,
+                            150
+                        ],
+                        "backgroundImage": {
+                            "url": "http://placehold.it/350x150",
+                            "width": 350,
+                            "height": 150
+                        },
+                        "labels": [],
+                        "alt": "",
+                        "caption": ""
+                    },
+                    "version": {
+                        "major": 0,
+                        "minor": 0
+                    }
+                }
+            }
+        }
+    ],
+};
+
+var multiItemImageWithoutAltTextInContext = {
+    "questions": [
+        {
+            "content": "",
+            "images": {},
+            "widgets": {},
+        }
+    ],
+
+    "context": {
+        "content": "hello\n\n[[☃ image 1]]\n\n",
+        "images": {},
+        "widgets": {
+            "image 1": {
+                "type": "image",
+                "graded": true,
+                "options": {
+                    "title": "",
+                    "range": [
+                        [
+                            0,
+                            10
+                        ],
+                        [
+                            0,
+                            10
+                        ]
+                    ],
+                    "box": [
+                        350,
+                        150
+                    ],
+                    "backgroundImage": {
+                        "url": "http://placehold.it/350x150",
+                        "width": 350,
+                        "height": 150
+                    },
+                    "labels": [],
+                    "alt": "",
+                    "caption": ""
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            }
+        }
+    },
+};
+
 var emptyImageWithoutAltText = {
     "question": {
         "content": "hello\n\n[[☃ image 1]]\n\n",
@@ -336,6 +430,20 @@ describe("a11y", () => {
 
             it("should pick out images without alt text", () => {
                 var result = a11y.violatingWidgets(imageWithoutAltText);
+                assert.strictEqual(result.length, 1);
+                assert.strictEqual(result[0], "image");
+            });
+
+            it("should pick out image without alt text", () => {
+                var result = a11y.violatingWidgets(
+                    multiItemImageWithoutAltText);
+                assert.strictEqual(result.length, 1);
+                assert.strictEqual(result[0], "image");
+            });
+
+            it("should pick out image without alt text in context", () => {
+                var result = a11y.violatingWidgets(
+                    multiItemImageWithoutAltTextInContext);
                 assert.strictEqual(result.length, 1);
                 assert.strictEqual(result[0], "image");
             });

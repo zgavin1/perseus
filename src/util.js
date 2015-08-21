@@ -431,7 +431,7 @@ var Util = {
         return urlParams;
     },
 
-    /** 
+    /**
      * Query string adder
      * Works for URLs without #.
      * Original from:
@@ -617,6 +617,19 @@ var Util = {
             textarea.selectionStart = pos;
             textarea.selectionEnd = pos;
         }
+    },
+
+    /**
+     * Returns the renderer type for the given itemData
+     *
+     * Currently the possible types are "simple" and "multi"
+     */
+    getItemRendererType: function(itemData) {
+        if (itemData.questions) {
+            return "multi";
+        }
+
+        return "simple";
     }
 };
 

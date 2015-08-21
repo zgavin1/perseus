@@ -7,6 +7,7 @@ var _ = require("underscore");
 
 var Traversal = require("./traversal.jsx");
 var Widgets = require("./widgets.js");
+var Util = require("./util.js");
 
 module.exports = {
     // Returns a list of widgets that cause a given perseus item to require
@@ -20,15 +21,32 @@ module.exports = {
         var widgets = [];
 
         // Traverse the question data
-        Traversal.traverseRendererDeep(
-            itemData.question,
-            null,
-            function(info) {
-                if (info.type && !Widgets.isAccessible(info)) {
-                    widgets.push(info.type);
-                }
+        var maybeAddWidget = function(info) {
+            if (info.type && !Widgets.isAccessible(info)) {
+                widgets.push(info.type);
             }
-        );
+        };
+
+        var rendererType = Util.getItemRendererType(itemData);
+        if (rendererType === "simple") {
+            Traversal.traverseRendererDeep(
+                itemData.question, null, maybeAddWidget
+            );
+        } else if (rendererType === "multi") {
+            _.each(itemData.questions, function(question) {
+                Traversal.traverseRendererDeep(
+                    question, null, maybeAddWidget
+                );
+            });
+
+            if (itemData.context) {
+                Traversal.traverseRendererDeep(
+                    itemData.context, null, maybeAddWidget
+                );
+            }
+        } else {
+            throw new Error("Invalid item renderer type: " + rendererType);
+        }
 
         // Uniquify the list of widgets (by type)
         return _.uniq(widgets);
