@@ -386,6 +386,66 @@ var sampleGroupWithRadioItem = {
     "hints": []
 };
 
+var sampleImpossibleInputNumberMultiItem = {
+    "questions": [
+        {
+            "content": "[[☃ input-number 1]]",
+            "images": {},
+            "widgets": {
+                "input-number 1": {
+                    "type": "input-number",
+                    "graded": true,
+                    "options": {
+                        "value": "0",
+                        "simplify": "required",
+                        "size": "normal",
+                        "inexact": false,
+                        "maxError": 0.1,
+                        "answerType": "number"
+                    },
+                    "version": {
+                        "major": IMPOSSIBLY_HIGH_VERSION_NUMBER,
+                        "minor": IMPOSSIBLY_HIGH_VERSION_NUMBER
+                    }
+                }
+            }
+        }
+    ],
+};
+
+var sampleImpossibleInputNumberMultiItemContext = {
+    "questions": [
+        {
+            "content": "",
+            "images": {},
+            "widgets": {}
+        }
+    ],
+
+    "context": {
+        "content": "[[☃ input-number 1]]",
+        "images": {},
+        "widgets": {
+            "input-number 1": {
+                "type": "input-number",
+                "graded": true,
+                "options": {
+                    "value": "0",
+                    "simplify": "required",
+                    "size": "normal",
+                    "inexact": false,
+                    "maxError": 0.1,
+                    "answerType": "number"
+                },
+                "version": {
+                    "major": IMPOSSIBLY_HIGH_VERSION_NUMBER,
+                    "minor": IMPOSSIBLY_HIGH_VERSION_NUMBER
+                }
+            }
+        }
+    },
+};
+
 describe("Renderability", () => {
     describe("isItemRenderableByVersion", () => {
         describe("Current Perseus Version", () => {
@@ -426,6 +486,26 @@ describe("Renderability", () => {
                 assert.strictEqual(result1, false);
                 assert.strictEqual(result2, false);
                 assert.strictEqual(result3, false);
+            });
+
+            it("multi item should not be able to render future widgets",
+               () => {
+                   assert.strictEqual(
+                       Renderability.isItemRenderableByVersion(
+                           sampleImpossibleInputNumberMultiItem,
+                           PerseusItemVersion
+                       ), false
+                   );
+            });
+
+            it("multi item should not be able to render future" +
+               "widgets in context", () => {
+                   assert.strictEqual(
+                       Renderability.isItemRenderableByVersion(
+                           sampleImpossibleInputNumberMultiItemContext,
+                           PerseusItemVersion
+                       ), false
+                   );
             });
         });
 

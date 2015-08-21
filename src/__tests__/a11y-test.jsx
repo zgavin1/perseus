@@ -349,6 +349,56 @@ var multiItemImageWithoutAltTextInContext = {
                 }
             }
         }
+    }
+};
+
+var multiItemImageWithoutAltTextInContext = {
+    "questions": [
+        {
+            "content": "",
+            "images": {},
+            "widgets": {},
+        }
+    ],
+
+    "context": {
+        "content": "hello\n\n[[☃ image 1]]\n\n",
+        "images": {},
+        "widgets": {
+            "image 1": {
+                "type": "image",
+                "graded": true,
+                "options": {
+                    "title": "",
+                    "range": [
+                        [
+                            0,
+                            10
+                        ],
+                        [
+                            0,
+                            10
+                        ]
+                    ],
+                    "box": [
+                        350,
+                        150
+                    ],
+                    "backgroundImage": {
+                        "url": "http://placehold.it/350x150",
+                        "width": 350,
+                        "height": 150
+                    },
+                    "labels": [],
+                    "alt": "",
+                    "caption": ""
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0
+                }
+            }
+        }
     },
 };
 

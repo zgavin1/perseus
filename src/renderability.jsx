@@ -12,6 +12,7 @@ var _ = require("underscore");
 
 var Traversal = require("./traversal.jsx");
 var Widgets = require("./widgets.js");
+var Util = require("./util.js");
 
 var isUpgradedWidgetInfoRenderableBy =
         function(widgetInfo, widgetRendererVersion) {
@@ -74,6 +75,25 @@ var isItemRenderableBy = function(itemData, rendererContentVersion) {
     if (itemData == null || rendererContentVersion == null) {
         throw new Error("missing parameter to Perseus.isRenderable.item");
     }
+
+    if (Util.getItemRendererType(itemData) === "multi") {
+        var contextIsRenderable = true;
+
+        if (itemData.context) {
+            contextIsRenderable = isRendererContentRenderableBy(
+                itemData.context,
+                rendererContentVersion
+            );
+        }
+
+        return _.all(_.map(itemData.questions, function(question) {
+            return isRendererContentRenderableBy(
+                question,
+                rendererContentVersion
+            );
+        })) && contextIsRenderable;
+    }
+
     return isRendererContentRenderableBy(
         itemData.question,
         rendererContentVersion
