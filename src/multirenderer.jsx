@@ -369,20 +369,17 @@ var MultiRenderer = React.createClass({
      */
     _renderQuestionReviewNote: function(score) {
         if (!score || score.type === "invalid") {
-            return <span
-                    className="question-note question-note-not-answered">
+            return <span className="question-note question-note-not-answered">
                 Not answered
-            </span>;
-        } else if (score.earned !== score.total) {
-            return <span className="question-note question-note-incorrect">
-                Incorrect
             </span>;
         } else if (score.earned === score.total) {
             return <span className="question-note question-note-correct">
                 Correct
             </span>;
         } else {
-            return null;
+            return <span className="question-note question-note-incorrect">
+                Incorrect
+            </span>;
         }
     },
 
@@ -407,14 +404,9 @@ var MultiRenderer = React.createClass({
         var num = this.props.questionNumbers.start + questionIndex;
         var total = this.props.questionNumbers.totalQuestions;
 
-        if (reviewNote) {
-            return <div key={`question-number-${questionIndex}`}>
-                Question {num} of {total}: {reviewNote}
-            </div>;
-        }
-
-        return <div key={`question-number-${questionIndex}`}>
-            Question {num} of {total}
+        return <div className="question-number"
+                    key={`question-number-${questionIndex}`}>
+            Question {num} of {total}{reviewNote ? ":" : ""} {reviewNote}
         </div>;
     },
 
