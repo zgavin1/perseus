@@ -11,6 +11,7 @@ var InputWithExamples = require("../components/input-with-examples.jsx");
 var MultiButtonGroup = require("react-components/multi-button-group.jsx");
 var NumberInput = require("../components/number-input.jsx");
 var ParseTex = require("../tex-wrangler.js").parseTex;
+var PossibleAnswers = require("../components/possible-answers.jsx");
 var PropCheckBox = require("../components/prop-check-box.jsx");
 var TextInput = require("../components/text-input.jsx");
 
@@ -79,17 +80,18 @@ var NumericInput = React.createClass({
     render: function() {
         // HACK(johnsullivan): Create a function with shared logic between this
         // and InputNumber.
+        var correct;
+        var answerBlurb;
         var rubric = this.props.reviewModeRubric;
         if (rubric) {
             var score = this.simpleValidate(rubric);
-            var correct = score.type === "points" &&
-                          score.earned === score.total;
+            correct = score.type === "points" &&
+                      score.earned === score.total;
 
-            var answerBlurb = null;
             if (!correct) {
                 var correctAnswers = _.filter(
                     rubric.answers, (answer) => answer.status === "correct");
-                var answerComponents = _.map(correctAnswers, (answer, key) => {
+                var answerStrings = _.map(correctAnswers, (answer) => {
                     // Figure out how this answer is supposed to be displayed
                     var format = "decimal";
                     if (answer.answerForms && answer.answerForms[0]) {
@@ -97,7 +99,7 @@ var NumericInput = React.createClass({
                         // it does behave well for all the currently known
                         // problems. See D14742 for some discussion on
                         // alternate strategies.
-                        format = answer.answerForms[0]
+                        format = answer.answerForms[0];
                     }
 
                     var answerString = KhanUtil.toNumericString(answer.value,
@@ -106,13 +108,9 @@ var NumericInput = React.createClass({
                         answerString += " \u00B1 " +
                             KhanUtil.toNumericString(answer.maxError, format);
                     }
-                    return <span key={key} className="perseus-possible-answer">
-                        {answerString}
-                    </span>
+                    return answerString;
                 });
-                answerBlurb = <span className="perseus-possible-answers">
-                    {answerComponents}
-                </span>;
+                answerBlurb = <PossibleAnswers answers={answerStrings} />;
             }
         }
 
@@ -255,8 +253,8 @@ _.extend(NumericInput, {
                         answer.simplify : "optional",
                     inexact: true, // TODO(merlob) backfill / delete
                     maxError: answer.maxError,
-                    forms: (answer.strict && answer.answerForms 
-                            && answer.answerForms.length !== 0) ?
+                    forms: (answer.strict && answer.answerForms &&
+                            answer.answerForms.length !== 0) ?
                             answer.answerForms : allAnswerForms
             });
 
@@ -273,10 +271,10 @@ _.extend(NumericInput, {
             // The coefficient is an attribute of the widget
             var localValue = currentValue;
             if (rubric.coefficient) {
-                if (localValue == "") {
+                if (!localValue) {
                     localValue = 1;
                 }
-                else if (localValue == "-") {
+                else if (localValue === "-") {
                     localValue = -1;
                 }
             }
@@ -355,7 +353,6 @@ var NumericInputEditor = React.createClass({
     },
 
     render: function() {
-        var lastStatus = this.state.lastStatus; // for a phantom last answer
         var answers = this.props.answers;
 
         var unsimplifiedAnswers = (i) => <div className="perseus-widget-row">
@@ -458,7 +455,10 @@ var NumericInputEditor = React.createClass({
                     coefficient={this.props.coefficient}
                     onChange={this.props.onChange} />
                 <InfoTip>
-                    <p>A coefficient style number allows the student to use - for -1 and an empty string to mean 1.</p>
+                    <p>
+                        A coefficient style number allows the student to use -
+                        for -1 and an empty string to mean 1.
+                    </p>
                 </InfoTip>
             </div>
         </div>;
@@ -533,20 +533,23 @@ var NumericInputEditor = React.createClass({
                     <a href="javascript:void(0)"
                         className={"answer-status " + answer.status}
                         onClick={() => this.onStatusChange(i)}
-                        onKeyDown={(e) => this.onSpace(e, this.onStatusChange, i)}>
+                        onKeyDown={(e) =>
+                            this.onSpace(e, this.onStatusChange, i)}>
                         {answer.status}
                     </a>
                     <a
                         href="javascript:void(0)"
                         className="answer-trash"
                         onClick={() => this.onTrashAnswer(i)}
-                        onKeyDown={(e) => this.onSpace(e, this.onTrashAnswer, i)}>
+                        onKeyDown={(e) =>
+                            this.onSpace(e, this.onTrashAnswer, i)}>
                       <span className="icon-trash" />
                     </a>
                     <a href="javascript:void(0)"
                         className="options-toggle"
                         onClick={() => this.onToggleOptions(i)}
-                        onKeyDown={(e) => this.onSpace(e, this.onToggleOptions, i)}>
+                        onKeyDown={(e) =>
+                            this.onSpace(e, this.onToggleOptions, i)}>
                       <i className="icon-gear" />
                     </a>
                 </div>
@@ -617,9 +620,10 @@ var NumericInputEditor = React.createClass({
 
         var answers = _.clone(this.props.answers);
 
-        // Don't bother to make a new answer box unless we are editing the last one
+        // Don't bother to make a new answer box unless we are editing the last
+        // one.
         // TODO(michelle): This might not be necessary anymore.
-        if (choiceIndex == answers.length) {
+        if (choiceIndex === answers.length) {
             var lastAnswer = initAnswer(this.state.lastStatus);
             var answers = answers.concat(lastAnswer);
         }
@@ -646,8 +650,11 @@ var NumericInputEditor = React.createClass({
             warnings.push("No label is specified");
         }
         this.props.answers.forEach((answer, i) => {
-            if (answer.strict && (!answer.answerForms || answer.answerForms.length === 0)) {
-                warnings.push("Answer " + (i + 1) + " is set to strict format matching, but no format was selected");
+            var formatError = (answer.strict &&
+                (!answer.answerForms || answer.answerForms.length === 0));
+            if (formatError) {
+                warnings.push(`Answer ${i+1} is set to string format ` +
+                              "matching, but no format was selected");
             }
         });
         return warnings;
