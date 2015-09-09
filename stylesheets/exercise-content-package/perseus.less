@@ -609,57 +609,59 @@
     @satSectionHeight: 550px;
     @satContentWidth: 592px;
 
+    .perseus-input-with-answer-blurb {
+        > * {
+            display: inline-block;
+        }
+
+        .perseus-possible-answers, .perseus-possible-answers:before {
+            font-family: "Proxima Nova Semibold"
+        }
+
+        .perseus-possible-answers {
+            color: rgb(0, 153, 0);
+            padding-right: 4px;
+        }
+
+        .perseus-possible-answers:before {
+            content: "CORRECT ANSWER:";
+            padding: 0 5px 0 13px;
+            color: rgb(18, 18, 18);
+        }
+
+        .perseus-possible-answer:not(:first-child):before {
+            // TODO(johnsullivan): Figure out a better way to do this list
+            // joining.
+            content: "or";
+            padding: 0 5px;
+            color: rgb(18, 18, 18);
+        }
+    }
+
+    input.perseus-incorrect {
+        color: @satIncorrectColor;
+        background-color: @satIncorrectBackgroundColor;
+        border: solid 1px @satIncorrectBorderColor;
+    }
+
+    input.perseus-correct {
+        color: @satCorrectColor;
+        background-color: @satCorrectBackgroundColor;
+        border: solid 1px @satCorrectBorderColor;
+    }
+
+    input.perseus-unanswered {
+        background-color: #eee;
+        border: solid 1px #999;
+    }
+
     .content-area > div {
         margin-left: auto;
         margin-right: auto;
         width: @satContentWidth;
 
-        .perseus-input-with-answer-blurb {
-            > span {
-                display: inline-block;
-            }
-
-            .perseus-possible-answers, .perseus-possible-answers:before {
-                font-family: "Proxima Nova Semibold"
-            }
-
-            .perseus-possible-answers {
-                color: rgb(0, 153, 0);
-                padding-right: 4px;
-            }
-
-            .perseus-possible-answers:before {
-                content: "CORRECT ANSWER:";
-                padding: 0 5px 0 13px;
-                color: rgb(18, 18, 18);
-            }
-
-            .perseus-possible-answer:not(:first-child):before {
-                // TODO(johnsullivan): Figure out a better way to do this list
-                // joining.
-                content: "or";
-                padding: 0 5px;
-                color: rgb(18, 18, 18);
-            }
-        }
-
-        input.perseus-incorrect {
-            color: @satIncorrectColor;
-            background-color: @satIncorrectBackgroundColor;
-            border: solid 1px @satIncorrectBorderColor;
-        }
-
-        input.perseus-correct {
-            color: @satCorrectColor;
-            background-color: @satCorrectBackgroundColor;
-            border: solid 1px @satCorrectBorderColor;
-        }
-
-        input.perseus-unanswered {
-            background-color: #eee;
-            border: solid 1px #999;
-        }
-
+        // TODO(johnsullivan): Remove this after the transition to the
+        //     multi-renderer is complete.
         &.perseus-renderer-two-columns {
             width: 1024px;
 
@@ -734,18 +736,65 @@
                 }
             }
 
-            .question-annotation {
+            .question-annotation, .question-number {
                 margin-top: @satTopSpacingForTwoColumnLayout;
             }
         }
     }
 
-    .question-annotation {
+    .perseus-multirenderer {
+        width: @satContentWidth;
+        margin: 0 auto;
+
+        .col-content {
+            overflow-y: auto;
+        }
+    }
+
+    .perseus-multirenderer.one-column .col-content {
+        padding-top: @satTopSpacingForOneColumnLayout;
+    }
+
+    .perseus-multirenderer.two-column {
+        width: 1024px;
+        height: 100%;
+
+        .col-content {
+            padding-top: @satTopSpacingForTwoColumnLayout;
+            overflow-y: scroll;
+            height: 100%;
+        }
+
+        .context-col {
+            background: #eee;
+            border-right: 1px solid #ddd;
+        }
+
+        .questions-col .col-content {
+            padding-left: 32px;
+            padding-right: 32px;
+        }
+
+        .question-container {
+            margin-bottom: 48px;
+        }
+
+        .perseus-widget-passage {
+            // We've replaced the margin here with padding in the
+            // parent element to stay consistent with non-passage
+            // two-column mode.
+            margin-top: 0;
+        }
+    }
+
+    // TODO(johnsullivan): Remove the question-annotation selector after the
+    //     transition to the multi-renderer is complete.
+    .question-annotation, .question-number {
         // TODO(kitt): generalize for passages
         color: #999;
         font-size: 100%;
         font-family: inherit;
-        margin: @satTopSpacingForOneColumnLayout auto 24px auto;
+        margin-bottom: 24px;
 
         // (In the 2 column layout, the annotation's column is always a smaller
         // of 448px. So this combination of max-width and auto left/right
@@ -754,8 +803,14 @@
         text-transform: uppercase;
     }
 
-    .paragraph:not(:first-child) .question-annotation {
-        margin-top: 48px;
+    // TODO(johnsullivan): These only affects question annotations which are
+    //     being deprecated. Remove after we've finished moving to the
+    //     Multi-Renderer
+    .question-annotation {
+        margin: 48px auto 24px auto
+    }
+    .paragraph:first-child .question-annotation {
+        margin-top: @satTopSpacingForOneColumnLayout;
     }
 
     input[type=text],
@@ -795,12 +850,18 @@
         }
     }
 
+    // TODO(johnsullivan): Remove this after the transition to the
+    //     multi-renderer is complete.
     #sat-route-task {
+        // This will only select quesiton annotation that are rendered directly
+        // by the sat perseus renderer (when there is a single question item).
+        .sat-perseus-renderer > .question-annotation {
+            margin-top: @satTopSpacingForOneColumnLayout;
+        }
+
         // Only want the direct child of content-area because there are many
         // perseus-renderer divs.
         .content-area > .perseus-renderer {
-            margin-top: @satTopSpacingForOneColumnLayout;
-
             &.perseus-renderer-two-columns {
                 // Override column top margin to 0 (the first column will get
                 // the desired spacing by adding padding - to preserve the
