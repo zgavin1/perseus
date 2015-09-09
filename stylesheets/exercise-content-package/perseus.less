@@ -840,3 +840,33 @@
     padding: 20px;
     margin: 15px 0 10px;
 }
+
+.perseus-reference-card {
+    border: 2px solid rgb(255, 165, 0);
+    border-radius: 10px;
+    width: 532px;
+
+    > .reference-card-pair {
+        display: table;
+
+        > .reference-card-left, > .reference-card-right {
+            display: table-cell;
+            padding-left: 10px;
+            padding-right: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        > .reference-card-left {
+            width: 30%;
+
+            .paragraph.perseus-paragraph-centered:only-child {
+                margin: 0;
+            }
+        }
+
+        > .reference-card-right {
+            width: 70%;
+        }
+    }
+}
