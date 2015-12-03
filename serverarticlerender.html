@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>Perseus</title>
+
+<link rel="stylesheet" type="text/css" href="ke/css/khan-site.css" />
+<link rel="stylesheet" type="text/css" href="ke/css/khan-exercise.css" />
+<link rel="stylesheet" type="text/css" href="lib/katex/katex.css" />
+<link rel="stylesheet" type="text/css" href="lib/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="lib/mathquill/mathquill.css" />
+<link rel="stylesheet" type="text/css" href="build/perseus-5.css" />
+
+<style>
+/* Needed because we set a pagewide min-width of 1000px in khan-site.css */
+body {
+    min-width: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- Begin Perseus HTML -->
+<div id="perseus-container">{%CONTENT%}</div>
+<!-- End Perseus HTML -->
+
+<!-- put an empty div here so the margin on the perseus editor has something
+to "push against" (without the div, the padding goes off the page, and the
+add hint button ends up touching the bottom of the page). -->
+<div class="clear"></div>
+<script src="lib/babel-polyfills.min.js"></script>
+<script src="lib/jquery.js"></script>
+<script src="lib/underscore.js"></script>
+<script src="lib/react-with-addons.js"></script>
+<script src="ke/third_party/MathJax/2.1/MathJax.js?config=KAthJax-3d6f4e415c7ff2242f5279bfbcbb5c9f&amp;delayStartupUntil=configured"></script>
+<script src="lib/katex/katex.js"></script>
+<script src="lib/mathquill/mathquill-basic.js"></script>
+<script src="lib/kas.js"></script>
+
+<script>
+    var icu = {
+        getDecimalFormatSymbols: function() {
+            return {
+                decimal_separator: ".",
+                grouping_separator: ",",
+                minus: "-"
+            };
+        }
+    };
+    var KhanUtil = {
+        debugLog: function() {},
+        localeToFixed: function(num, precision) {
+            return num.toFixed(precision);
+        }
+    };
+    var Khan = {
+        Util: KhanUtil,
+        error: function() {},
+        query: {debug: ""},
+        imageBase: "/ke/images/",
+        scratchpad: {
+            enable: function() {},
+            disable: function() {}
+        }
+    };
+</script>
+
+<script src="ke/local-only/i18n.js"></script>
+<script src="ke/local-only/jquery.qtip.js"></script>
+<script src="ke/exercises-stub.js"></script>
+<script src="ke/local-only/require.js"></script>
+
+<script>
+(function() {
+
+requirejs.config({
+    waitSeconds: 120
+});
+
+// Load khan-exercises modules, then perseus
+require(["ke-deps.js"], function() {
+    // pre built
+    require(["build/perseus-5.js"], initPerseus);
+
+    // pre built with source maps
+    // require(["build/perseus.debug.js"], initPerseus);
+
+    // built on demand
+    // require(["live-build/perseus.js"], initPerseus);
+});
+
+function initPerseus(Perseus) {
+
+window.Perseus = Perseus;
+window.ReactDOM = React.__internalReactDOM;
+
+var props = {%PROPS%};
+
+Perseus.init({skipMathJax: false}).then(function() {
+    var _ = window._;
+
+    var rendererProps = _.extend(props, {
+        apiOptions: {
+            enableOldAnswerTypes: true,
+            fancyDropdowns: true,
+            __onInputError: function() {
+                var args = _.toArray(arguments);
+                console.log.apply(console, ["onInputError:"].concat(args));
+                return true;
+            },
+            __interceptInputFocus: function() {
+                var args = _.toArray(arguments);
+                console.log.apply(console, ["interceptInputFocus:"].concat(args));
+                return;
+            },
+            onFocusChange: function(newPath, oldPath) {
+                console.log("onFocusChange", newPath, oldPath);
+            },
+            __staticRender: true
+        },
+    });
+
+    var ArticleRenderer = React.createFactory(Perseus.ArticleRenderer);
+    ReactDOM.render(
+        ArticleRenderer(rendererProps, null),
+        document.getElementById("perseus-container")
+    );
+}).then(function() {
+}, function(err) {
+    console.error(err);
+});
+
+}
+
+})();
+</script>
+
+</body>
+</html>

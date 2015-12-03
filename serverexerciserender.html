@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>Perseus render</title>
+
+<link rel="stylesheet" type="text/css" href="/ke/css/khan-site.css" />
+<link rel="stylesheet" type="text/css" href="/ke/css/khan-exercise.css" />
+<link rel="stylesheet" type="text/css" href="/lib/katex/katex.css" />
+<link rel="stylesheet" type="text/css" href="/lib/mathquill/mathquill.css" />
+<link rel="stylesheet" type="text/css" href="build/perseus-5.css" />
+
+</head>
+<body>
+
+  <div id="perseus-container">{%CONTENT%}</div>
+
+<div id="extras" style="margin: 20px;">
+    <button id="score">Score</button>
+    <span id="scratchpadEnabled" style="margin-left: 15px;">
+        Scratchpad available
+    </span>
+</div>
+
+<script src="lib/babel-polyfills.min.js"></script>
+<script src="/lib/es5-shim.js"></script>
+<script src="/lib/jquery.js"></script>
+<script src="/lib/underscore.js"></script>
+<script src="/lib/react-with-addons.js"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full&amp;delayStartupUntil=configured"></script>
+<script src="/lib/katex/katex.js"></script>
+<script src="/lib/mathquill/mathquill-basic.js"></script>
+<script src="/lib/kas.js"></script>
+
+<script>
+    var KhanUtil = {
+        debugLog: function() {}
+    };
+    var Khan = {
+        Util: KhanUtil,
+        error: function() {},
+        query: {debug: ""},
+        imageBase: "/ke/images/",
+        scratchpad: {
+            enable: function() {
+                Khan.scratchpad.enabled = true;
+                document.getElementById("scratchpadEnabled").innerText =
+                    "Scratchpad available";
+            },
+            disable: function() {
+                Khan.scratchpad.enabled = false;
+                document.getElementById("scratchpadEnabled").innerText =
+                    "Scratchpad not available";
+            },
+            enabled: true,
+        }
+    };
+</script>
+
+<script src="/ke/local-only/i18n.js"></script>
+<script src="/ke/local-only/jquery.qtip.js"></script>
+<script src="/ke/exercises-stub.js"></script>
+<script src="ke/local-only/require.js"></script>
+
+<script>
+(function() {
+
+// Load khan-exercises modules, then perseus
+require(["ke-deps.js"], function() {
+    // pre built
+    require(["build/perseus-5.js"], initPerseus);
+
+    // pre built with source maps
+    // require(["build/perseus.debug.js"], initPerseus);
+
+    // built on demand
+    // require(["live-build/perseus.js"], initPerseus);
+});
+
+$('#score').on('click', function() {
+    console.log(window.itemRenderer.scoreInput());
+});
+
+function initPerseus(Perseus) {
+
+window.Perseus = Perseus;
+window.ReactDOM = React.__internalReactDOM;
+
+var props = {%PROPS%}
+
+$('#take-hint').on('click', function() {
+    window.itemRenderer.showHint();
+});
+
+$('#check-answer').on('click', function() {
+    var score = window.itemRenderer.scoreInput();
+
+    if (score.empty) {
+        return;
+    } else if (score.correct) {
+        $('#positive-reinforcement').show();
+        $('#check-answer').val('Correct!');
+    } else {
+        $('#check-answer').val('Incorrect, try again.');
+    }
+});
+
+Perseus.init({}).then(function() {
+    var itemMountNode = document.getElementById("perseus-container");
+    var ItemRenderer = React.createFactory(Perseus.ServerItemRenderer);
+    window.itemRenderer = ReactDOM.render(ItemRenderer(props), itemMountNode);
+    window.itemRenderer.focus();
+}).then(function() {
+    console.log("all done.", +new Date/1000);
+}, function(err) {
+    console.error(err);
+});
+
+}
+
+})();
+</script>
+
+</body>
+</html>

@@ -46,7 +46,7 @@ var InputWithExamples = React.createClass({
         return {
             focused: false,
             showExamples: false,
-            tooltipId: "input-with-examples-tooltip-" + (tooltipCounter++),
+            tooltipId: "input-with-examples-tooltip-" + (tooltipCounter),
         };
     },
 
