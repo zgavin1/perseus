@@ -34,6 +34,7 @@
     }
 }
 
+<<<<<<< ba3583848e78ce1ad3e4880e45e43ab6ab4c046b
 // Styles specifically for tablet native. We have updated radio button phone
 // styling, but not yet for native. This is the old native styling
 // (old as of 4/25) -- perhaps we will update these if/when we get updated
@@ -42,6 +43,19 @@
 //     everywhere.
 @media (min-width: @pure-md-min) {
     body.mobile {
+        .framework-perseus div.instructions {
+            margin-bottom: 20px;
+        }
+
+        #answer_area label {
+            display: block;
+        }
+
+        .framework-perseus #problemarea input[type=checkbox],
+        .framework-perseus #problemarea input[type=radio] {
+            border-width: 2px;
+        }
+
         .framework-perseus #problemarea input[type=radio],
         .framework-perseus #problemarea input[type=checkbox] {
             float: left;
@@ -52,6 +66,10 @@
             background: none;
             color: @gray;
             margin-left: 0;
+
+            .interactive-component {
+                display: block;
+            }
 
             span.checkbox {
                 .perseus-interactive;
@@ -113,6 +131,7 @@
                 border: 2px solid @gray;
                 border-radius: 25px;
                 float: left;
+                margin-left: 0;
             }
 
             input[type=radio] {
@@ -129,6 +148,8 @@
             input[type=checkbox] {
                 position: absolute;
                 outline: none;
+                width: 25px;
+                height: 25px;
 
                 &:before {
                     color: @gray;
@@ -138,6 +159,7 @@
                     top: 1px;
                 }
                 &:checked {
+                    background: "none";
                     border-color: @blue;
                     &:before {
                         color: @blue;
