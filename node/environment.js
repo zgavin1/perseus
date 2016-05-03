@@ -46,3 +46,5 @@ global.expect = function(thing) {
     };
 };
 
+const oldNavigator = global.navigator;
+global.navigator = { userAgent: "Node" };
