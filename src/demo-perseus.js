@@ -5,7 +5,7 @@
  * to demonstrate and develop the Perseus application
  */
 
-let _DemoComponent = null;
+let DemoComponent = null;
 window.icu = {
     getDecimalFormatSymbols: function() {
         return {
@@ -28,8 +28,8 @@ window.Khan = {
     imageBase: "/images/",
     scratchpad: {
         _updateComponent: function() {
-            if (_DemoComponent) {
-                _DemoComponent.forceUpdate();
+            if (DemoComponent) {
+                DemoComponent.forceUpdate();
             }
         },
         enable: function() {
@@ -65,23 +65,40 @@ const ReactDOM = window.ReactDOM = React.__internalReactDOM;
 const EditorDemo = require('./editor-demo.jsx');
 const RendererDemo = require('./renderer-demo.jsx');
 
+
+const defaultQuestion = {
+    "question": {
+        "content": "",
+        "images": {},
+        "widgets": {},
+    },
+    "answerArea": {
+        "calculator": false,
+    },
+    "itemDataVersion": {
+        "major": 0,
+        "minor": 1,
+    },
+    "hints": [],
+};
+
 const query = Perseus.Util.parseQueryString(window.location.hash.substring(1));
-const question = query.content ? JSON.parse(query.content) : undefined;
+const question = query.content ? JSON.parse(query.content) : defaultQuestion;
 const problemNum = Math.floor(Math.random() * 100);
 
 // React router v20XX
-const pathname = window.location.pathname;
+const path = window.location.search.substring(1);
 const routes = { // The value is spread across a React.createElement call
-    '/renderer': [RendererDemo],
-    '/': [EditorDemo, {question, problemNum}],
+    'renderer': [RendererDemo, {question, problemNum}],
+    '': [EditorDemo, {question, problemNum}],
 };
 
 Perseus.init({skipMathJax: false}).then(function() {
-    _DemoComponent = ReactDOM.render(
-        React.createElement(...(routes[pathname] || routes['/'])),
+    DemoComponent = ReactDOM.render(
+        React.createElement(...(routes[path] || routes[''])),
         document.getElementById("perseus-container")
     );
 }).then(function() {
 }, function(err) {
-    console.error(err); // eslint-disable-line
+    console.error(err); // @Nolint
 });
