@@ -19,6 +19,7 @@ var InputWithExamples = require("../components/input-with-examples.jsx");
 var MathInput = require("../components/math-input.jsx");
 var TeX = require("react-components/tex.jsx");// OldExpression only
 var TexButtons = require("../components/tex-buttons.jsx");
+var NewMathInput = require("../../math-input/src/components/input/math-input.js");
 
 var EnabledFeatures = require("../enabled-features.jsx");
 
@@ -118,7 +119,13 @@ var Expression = React.createClass({
     },
 
     render: function() {
-        if (this.props.apiOptions.staticRender) {
+        // TODO(charlie): Move this onto `apiOptions`.
+        const externalKeypad = true;
+        if (externalKeypad) {
+            return <NewMathInput
+                ref="input"
+            />;
+        } else if (this.props.apiOptions.staticRender) {
             // To make things slightly easier, we just use an InputWithExamples
             // component to handle the static rendering, which is the same
             // component used by InputNumber and NumericInput
@@ -240,11 +247,11 @@ var Expression = React.createClass({
     },
 
     focusInputPath: function(inputPath) {
-        this.refs.input.focus();
+        // this.refs.input.focus();
     },
 
     blurInputPath: function(inputPath) {
-        this.refs.input.blur();
+        // this.refs.input.blur();
     },
 
     // HACK(joel)

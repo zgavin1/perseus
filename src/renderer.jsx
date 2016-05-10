@@ -18,6 +18,8 @@ var TeX = require("react-components/tex.jsx");
 var WidgetContainer = require("./widget-container.jsx");
 var Widgets = require("./widgets.js");
 var getHintsIndex = require("./get-hints-index.jsx");
+var Keypad = require("../math-input/src/components/provided-keypad.js");
+var { configureKeypad, dismissKeypad } = require("../math-input/src/actions");
 
 var Util = require("./util.js");
 var EnabledFeatures = require("./enabled-features.jsx");
@@ -208,6 +210,11 @@ var Renderer = React.createClass({
     componentDidMount: function() {
         this.handleRender({});
         this._currentFocus = null;
+
+        const keypadContainer = document.createElement('div');
+        document.body.appendChild(keypadContainer);
+
+        ReactDOM.render(<Keypad />, keypadContainer);
     },
 
     componentWillReceiveProps: function(nextProps) {

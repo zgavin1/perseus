@@ -13,3 +13,6 @@
 [submodule "hubble"]
 	path = hubble
 	url = https://github.com/joelburget/hubble.git
+[submodule "math-input"]
+	path = math-input
+	url = git@github.com:Khan/math-input.git
