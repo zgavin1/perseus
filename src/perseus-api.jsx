@@ -44,6 +44,8 @@ module.exports = {
             isArticle: React.PropTypes.bool.isRequired,
             fancyDropdowns: React.PropTypes.bool.isRequired,
             responsiveStyling: React.PropTypes.bool.isRequired,
+            mobileStyling: React.PropTypes.bool.isRequired,
+            satStyling: React.PropTypes.bool.isRequired,
             onInputError: React.PropTypes.func.isRequired,
             onFocusChange: React.PropTypes.func.isRequired,
             staticRender: React.PropTypes.bool.isRequired,
@@ -89,6 +91,8 @@ module.exports = {
             isArticle: false,
             fancyDropdowns: false,
             responsiveStyling: false,
+            mobileStyling: false,
+            satStyling: false,
             onInputError: function() { },
             onFocusChange: function() { },
             staticRender: false,
@@ -115,4 +119,3 @@ module.exports = {
         UNANSWERED: "perseus-unanswered",
     },
 };
-

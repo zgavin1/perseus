@@ -1,17 +1,20 @@
 /* global i18n, $_ */
 
+const { StyleSheet, css } = require("aphrodite");
+const classNames = require("classnames");
 const React = require('react');
 const ReactDOM = require("react-dom");
 const _ = require("underscore");
 
 const ApiClassNames = require("../../perseus-api.jsx").ClassNames;
 const Renderer = require("../../renderer.jsx");
+const sharedStyles = require("../../styles/shared.js");
+const styleConstants = require("../../styles/constants.js");
+const mediaQueries = require("../../styles/media-queries.js");
 
 
 const captureScratchpadTouchStart =
         require("../../util.js").captureScratchpadTouchStart;
-
-const classNames = require("classnames");
 
 
 const Choice = require("./choice.jsx");
@@ -61,11 +64,15 @@ const ChoicesType = React.PropTypes.arrayOf(React.PropTypes.shape({
     isNoneOfTheAbove: React.PropTypes.bool,
 }));
 
+const radioBorder = styleConstants.grayLighter;
+
 const BaseRadio = React.createClass({
     propTypes: {
         apiOptions: React.PropTypes.shape({
             readOnly: React.PropTypes.bool,
             responsiveStyling: React.PropTypes.bool,
+            mobileStyling: React.PropTypes.bool,
+            satStyling: React.PropTypes.bool,
         }),
         choices: ChoicesType,
         deselectEnabled: React.PropTypes.bool,
@@ -75,6 +82,120 @@ const BaseRadio = React.createClass({
         onePerLine: React.PropTypes.bool,
         reviewModeRubric: React.PropTypes.shape({
             choices: ChoicesType,
+        }),
+    },
+
+    statics: {
+        styles: StyleSheet.create({
+            instructions: {
+                display: "block",
+                fontStyle: "italic",
+                fontWeight: "bold",
+            },
+
+            mobileInstructions: {
+                [mediaQueries.mdOrLarger]: {
+                    marginBottom: 20,
+                },
+            },
+
+            radio: {
+                // Avoid centering
+                width: "100%",
+            },
+
+            responsiveRadio: {
+                [mediaQueries.smOrSmaller]: {
+                    borderBottom: `1px solid ${radioBorder}`,
+                    borderTop: `1px solid ${radioBorder}`,
+                    marginLeft: styleConstants.negativePhoneMargin,
+                    marginRight: styleConstants.negativePhoneMargin,
+                    width: "auto",
+                },
+            },
+
+            mobileRadio: {
+                [mediaQueries.mdOrLarger]: {
+                    background: "none",
+                    color: styleConstants.gray,
+                    marginLeft: 0,
+                },
+            },
+
+            satRadio: {
+                background: "none",
+                marginLeft: 0,
+                marginTop: 24,
+                userSelect: "none",
+            },
+
+            mobileRadioOption: {
+                [mediaQueries.mdOrLarger]: {
+                    background: "white",
+                    position: "relative",
+                    border: `2px solid ${styleConstants.gray}`,
+                    borderRadius: 28,
+                    boxSizing: "border-box",
+                    cursor: "pointer",
+                    display: "block",
+                    font: `700 14pt/30px
+                        "Avenir", "Helvetica", "Arial", sans-serif`,
+                    marginLeft: 20,
+                    marginBottom: 10,
+                    overflow: "hidden",
+                    padding: "8px 10px",
+                    ":active": {
+                        backgroundColor: styleConstants.blue,
+                        borderColor: styleConstants.blue,
+                        color: "white",
+                    },
+                },
+            },
+
+            satRadioOption: {
+                margin: 0,
+                padding: 0,
+            },
+
+            satReviewRadioOption: {
+                pointerEvents: "none",
+            },
+
+            mobileRadioSelected: {
+                [mediaQueries.mdOrLarger]: {
+                    borderColor: styleConstants.blue,
+                    color: styleConstants.blue,
+                    fontWeight: "bold",
+                    ":active": {
+                        color: "white",
+                    },
+                },
+            },
+
+            item: {
+                padding: "7px 0",
+                marginLeft: 20,
+            },
+
+            inlineItem: {
+                display: "inline-block",
+                paddingLeft: 20,
+            },
+
+            responsiveItem: {
+                [mediaQueries.smOrSmaller]: {
+                    marginLeft: 0,
+                    padding: 0,
+
+                    ":active": {
+                        backgroundColor: styleConstants.grayLight,
+                    },
+
+                    ":not(:last-child)": {
+                        borderBottom: `1px solid ${radioBorder}`,
+                    },
+                },
+            },
         }),
     },
 
@@ -118,18 +239,40 @@ const BaseRadio = React.createClass({
         const inputType = this.props.multipleSelect ? "checkbox" : "radio";
         const rubric = this.props.reviewModeRubric;
 
+        const styles = BaseRadio.styles;
+
+        const responsive = this.props.apiOptions.responsiveStyling;
+        const mobile = this.props.apiOptions.mobileStyling;
+        const sat = this.props.apiOptions.satStyling;
+
+        const className = classNames(
+            "perseus-widget-radio",
+            css(
+                sharedStyles.aboveScratchpad,
+                sharedStyles.blankBackground,
+                styles.radio,
+                responsive && styles.responsiveRadio,
+                mobile && styles.mobileRadio,
+                sat && styles.satRadio
+            ),
+            "above-scratchpad",
+            "blank-background",
+            {
+                "perseus-widget-radio-responsive": responsive,
+            }
+        );
+
+        const instructionsClassName = "instructions " + css(styles.instructions,
+            mobile && styles.mobileInstructions);
+
         return <fieldset className="perseus-widget-radio-fieldset">
             <legend className="perseus-sr-only">{this.props.multipleSelect ?
                 <$_>Select all that apply.</$_> :
                 <$_>Please choose from one of the following options.</$_>
             }</legend>
-            <ul className={"perseus-widget-radio " +
-                "above-scratchpad blank-background" +
-                (this.props.apiOptions.responsiveStyling ?
-                 " perseus-widget-radio-responsive" : "")}
-            >
+            <ul className={className}>
                 {this.props.multipleSelect &&
-                    <div className="instructions">
+                    <div className={instructionsClassName}>
                         <$_>Select all that apply.</$_>
                     </div>}
                 {this.props.choices.map(function(choice, i) {
@@ -148,11 +291,13 @@ const BaseRadio = React.createClass({
                         ref: `radio${i}`,
                         apiOptions: this.props.apiOptions,
                         checked: choice.checked,
+                        reviewMode: !!rubric,
                         correct: (rubric && rubric.choices[i].correct),
                         clue: choice.clue,
                         content: choice.content,
                         disabled: this.props.apiOptions.readOnly,
                         groupName: radioGroupName,
+                        isLastChoice: i === this.props.choices.length - 1,
                         showClue: reviewModeClues,
                         type: inputType,
                         pos: i,
@@ -168,10 +313,21 @@ const BaseRadio = React.createClass({
                     }
 
                     const className = classNames(
+                        css(
+                            styles.item,
+                            !this.props.onePerLine && styles.inlineItem,
+                            responsive && styles.responsiveItem,
+                            mobile && styles.mobileRadioOption,
+                            mobile &&
+                                choice.checked && styles.mobileRadioSelected,
+                            sat && styles.satRadioOption,
+                            sat && choice.checked && styles.satRadioSelected,
+                            sat && rubric && styles.satReviewRadioOption
+                        ),
                         // TODO(aria): Make test case for these API classNames
                         ApiClassNames.RADIO.OPTION,
-                        choice.checked && ApiClassNames.RADIO.SELECTED,
                         !this.props.onePerLine && "inline",
+                        choice.checked && ApiClassNames.RADIO.SELECTED,
                         (rubric && rubric.choices[i].correct &&
                             ApiClassNames.CORRECT
                         ),
