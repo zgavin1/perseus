@@ -134,10 +134,10 @@ ZoomService.prototype.handleZoomClick = function(e) {
     this._activeZoom.zoomImage();
 
     // todo(fat): probably worth throttling this
-    this._$window.on('scroll.zoom', $.proxy(this._scrollHandler, this));
+    //this._$window.on('scroll.zoom', $.proxy(this._scrollHandler, this));
 
     this._$document.on('keyup.zoom', $.proxy(this._keyHandler, this));
-    this._$document.on('touchstart.zoom', $.proxy(this._touchStart, this));
+    //this._$document.on('touchstart.zoom', $.proxy(this._touchStart, this));
 
     // we use a capturing phase here to prevent unintended js events
     // sadly no useCapture in jquery api (http://bugs.jquery.com/ticket/14953)
@@ -217,7 +217,8 @@ function Zoom(img) {
     this._$body = $(document.body);
 }
 
-Zoom.OFFSET = 80;
+//Zoom.OFFSET = 80;
+Zoom.OFFSET = 0;
 Zoom._MAX_WIDTH = 2560;
 Zoom._MAX_HEIGHT = 4096;
 
@@ -266,26 +267,35 @@ Zoom.prototype._calculateZoom = function() {
     var originalFullImageWidth = this._fullWidth;
     var originalFullImageHeight = this._fullHeight;
 
-    var maxScaleFactor = originalFullImageWidth / this._targetImage.width;
+    //var maxScaleFactor = originalFullImageWidth / this._targetImage.width;
+    var maxScaleFactor = originalFullImageHeight / this._targetImage.height;
 
     var viewportHeight = (window.innerHeight - Zoom.OFFSET);
     var viewportWidth = (window.innerWidth - Zoom.OFFSET);
 
-    var imageAspectRatio = originalFullImageWidth / originalFullImageHeight;
-    var viewportAspectRatio = viewportWidth / viewportHeight;
+    var imageAspectRatio = originalFullImageWidth / originalFullImageHeight;  // 2
+    var viewportAspectRatio = viewportWidth / viewportHeight;  // 0.5
+
+    this._imgScaleFactor = maxScaleFactor;
 
     if (originalFullImageWidth < viewportWidth && originalFullImageHeight <
-        viewportHeight) {
-        this._imgScaleFactor = maxScaleFactor;
+       viewportHeight) {
+       this._imgScaleFactor = maxScaleFactor;
 
-    } else if (imageAspectRatio < viewportAspectRatio) {
-        this._imgScaleFactor = (viewportHeight / originalFullImageHeight) *
-            maxScaleFactor;
-
-    } else {
-        this._imgScaleFactor = (viewportWidth / originalFullImageWidth) *
-            maxScaleFactor;
+    // full-height image is going to require horizontal panning
+    } else if (imageAspectRatio > viewportAspectRatio) {
+       this._imgScaleFactor = (viewportHeight / originalFullImageHeight) *
+           maxScaleFactor;
     }
+
+    //} else if (imageAspectRatio < viewportAspectRatio) {
+    //    this._imgScaleFactor = (viewportHeight / originalFullImageHeight) *
+    //        maxScaleFactor;
+
+    //} else {
+    //    this._imgScaleFactor = (viewportWidth / originalFullImageWidth) *
+    //        maxScaleFactor;
+    //}
 };
 
 Zoom.prototype._triggerAnimation = function() {
@@ -306,13 +316,15 @@ Zoom.prototype._triggerAnimation = function() {
         ') translate(' + this._translateX + 'px, ' + this._translateY +
         'px) translateZ(0)');
 
-    this._$body.addClass('zoom-overlay-open');
+    this._$body.addClass('zoom-overlay-open no-vert-scrolling');
+    $(document).addClass('no-vert-scrolling');
 };
 
 Zoom.prototype.close = function() {
     this._$body
-        .removeClass('zoom-overlay-open')
+        .removeClass('zoom-overlay-open no-vert-scrolling')
         .addClass('zoom-overlay-transitioning');
+    $(document).removeClass('no-vert-scrolling');
 
     this.$zoomedImage.css('transform', '');
 
