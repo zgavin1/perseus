@@ -232,13 +232,54 @@ Zoom.prototype.zoomImage = function() {
         this._fullHeight = Number(img.height);
         this._fullWidth = Number(img.width);
 
+        this._calculateZoom();
+
         // Set up our image to mirror the current image
-        img.height = this._targetImage.height;
-        img.width = this._targetImage.width;
+        //img.height = this._targetImage.height;
+        //img.width = this._targetImage.width;
         var imageOffset = this._imageOffset = $(this._targetImage).offset();
-        $zoomedImage.css("position", "absolute")
-            .css("top", imageOffset.top + "px")
-            .css("left", imageOffset.left + "px");
+
+        // XXX
+        var scrollTop = $(window).scrollTop();
+        var scrollLeft = $(window).scrollLeft();
+
+        var viewportY = scrollTop + (window.innerHeight / 2);
+        var viewportX = (window.innerWidth / 2);
+
+        var scaleFactor = this._imgScaleFactor;
+
+        var destinationCenterX = viewportX;
+        var destinationCenterY = viewportY;
+
+        var translatedX = 23;
+        var translatedY = 23;
+
+        var imageCenterY = this._imageOffset.top + (this._targetImage.height / 2);
+        var imageCenterX = this._imageOffset.left + (this._targetImage.width / 2);
+
+        this._translateY = (viewportY - imageCenterY) / scaleFactor;
+        this._translateX = (viewportX - imageCenterX) / scaleFactor;
+        // XXX - copied
+
+        //var translateX = 0;
+        //var translateY = 0;
+
+        var translateX = (imageCenterX - this._fullWidth / 2) - scrollLeft;
+        var translateY = (imageCenterY - scrollTop - this._fullHeight / 2) ;
+
+
+        var transformStr = ' translate(' + translateX + 'px,' + translateY + 'px)' + ' translateZ(0) ' + 'scale('+ (1 / this._imgScaleFactor) + ')';
+
+        this._restoreTransformStr = transformStr;
+
+        $zoomedImage
+            .css("position", "absolute")
+            .css({
+                left: 0,
+                top: 0,
+            })
+            .css('transform', transformStr);
+
         this._zoomOriginal();
     }.bind(this);
 
@@ -300,39 +341,109 @@ Zoom.prototype._calculateZoom = function() {
 };
 
 Zoom.prototype._triggerAnimation = function() {
-    var scrollTop = $(window).scrollTop();
-
-    var viewportY = scrollTop + (window.innerHeight / 2);
+    var viewportY = (window.innerHeight / 2);
     var viewportX = (window.innerWidth / 2);
 
     var scaleFactor = this._imgScaleFactor;
+    console.log('image stuff:', this._imageOffset.top, this._targetImage.height);
 
-    var imageCenterY = this._imageOffset.top + (this._targetImage.height / 2);
-    var imageCenterX = this._imageOffset.left + (this._targetImage.width / 2);
+    //var imageCenterY = this._imageOffset.top + (this._targetImage.height / 2);
+    //var imageCenterX = this._imageOffset.left + (this._targetImage.width / 2);
 
-    this._translateY = (viewportY - imageCenterY) / scaleFactor;
-    this._translateX = (viewportX - imageCenterX) / scaleFactor;
+    var imageCenterY = (this._fullHeight / 2);
+    var imageCenterX = (this._fullWidth / 2);
 
-    this.$zoomedImage.css('transform', 'scale(' + this._imgScaleFactor +
-        ') translate(' + this._translateX + 'px, ' + this._translateY +
-        'px) translateZ(0)');
+    //this._translateY = (viewportY - imageCenterY) / scaleFactor;
+    //this._translateX = (viewportX - imageCenterX) / scaleFactor;
+
+    this._translateY = (viewportY - imageCenterY);
+    this._translateX = (viewportX - imageCenterX);
+
+    //this.$zoomedImage.css('transform', 'scale(1) translateZ(0)');
+
+    this.$zoomedImage.css({
+        'transform': 'translate(' + this._translateX + 'px, ' + this._translateY + 'px) translateZ(0) scale(1)',
+        'transition': 'transform 300ms ease',
+    });
+
+    //this.$zoomedImage.css('transform', 'scale(' + this._imgScaleFactor +
+       //') translate(' + this._translateX + 'px, ' + this._translateY +
+       //'px) translateZ(0)')
+    //    .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
+    //        //this.$zoomedImage.css("position", "absolute");
+    //        //$(this._overlay).css("width", "100%");
+    //    });
 
     this._$body.addClass('zoom-overlay-open no-vert-scrolling');
     $(document).addClass('no-vert-scrolling');
+
+    setTimeout(() => {
+        // XXX avoid translating/scrolling if possible
+
+        // Positive case
+        this.newTranslateX = this._translateX;
+        this.newTranslateY = this._translateY;
+        this.overlayScrollLeft = 0;
+        this.overlayScrollTop = 0;
+
+        // We only need to scroll in the case of negative translations, because
+        // that seems to be the only case in which the browser won't let you
+        // scroll into.
+        if (this._translateX < 0) {
+            this.newTranslateX = 0;
+            this.overlayScrollLeft = -this._translateX;
+        }
+
+        if (this._translateY < 0) {
+            this.newTranslateY = 0;
+            this.overlayScrollTop = -this._translateY;
+        }
+
+        this.$zoomedImage.css({
+            'transform': `translate(${this.newTranslateX}px, ${this.newTranslateY}px) translateZ(0) scale(1)`,
+            'transition': 'none',
+        });
+
+        $(this._overlay)
+            .scrollLeft(this.overlayScrollLeft)
+            .scrollTop(this.overlayScrollTop);
+
+        console.log(this);
+
+    }, 300);
 };
 
 Zoom.prototype.close = function() {
     this._$body
         .removeClass('zoom-overlay-open no-vert-scrolling')
         .addClass('zoom-overlay-transitioning');
-    $(document).removeClass('no-vert-scrolling');
+    //$(document).removeClass('no-vert-scrolling');
 
-    this.$zoomedImage.css('transform', '');
+    var overlayScrollLeft = $(this._overlay).scrollLeft();
+    var overlayScrollTop = $(this._overlay).scrollTop();
 
-    this.$zoomedImage
-        .one($.support.transition.end, $.proxy(this.dispose, this))
-        .emulateTransitionEnd(300);
+    // XXX this answers the question of, did the image overflow, and thus we
+    // had to scroll? essentially we want the new translations to pin wherever
+    // the image is currently at.
+    var translateX = this._translateX < 0 ? -overlayScrollLeft : this._translateX;
+    var translateY = this._translateY < 0 ? -overlayScrollTop : this._translateY;
 
+    $(this._overlay).scrollLeft(0).scrollTop(0);
+
+    this.$zoomedImage.css({
+        'transform': `translate(${translateX}px, ${translateY}px) translateZ(0) scale(1)`,
+        'transition': 'none',
+    });
+
+    setTimeout(() => {
+        this.$zoomedImage
+            .css({
+                'transform': this._restoreTransformStr,
+                'transition': 'transform 300ms ease',
+            })
+            .one($.support.transition.end, $.proxy(this.dispose, this))
+            .emulateTransitionEnd(300);
+    }, 0);
 };
 
 Zoom.prototype.dispose = function() {
