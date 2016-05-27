@@ -257,7 +257,8 @@ Zoom.prototype._zoomOriginal = function() {
     this._overlay.className = 'zoom-overlay';
 
     document.body.appendChild(this._overlay);
-    document.body.appendChild(this.$zoomedImage[0]);
+    this._overlay.appendChild(this.$zoomedImage[0]);
+    //document.body.appendChild(this.$zoomedImage[0]);
 
     this._calculateZoom();
     this._triggerAnimation();
