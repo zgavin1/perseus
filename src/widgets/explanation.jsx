@@ -5,7 +5,9 @@
 var React = require("react");
 var ReactDOM = require("react-dom");
 var _ = require("underscore");
+const { StyleSheet } = require("aphrodite");
 
+const { zIndexInteractiveComponent } = require("../styles/constants.js");
 var Changeable = require("../mixins/changeable.jsx");
 var PerseusApi = require("../perseus-api.jsx");
 var Renderer = require("../renderer.jsx");
@@ -84,7 +86,8 @@ var Explanation = React.createClass({
 
     render: function() {
         return <div className="perseus-widget-explanation">
-            <a className="perseus-widget-explanation-link"
+            <this.props.apiOptions.baseElements.Link
+                style={styles.link}
                 /* Disable the link when read-only, so it doesn't look
                  * clickable */
                 href={this.props.apiOptions.readOnly ?
@@ -93,7 +96,7 @@ var Explanation = React.createClass({
 
                 {this.state.expanded ?
                     this.props.hidePrompt : this.props.showPrompt}
-            </a>
+            </this.props.apiOptions.baseElements.Link>
             <div className="perseus-widget-explanation-content" style={{
                     height: this.state.expanded ? this.state.contentHeight : 0,
                     overflow: this.state.expanded ? "visible" : "hidden"
@@ -114,6 +117,21 @@ var Explanation = React.createClass({
     simpleValidate: function(rubric) {
         return Explanation.validate(this.getUserInput(), rubric);
     }
+});
+
+const styles = StyleSheet.create({
+    link: {
+        fontSize: 12,
+        fontStyle: "italic",
+        zIndex: zIndexInteractiveComponent,
+
+        ":before": {
+            content: '"["',
+        },
+        ":after": {
+            content: '"]"',
+        },
+    },
 });
 
 _.extend(Explanation, {
